@@ -1,0 +1,39 @@
+# Admission regulation facts for the 2026 admission year (THPT exam-score method only).
+# Source: spec section 8, verified against the official text on 2026-09-29:
+#   Quy chế tuyển sinh đại học (Thông tư 08/2022/TT-BGDĐT, amended by Thông tư 06/2025/TT-BGDĐT)
+#   and the 2026 admission guidance (Công văn 2304/BGDĐT-GDĐH).
+# Change the facts in this file only from the official regulation text.
+
+admission_year: 2026
+source: "Thông tư 08/2022/TT-BGDĐT, sửa đổi bởi Thông tư 06/2025/TT-BGDĐT; Công văn 2304/BGDĐT-GDĐH"
+verified_by_owner: "2026-09-29"
+
+priority:
+  scale: 30                 # priority points are defined on the 30-point scale
+  area:                     # khu vực
+    KV1: 0.75
+    KV2-NT: 0.5
+    KV2: 0.25
+    KV3: 0.0
+  category:                 # đối tượng
+    none: 0.0
+    UT1: 2.0                # nhóm đối tượng 01-04
+    UT2: 1.0                # nhóm đối tượng 05-07
+  # A student whose total before priority is >= taper_from gets
+  # priority = (30 - total) / taper_denominator * base_priority.
+  taper_from: 22.5
+  taper_denominator: 7.5
+  # Area points count in the graduation year and this many years after it.
+  area_valid_years_after_graduation: 1
+  # Priority points (after the taper) are rounded half-up to this many decimals (2026-10-06).
+  round_decimals: 2
+
+floors:
+  # Ngưỡng đảm bảo chất lượng đầu vào (total including priority). The most specific prefix wins.
+  - {prefixes: ["772010", "772020", "772050"], min_total: 20.5, label: "Y khoa, Dược học, Răng-Hàm-Mặt"}
+  - {prefixes: ["7720"], min_total: 17.0, label: "Các ngành sức khỏe khác"}
+  - {prefixes: ["71402"], min_total: 19.0, label: "Đào tạo giáo viên (sư phạm)"}
+
+application:
+  max_wishes: 15            # at most 15 nguyện vọng
+  # Admitted to the highest-ranked wish whose cutoff the student passes.

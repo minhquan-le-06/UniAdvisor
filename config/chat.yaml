@@ -1,0 +1,17 @@
+# The chat's message classifier (spec 5). Values marked "default" may be tuned.
+
+classifier:
+  # LLM families used to write training messages (notebooks/chat_message_generation.ipynb) and the family held out
+  # for testing (spec 5: "tested on a different family"). A family is the base model line, not the fine-tune.
+  train_families: [qwen, aya, gemma]
+  test_family: mistral                 # SeaLLM-7B-v2, built on Mistral 7B (Vistral-7B-Chat: approval never came)
+  # Target scores (default). The trained model replaces the rules only when it reaches both, and beats the rules.
+  targets:
+    test_family_macro_f1: 0.90
+    checks_accuracy: 0.90               # on data/chat/checks.csv rows people have judged (status: reviewed)
+  # Below this probability the request is treated as "other" and the chat says what it can do (default).
+  other_threshold: 0.35
+  # Training data filter after Sahu et al. (2022): a generated message that a model trained on the other messages
+  # assigns to a different type with at least this probability is dropped as written for the wrong type (default).
+  relabel_filter_probability: 0.80
+  seed: 2027

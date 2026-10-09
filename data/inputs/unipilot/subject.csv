@@ -1,0 +1,23 @@
+﻿code,name_vi,name_en,first_year,last_year,status,chosen_fact_id
+VA,Ngữ văn,Literature,,,unconfirmed,4506
+TO,Toán,Mathematics,,,unconfirmed,4508
+SU,Lịch sử,History,,,unconfirmed,4510
+DI,Địa lí,Geography,,,unconfirmed,4514
+LI,Vật lí,Physics,,,unconfirmed,4518
+N1,Tiếng Anh,English,,,unconfirmed,4524
+HO,Hóa học,Chemistry,,,unconfirmed,4528
+GDKTPL,Giáo dục kinh tế và pháp luật,Economics and Law,,,unconfirmed,4534
+SI,Sinh học,Biology,,,unconfirmed,4542
+N3,Tiếng Pháp,French,,,unconfirmed,4548
+N4,Tiếng Trung,Chinese,,,unconfirmed,4554
+N6,Tiếng Nhật,Japanese,,,unconfirmed,4562
+N2,Tiếng Nga,Russian,,,unconfirmed,4576
+N5,Tiếng Đức,German,,,unconfirmed,4582
+NK,Năng khiếu (bài thi do trường tổ chức),Talent test (set by the school),,,unconfirmed,4596
+TI,Tin học,Informatics,,,unconfirmed,4653
+CNCN,Công nghệ công nghiệp,Industrial Technology,,,unconfirmed,4775
+CNNN,Công nghệ nông nghiệp,Agricultural Technology,,,unconfirmed,4781
+KHTN,Khoa học tự nhiên,Natural Sciences,,,unconfirmed,4869
+KHXH,Khoa học xã hội,Social Sciences,,,unconfirmed,4884
+NN,Ngoại ngữ,Foreign language,,,unconfirmed,4959
+N7,Tiếng Hàn,Korean,,,unconfirmed,4967

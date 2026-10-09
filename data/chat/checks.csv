@@ -1,0 +1,191 @@
+﻿text,type,status,origin,danh_gia,loai_dung,ghi_chu
+Toán em được 8.5,change_score,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+sửa điểm văn thành 7 giúp em,change_score,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+diem anh cua e la 9 nhe,change_score,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+lý em thi được tám phẩy hai lăm,change_score,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+hóa 6 thôi ạ,change_score,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+em vừa có điểm thật: toán 7.75 lý 8 hóa 6.5,change_score,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+cho em đổi điểm sinh lên 8,change_score,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+tin học dự kiến 9 điểm,change_score,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+mon su 5.25 a,change_score,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+"nhầm, tiếng anh là 8.25 chứ không phải 7.25",change_score,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+em ở KV1,change_priority,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+khu vuc cua em la kv2 nong thon,change_priority,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+em thuộc đối tượng 06,change_priority,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+nhà em ở khu vực 3 nha,change_priority,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+em ko thuộc diện ưu tiên nào cả,change_priority,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+sửa thành KV2-NT với ưu tiên 1,change_priority,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+em là con thương binh nhóm đối tượng 04,change_priority,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+UT2 ạ,change_priority,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+chuyển khu vực sang KV2,change_priority,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+em thuoc doi tuong uu tien 2 nhe,change_priority,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+ngân sách nhà em tầm 30 triệu một năm,change_budget,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+hoc phi toi da 50tr,change_budget,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+bố mẹ bảo học phí không quá 25 củ,change_budget,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+tăng ngân sách lên 60 triệu,change_budget,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+học phí bao nhiêu cũng được,change_budget,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+nhà em chỉ lo được khoảng 20 triệu/năm thôi,change_budget,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+ngan sach 1tr5 mot thang,change_budget,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+bỏ giới hạn học phí đi,change_budget,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+chi phí học tầm bốn mươi triệu,change_budget,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+budget 45 triệu,change_budget,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+em muốn học gần nhà,change_near_home,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+học xa cũng được không sao,change_near_home,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+ko can gan nha nua dau,change_near_home,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+mẹ em muốn em học gần nhà thôi,change_near_home,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+tắt chế độ gần nhà,change_near_home,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+em sẵn sàng đi xa học,change_near_home,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+gần nhà không quan trọng với em,change_near_home,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+em không muốn đi xa nhà đâu,change_near_home,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+bật gần nhà lên,change_near_home,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+học ở quê cho gần,change_near_home,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+NEU cộng cho em 1.5 điểm,extra_points,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+em có IELTS 6.5 Ngoại thương quy đổi được 2 điểm cộng,extra_points,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+trường Bách khoa Hà Nội cộng em 1 điểm,extra_points,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+diem cong o UEH la 0.5,extra_points,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+Học viện Ngân hàng cộng 1 điểm cho chứng chỉ của em,extra_points,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+em được cộng 3 điểm ở trường Kinh tế Quốc dân,extra_points,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+"Thương mại cộng cho em 0,75",extra_points,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+điểm cộng học sinh giỏi ở Bách khoa là 2,extra_points,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+FTU duoc cong 1d,extra_points,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+nhập điểm cộng 1.25 cho trường Hà Nội,extra_points,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+bỏ trường Bách khoa ra,remove,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+xóa NV3 đi,remove,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+em không thích trường Văn Lang,remove,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+loai truong Ton Duc Thang khoi danh sach,remove,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+bỏ nguyện vọng số 7,remove,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+gạch HUST đi giúp em,remove,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+xoá trường Ngoại thương với NV12,remove,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+em không muốn học ở Học viện Ngân hàng,remove,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+bo nv1,remove,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+loại Kinh tế Quốc dân,remove,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+đưa trường Bách khoa trở lại,restore,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+thêm lại NEU vào danh sách,restore,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+cho Văn Lang vào lại đi,restore,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+lấy lại nguyện vọng em vừa bỏ,restore,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+khôi phục trường Ngoại thương,restore,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+dua lai truong Ton Duc Thang,restore,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+em đổi ý rồi đưa Học viện Ngân hàng vào lại,restore,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+trả lại trường Kinh tế Quốc dân giúp em,restore,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+thêm lại trường mà em đã bỏ,restore,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+cho HUST quay lại danh sách,restore,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+đổi thứ tự hai lựa chọn,rerank,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+em thích lựa chọn 2 hơn đưa lên trước đi,rerank,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+dao nguoc thu tu 2 nganh,rerank,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+ưu tiên lựa chọn 2 lên đầu,rerank,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+hoán đổi lựa chọn 1 và 2,rerank,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+xếp lại thứ tự: lựa chọn 2 trước,rerank,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+cho ngành thứ hai lên trên ngành thứ nhất,rerank,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+đảo lại hai lựa chọn giúp em,rerank,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+doi cho 2 lua chon,rerank,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+lựa chọn 2 lên trước nhé,rerank,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+thay Quản trị kinh doanh bằng Marketing,replace_nganh,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+đổi ngành gần Kế toán thành Kiểm toán,replace_nganh,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+em muốn chuyển sang Logistics thay cho Kinh doanh quốc tế,replace_nganh,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+thêm ngành gần Trí tuệ nhân tạo,replace_nganh,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+bỏ ngành gần Khoa học máy tính,replace_nganh,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+doi lua chon 1 thanh Luat kinh te,replace_nganh,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+thay CNTT bằng KHMT,replace_nganh,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+chọn lại ngành: Tài chính - Ngân hàng thay vì Kế toán,replace_nganh,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+ngành gần em muốn là Thương mại điện tử,replace_nganh,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+chuyển lựa chọn 2 sang Ngôn ngữ Anh,replace_nganh,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+hoàn tác,undo,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+quay lại như cũ đi,undo,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+undo giúp em,undo,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+huỷ thay đổi vừa rồi,undo,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+lui lại một bước,undo,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+hoan tac thao tac vua xong,undo,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+"em lỡ tay, trở lại như trước",undo,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+huy thay doi vua roi,undo,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+cho em quay lại như cũ,undo,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+hoàn tác lần cuối,undo,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+vì sao NV3 lại ở vị trí đó?,ask_why_nv,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+tại sao nguyện vọng 1 là trường này,ask_why_nv,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+sao NV15 lại xếp cuối vậy,ask_why_nv,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+giải thích giúp em NV7,ask_why_nv,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+nv2 sao lai cao hon nv3,ask_why_nv,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+tại sao NV5 là mơ ước?,ask_why_nv,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+vi sao nv 10 o day,ask_why_nv,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+sao nguyện vọng số 4 lại là trường xa nhà,ask_why_nv,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+NV8 lý do gì mà nằm ở đó?,ask_why_nv,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+tại sao lại xếp NV1 như vậy,ask_why_nv,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+sao không có trường Kinh tế Quốc dân?,ask_why_not,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+tại sao không thấy Bách khoa trong danh sách,ask_why_not,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+NEU đâu rồi?,ask_why_not,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+sao danh sách thiếu trường Ngoại thương vậy,ask_why_not,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+vi sao khong co truong Ton Duc Thang,ask_why_not,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+trường Văn Lang sao không có,ask_why_not,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+sao mất trường Học viện Ngân hàng rồi?,ask_why_not,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+tại sao HUST không nằm trong danh sách,ask_why_not,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+em muốn hỏi sao không có trường Thương mại,ask_why_not,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+sao ko thay UEH,ask_why_not,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+CNTT với KHMT khác gì nhau?,ask_compare,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+so sánh giúp em Kế toán và Kiểm toán,ask_compare,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+Marketing và Quản trị kinh doanh khác nhau thế nào,ask_compare,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+nen chon Logistics hay Kinh doanh quoc te,ask_compare,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+Luật với Luật kinh tế khác chỗ nào?,ask_compare,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+Y khoa và Dược học cái nào hợp với em hơn,ask_compare,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+khác biệt giữa Trí tuệ nhân tạo và Khoa học dữ liệu,ask_compare,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+Ngôn ngữ Anh với Ngôn ngữ Trung khác gì,ask_compare,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+so sanh Tai chinh - Ngan hang voi Ke toan,ask_compare,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+Kỹ thuật phần mềm và Công nghệ thông tin giống nhau không?,ask_compare,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+ngành Logistics học gì?,ask_what_is,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+Khoa học máy tính ra trường làm gì,ask_what_is,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+Marketing có khó không ạ,ask_what_is,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+nganh Ke toan can gioi mon nao,ask_what_is,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+Trí tuệ nhân tạo là ngành gì vậy,ask_what_is,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+học Luật kinh tế ra lương có cao không,ask_what_is,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+Thương mại điện tử học những gì,ask_what_is,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+ngành Dược học có tương lai không,ask_what_is,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+cho em biết về ngành Ngôn ngữ Anh,ask_what_is,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+Quan hệ công chúng là gì,ask_what_is,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+thử sức nghĩa là gì?,ask_level,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+mức an toàn là sao ạ,ask_level,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+vừa sức hiểu thế nào,ask_level,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+mo uoc la gi,ask_level,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+"giải thích các mức giúp em: an toàn, vừa sức, thử sức, mơ ước",ask_level,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+NV mơ ước có nghĩa là em không đỗ à?,ask_level,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+an toàn có chắc đỗ không,ask_level,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+thu suc voi vua suc khac gi,ask_level,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+mức mơ ước nghĩa là sao,ask_level,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+ý nghĩa của mức vừa sức là gì,ask_level,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+hôm nay trời đẹp quá,other,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+em chào anh,other,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+bạn là ai vậy,other,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+cho em xin số điện thoại tư vấn tuyển sinh,other,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+lớp em mai thi học kỳ,other,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+ok cảm ơn,other,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+viết giúp em bài văn nghị luận,other,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+hihi,other,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+em buồn quá,other,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+điểm chuẩn năm sau bao nhiêu,other,reviewed,llm_drafted,đúng,,checked by a person 2026-10-07: all correct
+trường em thích nhất là Ngoại thương,favorite_school,reviewed,llm_drafted,đúng,,checked by a person 2026-10-08: all correct
+em muốn vào Bách khoa Hà Nội nhất,favorite_school,reviewed,llm_drafted,đúng,,checked by a person 2026-10-08: all correct
+truong e thich nhat la UEH,favorite_school,reviewed,llm_drafted,đúng,,checked by a person 2026-10-08: all correct
+chọn Kinh tế Quốc dân làm trường yêu thích giúp em,favorite_school,reviewed,llm_drafted,đúng,,checked by a person 2026-10-08: all correct
+dream school của em là Ngoại thương,favorite_school,reviewed,llm_drafted,đúng,,checked by a person 2026-10-08: all correct
+trường yêu thích của em là Đại học Y Hà Nội ạ,favorite_school,reviewed,llm_drafted,đúng,,checked by a person 2026-10-08: all correct
+em thích nhất trường Sư phạm Hà Nội,favorite_school,reviewed,llm_drafted,đúng,,checked by a person 2026-10-08: all correct
+bỏ trường yêu thích đi,favorite_school,reviewed,llm_drafted,đúng,,checked by a person 2026-10-08: all correct
+đổi trường yêu thích sang Bách khoa TP.HCM,favorite_school,reviewed,llm_drafted,đúng,,checked by a person 2026-10-08: all correct
+trường mơ ước của em là Học viện Ngân hàng,favorite_school,reviewed,llm_drafted,đúng,,checked by a person 2026-10-08: all correct
+điểm xét tuyển của em ở Bách khoa TP.HCM là 82,own_score,reviewed,llm_drafted,đúng,,checked by a person 2026-10-08: all correct
+"em tự tính điểm ở UIT được 27,5",own_score,reviewed,llm_drafted,đúng,,checked by a person 2026-10-08: all correct
+diem xet tuyen cua e o Bach khoa la 78.5,own_score,reviewed,llm_drafted,đúng,,checked by a person 2026-10-08: all correct
+theo cách tính của trường thì điểm xét tuyển của em ở Ngoại thương là 28,own_score,reviewed,llm_drafted,đúng,,checked by a person 2026-10-08: all correct
+điểm kết hợp của em ở trường Khoa học Tự nhiên TP.HCM là 85,own_score,reviewed,llm_drafted,đúng,,checked by a person 2026-10-08: all correct
+"em tính ra điểm xét tuyển ở UEH được 26,75",own_score,reviewed,llm_drafted,đúng,,checked by a person 2026-10-08: all correct
+điểm tự tính của em ở Kinh tế Quốc dân là 27 ạ,own_score,reviewed,llm_drafted,đúng,,checked by a person 2026-10-08: all correct
+nhập điểm xét tuyển Bách khoa Hà Nội của em: 80,own_score,reviewed,llm_drafted,đúng,,checked by a person 2026-10-08: all correct
+điểm của em tại trường Công nghệ thông tin là 90 trên thang 100,own_score,reviewed,llm_drafted,đúng,,checked by a person 2026-10-08: all correct
+bỏ điểm xét tuyển em tự tính ở Bách khoa,own_score,reviewed,llm_drafted,đúng,,checked by a person 2026-10-08: all correct
+"điểm chuẩn UIT nhiều điểm cộng lắm, thực ra thấp hơn 1 điểm",cutoff_shift,reviewed,llm_drafted,đúng,,checked by a person 2026-10-08: all correct
+"điểm chuẩn trường Ngoại thương với em cao hơn 0,5 điểm",cutoff_shift,reviewed,llm_drafted,đúng,,checked by a person 2026-10-08: all correct
+diem chuan Bach khoa that ra thap hon 1 diem,cutoff_shift,reviewed,llm_drafted,đúng,,checked by a person 2026-10-08: all correct
+"điểm chuẩn NEU bị đẩy lên do điểm cộng, em nghĩ thấp hơn 1,5",cutoff_shift,reviewed,llm_drafted,đúng,,checked by a person 2026-10-08: all correct
+30 điểm của trường Công nghệ thông tin không cao bằng 29 của Khoa học Tự nhiên,cutoff_shift,reviewed,llm_drafted,đúng,,checked by a person 2026-10-08: all correct
+"điểm chuẩn của UEH ảo, thấp hơn khoảng 1 điểm",cutoff_shift,reviewed,llm_drafted,đúng,,checked by a person 2026-10-08: all correct
+em nghĩ điểm chuẩn Y Hà Nội năm nay tăng 1 điểm,cutoff_shift,reviewed,llm_drafted,đúng,,checked by a person 2026-10-08: all correct
+điểm đầu vào trường Sư phạm thực ra khó hơn 0.5 điểm,cutoff_shift,reviewed,llm_drafted,đúng,,checked by a person 2026-10-08: all correct
+điểm chuẩn Bách khoa với em thấp hơn 2 điểm,cutoff_shift,reviewed,llm_drafted,đúng,,checked by a person 2026-10-08: all correct
+bỏ điều chỉnh điểm chuẩn của UIT,cutoff_shift,reviewed,llm_drafted,đúng,,checked by a person 2026-10-08: all correct

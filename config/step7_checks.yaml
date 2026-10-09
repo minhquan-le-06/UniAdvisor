@@ -1,0 +1,146 @@
+# Step 7 hand-written behaviour checks: plain students whose suitable groups are obvious. A case
+# passes when at least one `expect` group is in the top 5. Drafted on 2026-10-08 (for review
+# LLM to review); they test any scorer: the data scores now, the learned model later. Answers use the option labels of
+# config/step7_questions.yaml; unanswered questions are skipped.
+
+cases:
+  - name: Lập trình viên
+    answers: {q1: [Toán, Tin học], q3: [Số liệu], q4: [Viết code, Giải bài toán khó], q6: [Máy tính], q8: [Văn phòng],
+              q9: Một mình}
+    expect: ["74801", "74802"]
+
+  - name: Thích dữ liệu và thống kê
+    answers: {q1: [Toán], q3: [Số liệu], q4: [Giải bài toán khó], q6: [Kinh tế, Máy tính], q11: Làm việc chính xác}
+    expect: ["74601", "74602"]
+
+  - name: Muốn làm bác sĩ
+    answers: {q1: [Sinh học, Hóa học], q3: [Con người], q5: [Chăm sóc người ốm], q6: [Sức khỏe], q8: [Bệnh viện],
+              q11: Giúp đỡ người khác}
+    expect: ["77201", "77203", "77205"]
+
+  - name: Dược và hóa
+    answers: {q1: [Hóa học, Sinh học], q4: [Làm thí nghiệm], q6: [Sức khỏe], q8: [Phòng thí nghiệm],
+              q11: Làm việc chính xác}
+    expect: ["77202", "77206"]
+
+  - name: Kế toán
+    answers: {q1: [Toán], q3: [Số liệu], q5: [Quản lý chi tiêu, Sắp xếp tài liệu], q6: [Kinh tế],
+              q10: Làm theo quy trình rõ ràng, q11: Làm việc chính xác}
+    expect: ["73403", "73402"]
+
+  - name: Kinh doanh, bán hàng
+    answers: {q1: [Toán, Tiếng Anh], q3: [Con người], q5: [Bán hàng, Thuyết trình, Tổ chức sự kiện],
+              q6: [Marketing, Quản lý doanh nghiệp], q11: Dẫn dắt người khác}
+    expect: ["73401"]
+
+  - name: Luật sư
+    answers: {q1: [Ngữ văn, Giáo dục kinh tế và pháp luật], q5: [Tranh luận, Thuyết trình], q6: [Pháp luật],
+              q11: Giúp đỡ người khác}
+    expect: ["73801"]
+
+  - name: Nhà báo
+    answers: {q1: [Ngữ văn], q4: [Viết truyện, Chụp ảnh], q5: [Theo dõi thời sự], q6: [Báo chí],
+              q9: Gặp gỡ nhiều người mới}
+    expect: ["73201"]
+
+  - name: Giáo viên
+    answers: {q3: [Con người], q5: [Giảng bài cho bạn], q6: [Giáo dục], q8: [Trường học], q11: Giúp đỡ người khác}
+    expect: ["71402", "71401"]
+
+  - name: Ngoại ngữ
+    answers: {q1: [Tiếng Anh, Tiếng Nhật], q6: [Ngoại ngữ], q9: Gặp gỡ nhiều người mới}
+    expect: ["72202", "73106"]
+
+  - name: Tâm lý
+    answers: {q3: [Con người], q5: [Nghe bạn bè tâm sự], q6: [Tâm lý], q11: Giúp đỡ người khác}
+    expect: ["73104"]
+
+  - name: Công tác xã hội
+    answers: {q3: [Con người], q5: [Làm tình nguyện, Nghe bạn bè tâm sự], q6: [Các vấn đề xã hội],
+              q11: Giúp đỡ người khác}
+    expect: ["77601", "73103"]
+
+  - name: Vẽ và thiết kế
+    answers: {q3: [Ý tưởng], q4: [Vẽ, Chụp ảnh], q6: [Nghệ thuật], q10: Tự nghĩ ra cách làm,
+              q11: Thể hiện ý tưởng của mình}
+    expect: ["72104", "72101"]
+
+  - name: Âm nhạc
+    answers: {q3: [Ý tưởng], q4: [Chơi nhạc cụ], q6: [Nghệ thuật], q11: Thể hiện ý tưởng của mình}
+    expect: ["72102"]
+
+  - name: Xây dựng
+    answers: {q1: [Toán, Vật lí], q3: [Máy móc], q6: [Xây dựng], q8: [Công trường, Ngoài trời],
+              q11: Làm ra sản phẩm cầm nắm được}
+    expect: ["75802", "75101", "75803"]
+
+  - name: Kiến trúc
+    answers: {q1: [Toán], q4: [Vẽ], q6: [Xây dựng, Nghệ thuật], q10: Tự nghĩ ra cách làm,
+              q11: Thể hiện ý tưởng của mình}
+    expect: ["75801"]
+
+  - name: Cơ khí, ô tô
+    answers: {q1: [Toán, Vật lí], q3: [Máy móc], q4: [Sửa chữa đồ đạc, Tìm hiểu máy móc hoạt động ra sao],
+              q6: [Cơ khí], q8: [Nhà xưởng], q11: Làm ra sản phẩm cầm nắm được}
+    expect: ["75201", "75102"]
+
+  - name: Điện, điện tử
+    answers: {q1: [Toán, Vật lí], q3: [Máy móc], q4: [Lắp ráp đồ điện tử], q6: [Điện tử],
+              q11: Làm ra sản phẩm cầm nắm được}
+    expect: ["75202", "75103"]
+
+  - name: Hóa học, vật liệu
+    answers: {q1: [Hóa học, Toán], q4: [Làm thí nghiệm], q6: [Môi trường], q8: [Phòng thí nghiệm],
+              q11: Hiểu vì sao mọi thứ xảy ra}
+    expect: ["74401", "75203", "75104"]
+
+  - name: Công nghệ sinh học
+    answers: {q1: [Sinh học, Hóa học], q4: [Làm thí nghiệm], q6: [Môi trường], q8: [Phòng thí nghiệm],
+              q11: Hiểu vì sao mọi thứ xảy ra}
+    expect: ["74202", "74201"]
+
+  - name: Thực phẩm
+    answers: {q1: [Hóa học, Sinh học], q4: [Nấu ăn, Làm thí nghiệm], q6: [Ẩm thực], q8: [Nhà xưởng]}
+    expect: ["75401"]
+
+  - name: Nông nghiệp
+    answers: {q1: [Sinh học, Công nghệ nông nghiệp], q4: [Trồng cây, Chăm sóc con vật], q6: [Nông nghiệp],
+              q8: [Trang trại, Ngoài trời]}
+    expect: ["76201", "76202", "76401"]
+
+  - name: Thú y
+    answers: {q1: [Sinh học], q4: [Chăm sóc con vật], q6: [Sức khỏe, Nông nghiệp], q11: Giúp đỡ người khác}
+    expect: ["76401"]
+
+  - name: Môi trường
+    answers: {q1: [Sinh học, Địa lí], q6: [Môi trường, Địa lý], q8: [Ngoài trời], q11: Hiểu vì sao mọi thứ xảy ra}
+    expect: ["74403", "78501", "74402"]
+
+  - name: Du lịch
+    answers: {q1: [Địa lí, Tiếng Anh], q5: [Tổ chức sự kiện], q6: [Địa lý, Ngoại ngữ], q9: Gặp gỡ nhiều người mới}
+    expect: ["78101"]
+
+  - name: Khách sạn, nhà hàng
+    answers: {q4: [Nấu ăn], q5: [Tổ chức sự kiện], q6: [Ẩm thực], q8: [Khách sạn], q9: Gặp gỡ nhiều người mới}
+    expect: ["78102"]
+
+  - name: Logistics
+    answers: {q1: [Toán, Tiếng Anh], q3: [Số liệu], q6: [Giao thông vận tải, Kinh tế], q10: Làm theo quy trình rõ ràng}
+    expect: ["75106", "78401"]
+
+  - name: Lịch sử, văn hóa
+    answers: {q1: [Lịch sử, Ngữ văn], q5: [Đọc tiểu thuyết], q6: [Lịch sử, Triết học], q9: Một mình,
+              q11: Hiểu vì sao mọi thứ xảy ra}
+    expect: ["72290", "72201", "73203"]
+
+  - name: Quan hệ quốc tế
+    answers: {q1: [Lịch sử, Tiếng Anh], q5: [Theo dõi thời sự, Tranh luận], q6: [Pháp luật, Các vấn đề xã hội]}
+    expect: ["73102", "73106"]
+
+  - name: Thể thao
+    answers: {q4: [Chơi thể thao], q5: [Tổ chức sự kiện], q9: Cùng một nhóm, q11: Dẫn dắt người khác}
+    expect: ["78103"]
+
+  - name: Ghét máu và người bệnh, thích máy tính
+    answers: {q1: [Toán, Tin học], q6: [Máy tính], q12: [Thấy máu, Tiếp xúc với người bệnh]}
+    expect: ["74801", "74802"]

@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# The database and build outputs (the database is not distributed; see README)
+data/build/
+
+# Raw inputs other than the ones published here
+data/inputs/*
+!data/inputs/onet_31_0/
+!data/inputs/unipilot/
+data/inputs/unipilot/*
+!data/inputs/unipilot/subject.csv
+
+# Local data the build or training reads, not published
+data/cache/
+data/collected/
+data/curated/
+data/manual_sources/
+data/step7/
+data/chat/*
+!data/chat/checks.csv
+data/reviews/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

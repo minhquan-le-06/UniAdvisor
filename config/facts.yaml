@@ -1,0 +1,77 @@
+# Step 6: per-ngành facts from occupations. Values are the default unless noted.
+
+mapping:
+  # Weight of a ngành -> CIP link by its rank and match quality (draft defaults).
+  rank_weight: {1: 1.0, 2: 0.6, 3: 0.4}
+  match_weight: {exact: 1.0, close: 1.0, partial: 0.6, broader: 0.4}
+  # Links with these statuses are used. 'rejected' and 'unsure' (a reviewer doubts the link; a person decides) are
+  # not: a wrong job list misleads more than none (default, 2026-10-07).
+  use_status: [draft, reviewed]
+  # Weight occupations by inverse document frequency over CIP codes, so generic ones count less (default).
+  idf: true
+  # For knowledge, interests and closeness: leave out residual "All Other" SOC families (the crosswalk links a CIP to
+  # the whole family) and count postsecondary teachers at this factor. Defaults of 2026-10-07, chosen against
+  # an LLM review of the close ngành (share of judged top-3 pairs rated ok: 0.81 -> 0.89).
+  drop_residual: true
+  postsecondary_factor: 0.5
+
+teacher_training:
+  # Design decision 2026-10-08. O*NET maps every Sư phạm ngành to the same teacher occupations, so they all look
+  # alike (closeness 0.84-0.96). Two Sư phạm ngành are close only within one subject group; a Sư phạm ngành and a
+  # non-teaching ngành only when that ngành is an education ngành (7140...) or a subject ngành of the group; this
+  # wins over earlier reviews. A Sư phạm ngành's own subject ngành is always close and comes first. Groups and
+  # subject ngành: drafted and approved on 2026-10-08.
+  subject_groups:
+    stem: ["7140209", "7140210", "7140214", "7140246", "7140211", "7140212", "7140213", "7140215", "7140247"]
+    # Toán, Tin, KT công nghiệp, Công nghệ, Lý, Hóa, Sinh, KT nông nghiệp, KHTN
+    humanities: ["7140217", "7140218", "7140219", "7140249", "7140204", "7140205", "7140248"]
+    languages: ["7140231", "7140232", "7140233", "7140234", "7140235", "7140236", "7140237", "7140223", "7140224",
+                "7140225", "7140226", "7140227", "7140228", "7140229", "7140230"]
+    arts: ["7140221", "7140222", "7140245"]
+    early_primary: ["7140201", "7140202", "7140203"]
+    physical_defence: ["7140206", "7140208"]
+  subject_nganh:                 # Sư phạm ngành -> the ngành of its subject
+    "7140209": ["7460101"]                       # Toán học
+    "7140210": ["7480201", "7480101"]            # Công nghệ thông tin, Khoa học máy tính
+    "7140211": ["7440102"]                       # Vật lý học
+    "7140212": ["7440112"]                       # Hóa học
+    "7140213": ["7420101"]                       # Sinh học
+    "7140247": ["7440102", "7440112", "7420101"]
+    "7140217": ["7229030"]                       # Văn học
+    "7140218": ["7229010"]                       # Lịch sử
+    "7140219": ["7310501"]                       # Địa lý học
+    "7140249": ["7229010", "7310501"]
+    "7140221": ["7210201"]                       # Âm nhạc học
+    "7140222": ["7210103", "7210104", "7210105"]  # Hội họa, Đồ họa, Điêu khắc
+    "7140231": ["7220201"]                       # Ngôn ngữ Anh
+    "7140232": ["7220202"]
+    "7140233": ["7220203"]
+    "7140234": ["7220204"]
+    "7140235": ["7220205"]
+    "7140236": ["7220209"]
+    "7140237": ["7220210"]
+
+work_context:
+  # O*NET Work Context (design decision 2026-10-08: data scores for step 7's questions). Every element's mean on its
+  # 1-5 scale (CX) is imported; rows O*NET flags "Recommend Suppress" are left out. Elements reported as category
+  # shares (CT) are imported only as the share of the categories listed here (default, 2026-10-08).
+  category_shares:
+    "4.C.3.d.8": 3              # Duration of Typical Work Week: More than 40 hours
+
+closeness:
+  occupation_weight: 0.5        # 2026-10-06: shared occupations and shared knowledge count equally
+  # O*NET "Related Occupations" tiers that spread an occupation's weight to its neighbours, and how much
+  related_tiers: {Primary-Short: 0.5}
+  proposed: 2                   # 2026-10-06: 2 close ngành proposed per shortlist item
+  further: 5                    # next closest ngành kept for the an toàn top-up
+  min_occupation_part: 0.05     # a pair sharing (almost) no jobs is not close (default, 2026-10-07)
+  min_score: 0.35               # below this a "close" ngành is filler (LLM review, round 4: Dược -> CNTT at 0.025)
+  # ngành whose close list stops early (proposed and further together), when the next candidates are only generic:
+  # Kỹ thuật sinh học's ranks 3-7 shared only "engineers, all other" type jobs (2026-10-09: "leave that slot
+  # blank").
+  limit: {"7420202": 2}
+
+facts:
+  top_knowledge: 5              # knowledge areas shown per ngành
+  top_occupations: 8            # occupations shown per ngành
+  top_interests: 3              # Holland types shown per ngành

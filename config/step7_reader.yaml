@@ -1,0 +1,141 @@
+# Step 7 free-text reader (suggest/reader.py): plain phrases per option, written with accents. Draft of
+# 2026-10-08, for review by an LLM. An option's own label always counts as a phrase too.
+#
+# Matching: lowercase, on the text with accents; a student who typed without accents is matched on the accent-free
+# form of a phrase only when that form cannot be confused (two words or more, or one word of 5+ letters): "ve" is
+# both "vẽ" and "về", "mau" both "máu" and "màu", "toan" both "toán" and "toàn".
+#
+# `positive`: options read from a clause that says no dislike; in a clause that does ("không thích", "ghét", ...),
+# subjects go to q2, topics to q7, and the work conditions of `negative` to q12.
+
+negation: ["không thích", "ghét", "sợ", "không muốn", "ngại", "chán", "không hợp", "không ưa", "tránh", "dị ứng",
+           "ko thích", "k thích", "chẳng thích", "ko muốn", "chẳng muốn", "không thik", "ko thik"]
+# A cue right after one of these is not a dislike: "không ngại", "không sợ", "chẳng chán".
+negation_cancel: ["không", "ko", "chẳng", "chả"]
+
+# Words masked before matching (regular expressions on the lowercase text with accents): "môi trường" usually means the
+# workplace ("môi trường làm việc", "môi trường ồn ào"), not the environment topic; "quy luật" is not law.
+# Checked on the qwen run's texts, 2026-10-08.
+mask: ["môi trường(?= (làm việc|học tập|ồn|năng động|thân thiện|yên tĩnh|sôi động|chuyên nghiệp|lành mạnh|xung quanh|tốt|thoải mái|đông|công sở|văn phòng|áp lực|cạnh tranh|mới|quốc tế|nhiều))",
+       "quy luật"]
+clause_breaks: [",", ".", ";", "!", "?", "\n", " nhưng ", " mà ", " còn ", " tuy nhiên ", " nhung "]  # not " con ": "con vật"
+
+subjects:                    # q1 (positive) / q2 (negative), by option code
+  TO: [toán, môn toán]
+  VA: [ngữ văn, môn văn, văn học]
+  N1: [tiếng anh, anh văn, môn anh]
+  LI: [vật lí, vật lý, môn lý, môn lí]
+  HO: [hóa học, hoá học, môn hóa, môn hoá]
+  SI: [sinh học, môn sinh]
+  SU: [lịch sử, môn sử]
+  DI: [địa lí, địa lý, môn địa]
+  GDKTPL: [giáo dục kinh tế và pháp luật, gdktpl, gdcd, giáo dục công dân]
+  TI: [tin học, môn tin]
+  CNCN: [công nghệ công nghiệp]
+  CNNN: [công nghệ nông nghiệp]
+  N3: [tiếng pháp]
+  N4: [tiếng trung]
+  N6: [tiếng nhật]
+  N7: [tiếng hàn]
+  N5: [tiếng đức]
+  N2: [tiếng nga]
+
+topics:                      # q6 (positive) / q7 (negative)
+  computers: [máy tính, công nghệ thông tin]
+  electronics_topic: [điện tử]
+  mechanics: [cơ khí]
+  construction: [xây dựng, công trình]
+  health: [sức khỏe, sức khoẻ, y tế, y học]
+  psychology: [tâm lý, tâm lí]
+  society: [vấn đề xã hội, xã hội học]
+  economics: [kinh tế]
+  marketing: [marketing]
+  business: [quản lý doanh nghiệp, kinh doanh, khởi nghiệp]
+  law: [pháp luật, luật]
+  journalism: [báo chí, nhà báo]
+  literature: [văn chương]
+  languages: [ngoại ngữ]
+  history: [lịch sử]
+  geography: [địa lý, địa lí]
+  arts: [nghệ thuật]
+  agriculture: [nông nghiệp]
+  cuisine: [ẩm thực]
+  environment: [môi trường]
+  transport: [giao thông, vận tải]
+  education: [giáo dục, dạy học]
+  philosophy: [triết học]
+
+positive:                    # question -> option code -> phrases
+  q4:
+    repair: [sửa chữa, sửa đồ]
+    electronics: [lắp ráp, mạch điện]
+    code: [viết code, lập trình, code]
+    experiment: [thí nghiệm]
+    hard_problem: [giải toán, bài toán khó]
+    how_machines_work: [máy móc hoạt động]
+    plants: [trồng cây, làm vườn]
+    animals: [con vật, thú cưng, nuôi chó, nuôi mèo]
+    cooking: [nấu ăn, làm bánh]
+    sport: [thể thao, đá bóng, bóng đá, bơi lội, bóng rổ, cầu lông]
+    drawing: [vẽ]
+    photo: [chụp ảnh]
+    video: [làm video, quay video, dựng video]
+    stories: [viết truyện]
+    instrument: [nhạc cụ, chơi đàn, guitar, piano]
+  q5:
+    tutoring: [giảng bài, dạy bạn]
+    listening: [tâm sự, lắng nghe]
+    caring_sick: [chăm sóc người ốm, chăm người bệnh]
+    volunteering: [tình nguyện]
+    events: [tổ chức sự kiện]
+    presenting: [thuyết trình]
+    debating: [tranh luận, hùng biện]
+    selling: [bán hàng]
+    budgeting: [quản lý chi tiêu]
+    filing: [sắp xếp tài liệu]
+    novels: [đọc tiểu thuyết, đọc truyện]
+    news: [thời sự, tin tức]
+  q8:
+    office: [văn phòng]
+    workshop: [nhà xưởng, nhà máy]
+    outdoors: [ngoài trời]
+    hospital: [bệnh viện]
+    school: [trường học]
+    lab: [phòng thí nghiệm]
+    site: [công trường]
+    farm: [trang trại]
+    hotel: [khách sạn]
+    shop: [cửa hàng]
+    home: [tại nhà, làm từ xa]
+  q9:
+    alone: [một mình]
+    team: [làm nhóm, làm việc nhóm, teamwork]
+    new_people: [gặp gỡ người mới, gặp nhiều người]
+  q10:
+    procedure: [quy trình rõ ràng]
+    own_way: [tự nghĩ ra cách làm, sáng tạo]
+  q11:
+    helping: [giúp đỡ người khác, giúp người]
+    making: [sản phẩm cầm nắm]
+    understanding: [hiểu vì sao]
+    expressing: [thể hiện ý tưởng]
+    leading: [dẫn dắt, lãnh đạo]
+    accuracy: [chính xác, tỉ mỉ, tỷ mỉ]
+
+negative:                    # work conditions the student does not want -> q12
+  q12:
+    blood: [máu]
+    sick_people: [người bệnh, bệnh nhân]
+    night_shift: [ca đêm, trực đêm]
+    away_from_home: [xa nhà, đi xa]
+    sitting: [ngồi một chỗ, ngồi cả ngày]
+    standing: [đứng cả ngày]
+    public_speaking: [nói trước đám đông, đông người]
+    outdoor_work: [ngoài trời, nắng mưa]
+    heights: [trên cao, độ cao]
+    chemicals: [hóa chất, hoá chất]
+    noise: [ồn ào, tiếng ồn]
+    time_pressure: [áp lực]
+    angry_people: [nóng giận, khó tính]
+    overtime: [tăng ca, làm thêm giờ]
+    sales_targets: [doanh số, chỉ tiêu bán hàng]

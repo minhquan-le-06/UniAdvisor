@@ -1,0 +1,10 @@
+# Privacy (spec 6): no usage statistics; nothing the student enters leaves the app.
+[browser]
+gatherUsageStats = false
+
+[server]
+# Only the plan file is uploaded (a small JSON file); it is read in memory and not stored.
+maxUploadSize = 1
+
+[client]
+toolbarMode = "minimal"

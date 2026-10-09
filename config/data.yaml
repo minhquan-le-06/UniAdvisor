@@ -1,0 +1,31 @@
+# Settings for building the database from data/inputs. Values marked "default" in the spec may be tuned here.
+
+target_admission_year: 2027
+cutoff_years: [2025, 2026]          # the two latest years of published cutoffs (spec 4.3)
+latest_program_year: 2026           # programs must be offered in this year to be in scope
+
+# Cutoff sources in order of preference (default). The first source with a usable value wins;
+# the others are kept as observations and compared.
+cutoff_source_priority: [school_document, vnexpress, tuyensinh247, vietnamnet]
+# school_document (data/curated/school_cutoffs.csv, the school's own published document) comes first:
+# design decision 2026-10-07 (1a). The sites' values are still recorded as agrees / disagrees.
+cutoff_agreement_tolerance: 0.01
+
+# A THPT cutoff above the 30-point maximum shows the program uses another scale.
+# 30 < score <= 40: 40-point scale (one subject weighted x2); score > 40: a 100-point score that mixes admission
+# methods (exam, học bạ, V-ACT...). Every cutoff is converted linearly to 30 points (design decision 2026-10-06).
+scale_40_max: 40.0
+
+# A program whose two years' cutoffs (on 30 points) differ by at least this much is listed for review.
+year_jump_review: 3.0
+# Schools reuse program codes (in 2026 QHX05 is Đông Nam Á học; in 2025 it was Đông phương học). An earlier year's
+# cutoff is used only when its name in the source is the program's current name (build.exclude_reused_codes); a
+# person can confirm a renamed program in data/curated/same_program.csv.
+
+# Tuition values (VND per year) outside this range are treated as unparsed (e.g. per-credit prices).
+tuition_min_vnd: 1000000
+tuition_max_vnd: 1000000000
+
+# Cities in scope. Since the 2025 merger (Nghị quyết 202/2025/QH15) TP.HCM includes the former Bình Dương and
+# Bà Rịa - Vũng Tàu provinces. Design decision 2026-10-06: schools there count as TP.HCM.
+include_former_provinces_merged_into_hcm: true
