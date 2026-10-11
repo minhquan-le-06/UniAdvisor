@@ -1,5 +1,5 @@
 """Streamlit entry point: streamlit run app.py"""
 
-from uniadvisor.app.ui import main
+from uniadvisor.ui.pages import main
 
 main()

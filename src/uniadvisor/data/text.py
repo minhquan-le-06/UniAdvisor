@@ -1,4 +1,4 @@
-"""Small text helpers shared by the build steps."""
+"""Small text helpers shared by the app and the database build."""
 
 from __future__ import annotations
 

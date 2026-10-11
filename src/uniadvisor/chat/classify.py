@@ -1,6 +1,6 @@
-"""Which type a request is (spec 5, step 2).
+"""Which type a request is.
 
-The spec's classifier is a small trained model (trained on LLM-written messages). Until that model
+The classifier is a small trained model (trained on LLM-written messages). Until that model
 exists, and as the baseline it must beat, RuleClassifier decides from keywords and the names found in the message.
 load_classifier() returns the trained model when `models/message_classifier/model.joblib` exists, otherwise the rules.
 """
@@ -138,7 +138,7 @@ class RulesFirst:
 
 
 class ModelClassifier:
-    """The trained classifier (uniadvisor.chat.train): a scikit-learn pipeline over accent-free text."""
+    """The trained classifier (pipelines.chat_model.train): a scikit-learn pipeline over accent-free text."""
     name = "model"
 
     def __init__(self, path: Path):

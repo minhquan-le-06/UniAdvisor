@@ -7,25 +7,24 @@ __pycache__/
 .coverage
 htmlcov/
 
-# The database and build outputs (the database is not distributed; see README)
-data/build/
+# The app's database and the pipelines' reports (data/README.md)
+data/*
+!data/README.md
 
-# Raw inputs other than the ones published here
-data/inputs/*
-!data/inputs/onet_31_0/
-!data/inputs/unipilot/
-data/inputs/unipilot/*
-!data/inputs/unipilot/subject.csv
-
-# Local data the build or training reads, not published
-data/cache/
-data/collected/
-data/curated/
-data/manual_sources/
-data/step7/
-data/chat/*
-!data/chat/checks.csv
-data/reviews/
+# Pipeline inputs: only the ones the tests read are published
+pipelines/data/inputs/*
+!pipelines/data/inputs/onet_31_0/
+!pipelines/data/inputs/unipilot/
+pipelines/data/inputs/unipilot/*
+!pipelines/data/inputs/unipilot/subject.csv
+pipelines/data/cache/
+pipelines/data/collected/
+pipelines/data/curated/
+pipelines/data/manual_sources/
+pipelines/data/students/
+pipelines/data/chat/*
+!pipelines/data/chat/checks.csv
+pipelines/data/reviews/
 
 # Editors / OS
 .vscode/

@@ -1,6 +1,6 @@
 # Free-text reader report
 
-Rules (config/step7_reader.yaml), checked on the generated students' free texts: a guess counts as right when the student also ticked the option (a lower bound: writers mention things they did not tick).
+Rules (config/free_text_reader.yaml), checked on the generated students' free texts: a guess counts as right when the student also ticked the option (a lower bound: writers mention things they did not tick).
 
 Hand-written checks: 8/8.
 

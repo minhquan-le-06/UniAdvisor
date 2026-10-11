@@ -1,4 +1,4 @@
-"""One chat message, end to end (spec 5): split -> classify -> extract -> one change card + immediate answers.
+"""One chat message, end to end: split -> classify -> extract -> one change card + immediate answers.
 
 Nothing here changes the plan: the change card's Items are applied only after the student confirms (ui.py). Nothing
 is logged or stored.

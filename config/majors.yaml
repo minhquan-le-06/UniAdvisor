@@ -1,0 +1,76 @@
+# Major suggestion model. Values are the defaults of 2026-10-08 unless noted.
+
+data_scores:
+  # Each answered question adds the mean of its picked options' data scores, times its weight. Q9 and Q10 are weak
+  # signals (2026-10-08: "weak Holland signals"); Q12's conditions are many and specific, so each counts fully.
+  question_weight: {default: 1.0, q9: 0.5, q10: 0.5}
+  # Subject shares (Q1, Q2) are shrunk toward the share over all programs with this many programs' worth of weight,
+  # so a group with few programs, or a rare language, does not swing on one or two programs.
+  subject_prior_programs: 20
+
+suggest:
+  top: 5                         # nhóm ngành shown to the student
+  reasons: 3                     # picked options shown as "vì em chọn ..." per suggestion
+
+cleaning:
+  # Other names the writers use for an option (matched without accents or case; used only when the target is an
+  # option of the same question). Subject names as students say them, from the trials of 2026-10-08 and common usage.
+  aliases:
+    Văn học: Ngữ văn
+    Văn: Ngữ văn
+    Toán học: Toán
+    Vật lý: Vật lí
+    Lý: Vật lí
+    Hóa: Hóa học
+    Sinh: Sinh học
+    Sử: Lịch sử
+    Địa: Địa lí
+    Địa lý: Địa lí
+    Anh: Tiếng Anh
+    Anh văn: Tiếng Anh
+    Tin: Tin học
+    Giáo dục công dân: Giáo dục kinh tế và pháp luật
+    GDCD: Giáo dục kinh tế và pháp luật
+    Tiếng Trung Quốc: Tiếng Trung
+    Tiếng Hàn Quốc: Tiếng Hàn
+    Địa lí: Địa lý               # Q6 / Q7 spell the topic "Địa lý"
+    Sử học: Lịch sử
+    # Near-synonyms the qwen run used (2026-10-08), only where the meaning is the same option
+    Hỗ trợ người khác: Giúp đỡ người khác
+    Trong văn phòng: Văn phòng
+    Ở nhà: Tại nhà
+    Làm việc tại nhà: Tại nhà
+    Lập trình: Viết code
+  # Questions that are two halves of one list (Q4 "Em thích làm những việc nào?", Q5 "Còn những việc này?"): an option
+  # of one written under the other is moved to it (every writer mixed them; 2026-10-09).
+  siblings: [[q4, q5]]
+  min_answered: 6                # fewer answered questions: the student is dropped (too little to learn from)
+  # Q12 has no maximum and the notebook plans at most 3 ticks; an LLM review (2026-10-08) found qwen students with
+  # 8-14 of the 15 ticked (a writer glitch). More than this share of a no-maximum question's options: dropped.
+  max_unlimited_share: 0.5
+
+checks:
+  max_share_random: 0.25         # no group in more than 25% of random answer sets' top 5
+  random_sets: 2000
+  random_seed: 7
+  # Consistency filter for generated students, relative to each group (2026-10-08): a student is
+  # dropped when the data scores rank its own group below `own_group_top` AND its rank is among the worst
+  # (1 - group_quantile) of its group. The global top 20 alone dropped 29% of qwen's students and most of the
+  # groups the data scores see badly (Tài chính, Logistics, in, dệt may: median rank 33-44), i.e. the baseline's
+  # blind spots, not bad students.
+  own_group_top: 20
+  group_quantile: 0.85
+
+model:
+  # The learned model (majors/model.py, pipelines/majors_model/train.py). Defaults, 2026-10-08.
+  train_families: [qwen, aya, gemma]
+  test_family: mistral           # SeaLLM-7B-v2: held out, never trained on
+  holdout_share: 0.2             # until the held-out family exists: this share of each group's students held out
+  l2_grid: [0.03, 0.1, 0.3, 1.0, 3.0]
+  seed: 7
+  # Questions whose learned weights may only push a group down (2026-10-09): Q2 (disliked subjects), Q7
+  # (disliked topics) and Q12 (conditions not wanted) list what the student does not want, so ticking one must never
+  # pull a group up (unbounded: "Thấy máu" -> Nha khoa +3.4, "không thích Sinh học" -> Sinh dược học +2.7; writer habits).
+  no_positive: [q2, q7, q12]
+  gate:
+    cases_may_lose: 1            # the model may fail at most this many more hand-written cases than the data scores

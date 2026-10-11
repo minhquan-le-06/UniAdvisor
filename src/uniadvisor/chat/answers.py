@@ -1,16 +1,16 @@
-"""Answers to the five question types (spec 5): fixed templates filled from the list, the rules and the catalog. No
+"""Answers to the five question types: fixed templates filled from the list, the rules and the catalog. No
 generated prose."""
 
 from __future__ import annotations
 
 from collections import Counter
 
-from uniadvisor.app.texts import (EXCLUDED_VI, INCOME_CONTEXT, LEVEL_HELP, LEVEL_VI, MIXED_METHOD_CAPPED,
+from uniadvisor.ui.texts import (EXCLUDED_VI, INCOME_CONTEXT, LEVEL_HELP, LEVEL_VI, MIXED_METHOD_CAPPED,
                                   relation_text, score_text)
 from uniadvisor.chat.changes import Item
 from uniadvisor.chat.context import ChatContext
 from uniadvisor.data.school_docs import combo_label
-from uniadvisor.plan.models import Level
+from uniadvisor.planner.models import Level
 
 PENDING = "chưa có dữ liệu (đang được biên soạn)"
 
@@ -141,6 +141,6 @@ def _level(item: Item, ctx: ChatContext) -> str:
 
 def _credit(ctx: ChatContext, codes: list[str]) -> str:
     if ctx.facts and any(not ctx.facts.get(c).empty for c in codes):
-        from uniadvisor.app.facts import ONET_CREDIT
+        from uniadvisor.ui.facts import ONET_CREDIT
         return "\n\n_" + ONET_CREDIT + "_"
     return ""

@@ -1,5 +1,5 @@
--- UniAdvisor v2 database schema (SQLite).
--- Official names in moet_major; the names students know live in display_name (a reviewed table, spec 3.6).
+-- UniAdvisor database schema (SQLite).
+-- Official names in moet_major; the names students know live in display_name (a reviewed table).
 -- Every fact records its source. Unknown values are NULL, never guessed.
 
 PRAGMA foreign_keys = ON;
@@ -29,8 +29,8 @@ CREATE TABLE moet_major (
     source_id   TEXT NOT NULL REFERENCES source (id)
 );
 
--- Names students know, and search words, for nhóm ngành and ngành (spec 3.6). Rows come from
--- data/curated/display_names.csv; a code without a row is shown under its official name.
+-- Names students know, and search words, for nhóm ngành and ngành. Rows come from
+-- pipelines/data/curated/display_names.csv; a code without a row is shown under its official name.
 CREATE TABLE display_name (
     code         TEXT PRIMARY KEY REFERENCES moet_major (code),
     display_name TEXT,                       -- NULL: show the official name
@@ -74,7 +74,7 @@ CREATE TABLE school (
 );
 
 -- Other names students use for a school (English abbreviations, everyday names), for the chat's name matching
--- (spec 5). Rows come from data/curated/school_aliases.csv.
+--. Rows come from pipelines/data/curated/school_aliases.csv.
 CREATE TABLE school_alias (
     school_code TEXT NOT NULL REFERENCES school (code),
     alias       TEXT NOT NULL,
@@ -131,7 +131,7 @@ CREATE TABLE program_weight (
 -- Chosen THPT-method cutoffs. combo_key '*' = one cutoff for every combination;
 -- otherwise the ';'-joined sorted combinations the cutoff applies to.
 -- All comparisons use score_30: the published score converted linearly to the 30-point scale
--- (score * 30 / scale; owner decision 2026-10-06).
+-- (score * 30 / scale).
 CREATE TABLE cutoff (
     program_id  TEXT NOT NULL REFERENCES program (id),
     year        INTEGER NOT NULL,
@@ -166,13 +166,13 @@ CREATE TABLE cutoff_observation (
 );
 
 -- Share of a school's graduates of one ngành who have a job ("tỷ lệ sinh viên tốt nghiệp có việc làm"), as the
--- school's own document states it. Rows come from data/curated/school_employment.csv (school_docs.load_employment).
+-- school's own document states it. Rows come from pipelines/data/curated/school_employment.csv (school_docs.load_employment).
 CREATE TABLE school_employment (
     school_code     TEXT NOT NULL REFERENCES school (code),
     moet_code       TEXT NOT NULL REFERENCES moet_major (code),
     graduation_year INTEGER NOT NULL,        -- the graduating class the survey covers
     rate            REAL NOT NULL CHECK (rate BETWEEN 0 AND 1),
-    source_file     TEXT NOT NULL,           -- the captured file in data/manual_sources (and page)
+    source_file     TEXT NOT NULL,           -- the captured file in pipelines/data/manual_sources (and page)
     reviewed_by     TEXT,
     reviewed_on     TEXT,
     note            TEXT,                    -- what the document leaves unclear (survey month, definition...)
@@ -180,7 +180,7 @@ CREATE TABLE school_employment (
     PRIMARY KEY (school_code, moet_code, graduation_year)
 );
 
--- Step 6: occupations (O*NET 31.0, CC BY 4.0, USDOL/ETA) and per-ngành facts (src/uniadvisor/facts/build.py).
+-- Occupations (O*NET 31.0, CC BY 4.0, USDOL/ETA) and per-ngành facts (pipelines/facts/build.py).
 CREATE TABLE occupation (
     code        TEXT PRIMARY KEY,              -- O*NET-SOC 2019 code, e.g. '15-1252.00'
     title       TEXT NOT NULL,
@@ -204,7 +204,7 @@ CREATE TABLE occupation_interest (
     PRIMARY KEY (occupation_code, riasec)
 );
 
-CREATE TABLE occupation_work_context (         -- O*NET Work Context (owner decision 2026-10-08, step 7)
+CREATE TABLE occupation_work_context (         -- O*NET Work Context
     occupation_code TEXT NOT NULL REFERENCES occupation (code),
     element_id      TEXT NOT NULL,             -- '4.C.2.a.1.c', or '4.C.3.d.8:3' for a category share
     element         TEXT NOT NULL,             -- e.g. 'Outdoors, Exposed to All Weather Conditions'
@@ -233,7 +233,7 @@ CREATE TABLE cip_occupation (                  -- O*NET Resource Center crosswal
     PRIMARY KEY (cip_code, occupation_code)
 );
 
-CREATE TABLE nganh_cip (                       -- data/curated/nganh_cip.csv (agent draft, reviewed)
+CREATE TABLE nganh_cip (                       -- pipelines/data/curated/nganh_cip.csv (agent draft, reviewed)
     nganh_code TEXT NOT NULL REFERENCES moet_major (code),
     rank       INTEGER NOT NULL,
     cip_code   TEXT NOT NULL REFERENCES cip (code),
@@ -289,7 +289,7 @@ CREATE TABLE nganh_close (                     -- derived: closest ngành, best 
     PRIMARY KEY (nganh_code, other_code)
 );
 
-CREATE TABLE name_vi (                         -- Vietnamese names (data/curated/*_names_vi.csv), drafts until reviewed
+CREATE TABLE name_vi (                         -- Vietnamese names (pipelines/data/curated/*_names_vi.csv), drafts until reviewed
     kind        TEXT NOT NULL CHECK (kind IN ('occupation', 'knowledge', 'riasec')),
     key         TEXT NOT NULL,                 -- occupation code, knowledge area (English name), RIASEC type
     name_vi     TEXT NOT NULL,
@@ -299,7 +299,7 @@ CREATE TABLE name_vi (                         -- Vietnamese names (data/curated
     PRIMARY KEY (kind, key)
 );
 
-CREATE TABLE fact_sheet (                      -- data/curated/fact_sheets/<code>.md (uniadvisor.facts.sheets)
+CREATE TABLE fact_sheet (                      -- pipelines/data/curated/fact_sheets/<code>.md (pipelines.facts.sheets)
     code        TEXT PRIMARY KEY REFERENCES moet_major (code),   -- nhóm ngành
     markdown    TEXT NOT NULL,                 -- the sheet without its front matter
     status      TEXT NOT NULL,                 -- draft, reviewed; the app shows only reviewed sheets

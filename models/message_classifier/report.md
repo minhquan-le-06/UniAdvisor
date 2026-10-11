@@ -1,6 +1,6 @@
 # Message classifier report
 
-Written 2026-10-08 by `python -m uniadvisor.chat.train`.
+Written 2026-10-08 by `python -m pipelines.chat_model.train`.
 
 ## Rule baseline (runtime fallback)
 
@@ -181,7 +181,7 @@ Most frequent mistakes (true -> predicted): restore -> other: 97; undo -> other:
 
 ## Interim: leave-one-family-out among the training families
 
-Trained on the other training families, tested on the one left out (no relabel filter). Not the spec's test: that is the held-out family.
+Trained on the other training families, tested on the one left out (no relabel filter). Not the main test: that is the held-out family.
 
 ### Left out: aya (model)
 

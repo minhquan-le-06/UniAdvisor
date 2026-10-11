@@ -2,8 +2,8 @@
 
 import pytest
 
-from uniadvisor.app.service import AppData
-from uniadvisor.app.state import PlanState, ShortlistEntry
+from uniadvisor.ui.service import AppData
+from uniadvisor.ui.state import PlanState, ShortlistEntry
 from uniadvisor.chat.changes import ChangeError, Item, apply, describe
 from uniadvisor.chat.classify import RuleClassifier
 from uniadvisor.chat.diff import describe_diff
@@ -118,7 +118,7 @@ def test_extract_nganh_changes(ctx):
 
 def test_apply_every_change(ctx):
     s = STATE
-    s = apply(s, Item("set_score", {"subject": "SI", "value": 6.5}), ctx)
+    s = apply(s, Item("set_score", {"subject": "HO", "value": 6.5}), ctx)
     s = apply(s, Item("set_area", {"value": "KV1"}), ctx)
     s = apply(s, Item("set_category", {"value": "UT2"}), ctx)
     s = apply(s, Item("set_budget", {"value": None}), ctx)
@@ -126,7 +126,7 @@ def test_apply_every_change(ctx):
     s = apply(s, Item("set_extra", {"school": "HNA", "value": 1.0}), ctx)
     s = apply(s, Item("remove_school", {"school": "HCB"}), ctx)
     s = apply(s, Item("remove_program", {"program": "HNA:SE"}), ctx)
-    assert (s.scores["SI"], s.area, s.category, s.budget_trieu, s.near_home, s.extra_points) == (
+    assert (s.scores["HO"], s.area, s.category, s.budget_trieu, s.near_home, s.extra_points) == (
         6.5, "KV1", "UT2", None, True, {"HNA": 1.0})
     assert (s.removed_schools, s.removed_programs) == (["HCB"], ["HNA:SE"])
     s = apply(s, Item("restore_any", {"target": ("school", "HCB")}), ctx)
@@ -186,6 +186,7 @@ def test_own_score_changes_the_list(d):
     (Item("set_close", {"index": 1, "old": None, "new": "7220201"}), "khác ngành chính"),
     (Item("replace_item", {"index": 5, "code": "7720101"}), "Không có hướng học"),
     (Item("set_score", {"subject": None, "value": 8}, open=["subject"]), "chưa đủ thông tin"),
+    (Item("set_score", {"subject": "SI", "value": 8}), "môn tự chọn"),      # Toán, Văn and 2 electives only
 ])
 def test_bad_changes_are_refused(item, message, ctx):
     with pytest.raises(ChangeError, match=message):

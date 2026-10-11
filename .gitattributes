@@ -1,9 +1,5 @@
 * text=auto eol=lf
-# Raw inputs are kept byte-for-byte as received.
-data/inputs/** -text
-data/cache/** -text
-data/collected/** -text
-
-# keep O*NET / CIP inputs byte-for-byte
-data/inputs/onet_31_0/** -text
-data/inputs/cip/** -text
+# Pipeline inputs are kept byte-for-byte as received.
+pipelines/data/inputs/** -text
+pipelines/data/cache/** -text
+pipelines/data/collected/** -text

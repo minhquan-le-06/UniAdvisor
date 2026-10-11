@@ -1,4 +1,4 @@
-"""The chat's value extraction (spec 9: "the chat's value extraction has unit tests"): numbers and names."""
+"""The chat's value extraction: numbers and names."""
 
 import pytest
 
@@ -102,7 +102,7 @@ def test_place_names_are_not_schools(schools):
 
 
 def test_nganh_names(fake_db):
-    from uniadvisor.app.catalog import Catalog
+    from uniadvisor.ui.catalog import Catalog
     from uniadvisor.chat.mentions import NganhIndex
     cat = Catalog.load(fake_db)
     index = NganhIndex(cat)

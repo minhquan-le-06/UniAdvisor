@@ -1,6 +1,6 @@
 """Finding what a message talks about: subjects, schools, ngành, wish numbers, levels, areas, categories.
 
-Rules and name matching only (spec 5, step 3: values are extracted with rules, not the model). Matching ignores case
+Rules and name matching only. Matching ignores case
 and accents and works on whole words. A name that is also an everyday word is only taken where it cannot be the
 everyday word (see each finder).
 """
@@ -10,10 +10,10 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-from uniadvisor.app.catalog import Catalog, initials, search_key
+from uniadvisor.ui.catalog import Catalog, initials, search_key
 from uniadvisor.chat.numbers import find_numbers, normalise
 from uniadvisor.data.scope import strip_accents
-from uniadvisor.plan.models import Level
+from uniadvisor.planner.models import Level
 
 
 @dataclass(frozen=True)

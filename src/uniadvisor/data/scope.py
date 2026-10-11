@@ -1,4 +1,4 @@
-"""Scope rules: which schools are in Hà Nội / TP.HCM and which programs are taught there (spec 1, 7.1)."""
+"""Scope rules: which schools are in Hà Nội / TP.HCM and which programs are taught there."""
 
 from __future__ import annotations
 

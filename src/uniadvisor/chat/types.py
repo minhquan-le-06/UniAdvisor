@@ -1,4 +1,4 @@
-"""The request types the chat understands (spec 5). One message may hold several requests; each request has one type.
+"""The request types the chat understands. One message may hold several requests; each request has one type.
 
 Change types only change inputs (the fixed strategy then rebuilds the list); question types are answered from our data
 with templates. Anything else is OTHER, and the chat replies with what it can do.
@@ -47,7 +47,7 @@ TYPE_VI = {
     "ask_level": "hỏi một mức nghĩa là gì", "other": "khác",
 }
 
-# Shown when a request has no type (spec 5, step 2): what the chat can do, with examples.
+# Shown when a request has no type: what the chat can do, with examples.
 EXAMPLES_VI = [
     "Toán em được 8,5",
     "Em ở KV2-NT, đối tượng ưu tiên 2",

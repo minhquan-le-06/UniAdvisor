@@ -5,9 +5,14 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 CONFIG_DIR = ROOT / "config"
 RULES_DIR = CONFIG_DIR / "rules"
-INPUTS_DIR = ROOT / "data" / "inputs"
-CURATED_DIR = ROOT / "data" / "curated"
-COLLECTED_DIR = ROOT / "data" / "collected"          # our own collectors' CSVs (uniadvisor.collect)
-COLLECTED_CACHE_DIR = ROOT / "data" / "cache" / "http"
-BUILD_DIR = ROOT / "data" / "build"
+
+# The app reads one SQLite database; the pipelines write it, and their reports, next to it.
+BUILD_DIR = ROOT / "data"
 DB_PATH = BUILD_DIR / "uniadvisor.db"
+
+# What the offline pipelines read (pipelines/README.md).
+PIPELINE_DATA = ROOT / "pipelines" / "data"
+INPUTS_DIR = PIPELINE_DATA / "inputs"
+CURATED_DIR = PIPELINE_DATA / "curated"
+COLLECTED_DIR = PIPELINE_DATA / "collected"          # our own collectors' CSVs (pipelines.collect)
+COLLECTED_CACHE_DIR = PIPELINE_DATA / "cache" / "http"

@@ -1,4 +1,4 @@
-"""Values of one request, by its type (spec 5, step 3): rules and name matching, never the model.
+"""Values of one request, by its type: rules and name matching, never the model.
 
 extract(text, type, ctx) -> Items. What is unclear stays open on the Item with the options to choose from; the change
 card asks for it.
@@ -8,8 +8,8 @@ from __future__ import annotations
 
 import re
 
-from uniadvisor.app.state import AREAS, CATEGORIES
-from uniadvisor.app.texts import CATEGORY_VI
+from uniadvisor.ui.state import AREAS, CATEGORIES
+from uniadvisor.ui.texts import CATEGORY_VI
 from uniadvisor.chat.changes import Item
 from uniadvisor.chat.context import ChatContext
 from uniadvisor.chat.mentions import (

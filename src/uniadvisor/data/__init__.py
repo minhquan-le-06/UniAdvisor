@@ -1,1 +1,1 @@
-"""Building the database from the raw inputs in data/inputs."""
+"""The database schema and the readers of its inputs, shared by the app and the database build (pipelines/database)."""

@@ -1,4 +1,4 @@
-"""A tiny set of raw inputs in the exact formats of data/inputs, written to a temp dir, for testing the build.
+"""A tiny set of raw inputs in the exact formats of pipelines/data/inputs, written to a temp dir, for testing the build.
 
 Cached pages are generated from the same rows, so each CSV row can be checked against "its" page.
 """
@@ -153,7 +153,7 @@ def _vnn_page(rows) -> str:
 
 
 def write_raw_inputs(root: Path) -> Path:
-    """Write the fixture inputs under `root` (same layout as data/inputs) and return `root`."""
+    """Write the fixture inputs under `root` (same layout as pipelines/data/inputs) and return `root`."""
     _write_csv(root / "manual" / "moet_majors.csv", ["code", "level", "name", "parent", "former_code", "note",
                "source", "url"], [[c, lv, n, p, "", "", "moet_tt09_2022", ""] for c, lv, n, p in MOET])
     u = root / "unipilot"

@@ -1,4 +1,4 @@
-"""Values people captured from the schools' own documents (data/manual_sources), entered into data/curated:
+"""Values people captured from the schools' own documents (pipelines/data/manual_sources), entered into pipelines/data/curated:
 
 - school_cutoffs.csv: cutoffs of schools no cutoff site covers (one row per program, year and combination group).
 - school_combos.csv: combination codes a school defines for itself (e.g. UEH's AH2), which may differ from the same
@@ -128,7 +128,7 @@ def _year(school_year: str) -> int | None:
 
 
 UNIT_VI = {"per_year": "năm", "per_semester": "học kỳ", "per_course": "khóa", "per_credit": "tín chỉ"}
-# How a per-year amount was obtained from another unit (design decision 2026-10-07, 2c); NULL in the database when
+# How a per-year amount was obtained from another unit; NULL in the database when
 # the document states the amount per year.
 FACTOR_BASES = {
     "semesters_per_year_stated",       # per semester x the semesters per year the document states

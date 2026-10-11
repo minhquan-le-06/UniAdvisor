@@ -1,4 +1,4 @@
-"""Changes to the student's inputs (spec 5). Both the visible controls and the chat produce Items; applying an Item
+"""Changes to the student's inputs. Both the visible controls and the chat produce Items; applying an Item
 returns a new PlanState and the fixed strategy rebuilds the list. The chat never edits the list itself.
 
 An Item may be incomplete (a school name that fits two schools, a score without a subject): its `open` parameters
@@ -10,8 +10,9 @@ from __future__ import annotations
 import copy
 from dataclasses import dataclass, field
 
-from uniadvisor.app.state import AREAS, CATEGORIES, MAX_CLOSE, MAX_CUTOFF_SHIFT, SCALES, PlanState, ShortlistEntry
-from uniadvisor.app.texts import CATEGORY_VI, num
+from uniadvisor.ui.state import (AREAS, CATEGORIES, COMPULSORY, MAX_CLOSE, MAX_CUTOFF_SHIFT, MAX_ELECTIVES, SCALES,
+                                  PlanState, ShortlistEntry)
+from uniadvisor.ui.texts import CATEGORY_VI, num
 from uniadvisor.chat.context import ChatContext
 
 CHANGE_KINDS = ["set_score", "set_area", "set_category", "set_budget", "set_near_home", "set_extra",
@@ -56,6 +57,11 @@ def apply(state: PlanState, item: Item, ctx: ChatContext) -> PlanState:
     if k == "set_score":
         if p["subject"] not in ctx.subjects or not 0 <= p["value"] <= 10:
             raise ChangeError("Điểm môn phải từ 0 đến 10.")
+        electives = [c for c in s.scores if c not in COMPULSORY]
+        if p["subject"] not in COMPULSORY and p["subject"] not in electives and len(electives) >= MAX_ELECTIVES:
+            raise ChangeError(f"Em đã có {MAX_ELECTIVES} môn tự chọn ("
+                              + ", ".join(ctx.subjects.get(c, c) for c in electives)
+                              + "). Muốn đổi môn tự chọn, em vào trang Về em.")
         s.scores[p["subject"]] = float(p["value"])
     elif k == "set_area":
         if p["value"] not in AREAS:

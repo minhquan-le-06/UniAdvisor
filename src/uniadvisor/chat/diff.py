@@ -1,12 +1,12 @@
-"""What changed in the list after a change (spec 5, step 5): "NV6, NV9 mới vào vì không còn vượt ngân sách; NV12 ra"."""
+"""What changed in the list after a change: "NV6, NV9 mới vào vì không còn vượt ngân sách; NV12 ra"."""
 
 from __future__ import annotations
 
 from collections import defaultdict
 
-from uniadvisor.app.state import PlanState
-from uniadvisor.app.texts import LEVEL_VI
-from uniadvisor.plan.models import Candidate, ListResult
+from uniadvisor.ui.state import PlanState
+from uniadvisor.ui.texts import LEVEL_VI
+from uniadvisor.planner.models import Candidate, ListResult
 
 
 def _join(nvs: list[int]) -> str:

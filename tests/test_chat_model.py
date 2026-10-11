@@ -8,7 +8,7 @@ import pandas as pd
 import pytest
 
 from uniadvisor.chat.classify import ModelClassifier, RuleClassifier, RulesFirst, load_classifier
-from uniadvisor.chat.train import _Wrapped, clean, evaluate, load_checks, load_config, make_pipeline, relabel_filter
+from pipelines.chat_model.train import _Wrapped, clean, evaluate, load_checks, load_config, make_pipeline, relabel_filter
 from uniadvisor.chat.types import ALL_TYPES, LATE_TYPES
 
 TOY = {
@@ -45,7 +45,7 @@ def test_pipeline_learns_and_filter_keeps_consistent_rows():
 
 
 def test_model_classifier_loads_a_saved_bundle(tmp_path, fake_db_path):
-    from uniadvisor.app.service import AppData
+    from uniadvisor.ui.service import AppData
     idx = AppData.load(fake_db_path).indexes
     names = (idx.schools, idx.nganh, {"TO", "VA"})
     df = toy_frame()
@@ -80,7 +80,7 @@ def test_check_set_and_config():
 def test_rules_on_the_check_set(fake_db_path):
     """The rule baseline on the LLM-drafted checks, with the fake database's names (school names differ from the
     real ones, so this only guards against large regressions; the real score is in models/message_classifier)."""
-    from uniadvisor.app.service import AppData
+    from uniadvisor.ui.service import AppData
     d = AppData.load(fake_db_path)
     rules = RuleClassifier(d.indexes.schools, d.indexes.nganh, set(d.subjects))
     checks = load_checks()
@@ -90,8 +90,8 @@ def test_rules_on_the_check_set(fake_db_path):
 
 
 def test_notebook_builder(fake_db_path, monkeypatch):
-    from uniadvisor.app.service import ENV_DB
-    from uniadvisor.chat import make_notebook
+    from uniadvisor.ui.service import ENV_DB
+    from pipelines.chat_model import make_notebook
     monkeypatch.setenv(ENV_DB, str(fake_db_path))
     nb = make_notebook.build()
     assert nb["nbformat"] == 4
@@ -113,8 +113,8 @@ def test_notebook_builder(fake_db_path, monkeypatch):
 
 @pytest.mark.parametrize("bad", ["{", "[1, 2"])
 def test_notebook_parser_ignores_bad_output(bad, fake_db_path, monkeypatch):
-    from uniadvisor.app.service import ENV_DB
-    from uniadvisor.chat import make_notebook
+    from uniadvisor.ui.service import ENV_DB
+    from pipelines.chat_model import make_notebook
     monkeypatch.setenv(ENV_DB, str(fake_db_path))
     source = "".join(make_notebook.build()["cells"][7]["source"])
     ns = {}

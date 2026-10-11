@@ -31,7 +31,7 @@ def connect(path: Path | str = DB_PATH) -> sqlite3.Connection:
     """Open an existing database read-only."""
     path = Path(path)
     if not path.exists():
-        raise FileNotFoundError(f"{path} not found; build it with: python -m uniadvisor.data.build")
+        raise FileNotFoundError(f"{path} not found; build it with: python -m pipelines.database.build")
     conn = sqlite3.connect(f"file:{path.as_posix()}?mode=ro", uri=True)
     conn.row_factory = sqlite3.Row
     return conn

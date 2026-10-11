@@ -149,12 +149,12 @@ def build_fake_db(path: Path | str):
         [(src, pid.split(":")[0], pid.split(":")[1], pid, year, float(raw), raw, status)
          for src, pid, year, raw, status in OBSERVATIONS],
     )
-    add_step6_facts(conn)
+    add_facts(conn)
     conn.commit()
     return conn
 
 
-# Step 6 facts (invented, shaped like O*NET): two computing ngành and medicine.
+# Facts (invented, shaped like O*NET): two computing ngành and medicine.
 OCCUPATIONS = [("15-1252.00", "Software Developers", "Kỹ sư phát triển phần mềm"),
                ("15-1221.00", "Computer and Information Research Scientists", "Nhà nghiên cứu khoa học máy tính"),
                ("15-1211.00", "Computer Systems Analysts", "Chuyên viên phân tích hệ thống"),
@@ -188,7 +188,7 @@ NAMES = [("knowledge", "Computers and Electronics", "Máy tính và điện tử
          ("riasec", "Social", "Xã hội", "thích giúp đỡ con người")]
 
 
-def add_step6_facts(conn):
+def add_facts(conn):
     conn.execute("INSERT INTO source VALUES ('onet_31_0', 'O*NET (fake)', 'export', NULL, NULL, NULL)")
     conn.executemany("INSERT INTO occupation VALUES (?,?,NULL,4,'onet_31_0')", [(c, t) for c, t, _ in OCCUPATIONS])
     conn.executemany("INSERT INTO nganh_occupation VALUES (?,?,?,?,?)", NGANH_OCC)

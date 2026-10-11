@@ -1,4 +1,4 @@
-"""Step 6 facts (src/uniadvisor/facts/build.py) on a tiny invented O*NET / CIP fixture."""
+"""Facts (pipelines/facts/build.py) on a tiny invented O*NET / CIP fixture."""
 
 import csv
 import math
@@ -7,8 +7,8 @@ import sqlite3
 import pytest
 
 from uniadvisor import db
-from uniadvisor.data.build import Review
-from uniadvisor.facts.build import build_facts, load_config, spread, standardise
+from pipelines.database.build import Review
+from pipelines.facts.build import build_facts, load_config, spread, standardise
 
 OCC = [("15-1252.00", "Software Developers"), ("15-1211.00", "Computer Systems Analysts"),
        ("13-2011.00", "Accountants and Auditors"), ("11-9199.00", "Managers, All Other"),
@@ -162,7 +162,7 @@ def test_closeness(built):
 
 
 def test_teacher_training_rule():
-    from uniadvisor.facts.build import TeacherTraining
+    from pipelines.facts.build import TeacherTraining
     t = TeacherTraining({"subject_groups": {"stem": ["7140209", "7140211"], "arts": ["7140222"],
                                             "languages": ["7140231"]},
                          "subject_nganh": {"7140209": ["7460101"], "7140231": ["7220201"]}})
@@ -216,7 +216,7 @@ def test_helpers():
 
 
 def test_apply_review_round(tmp_path):
-    from uniadvisor.facts.apply_review import apply_round
+    from pipelines.facts.apply_review import apply_round
     cur, rnd = tmp_path / "curated", tmp_path / "round"
     cur.mkdir()
     rnd.mkdir()
@@ -248,7 +248,7 @@ def test_apply_review_round(tmp_path):
 
 def test_family_members_need_a_title_match_and_named_jobs_come_first():
     import pandas as pd
-    from uniadvisor.facts.build import display_ranks, match_residual_families, named_after_field
+    from pipelines.facts.build import display_ranks, match_residual_families, named_after_field
     titles = {"11-9041.00": "Architectural and Engineering Managers",
               "11-9041.01": "Biofuels/Biodiesel Technology and Product Development Managers",
               "17-2141.00": "Mechanical Engineers", "17-2199.05": "Mechatronics Engineers",
@@ -271,7 +271,7 @@ def test_family_members_need_a_title_match_and_named_jobs_come_first():
 
 
 def test_hidden_jobs_and_separate_tracks(tmp_path):
-    from uniadvisor.facts.build import hide_occupations, separate_tracks
+    from pipelines.facts.build import hide_occupations, separate_tracks
     conn = sqlite3.connect(":memory:")
     conn.execute("CREATE TABLE moet_major (code TEXT, level TEXT, parent_code TEXT)")
     conn.execute("INSERT INTO moet_major VALUES ('7220201', 'nganh', '72202')")

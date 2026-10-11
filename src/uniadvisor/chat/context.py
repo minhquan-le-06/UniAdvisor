@@ -5,10 +5,10 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from functools import cached_property
 
-from uniadvisor.app.catalog import Catalog, search_key
-from uniadvisor.app.state import SCALES, PlanState
+from uniadvisor.ui.catalog import Catalog, search_key
+from uniadvisor.ui.state import SCALES, PlanState
 from uniadvisor.chat.mentions import NganhIndex, SchoolIndex
-from uniadvisor.plan.models import ListResult, ProgramFacts
+from uniadvisor.planner.models import ListResult, ProgramFacts
 
 
 @dataclass
@@ -34,7 +34,7 @@ class ChatContext:
     state: PlanState
     result: ListResult | None                      # the current list (None when it cannot be built yet)
     list_cfg: dict = field(default_factory=dict)
-    facts: object = None                           # app.facts.FactsIndex (step 6), None when not loaded
+    facts: object = None                           # ui.facts.FactsIndex, None when not loaded
 
     @cached_property
     def wishes_by_nv(self) -> dict[int, object]:

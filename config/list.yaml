@@ -1,35 +1,38 @@
-# Settings for building the list of 15 nguyện vọng (spec section 4). These are the spec's values; they may
+# Settings for building the list of 15 nguyện vọng. These are the default values; they may
 # tune them after seeing real lists. Regulation facts (priority points, floors, 15 wishes) are in config/rules/.
 
-# Admission levels (spec 4.3). Scores and cutoffs are on 30 points (cutoffs converted linearly, design decision
-# 2026-10-06). Reaching a cutoff exactly counts as above it (a student is admitted at the cutoff).
+# Admission levels. Scores and cutoffs are on 30 points (cutoffs converted linearly). Reaching a cutoff exactly counts as above it (a student is admitted at the cutoff).
 levels:
   safe_margin: 2.0          # an toàn: at least this far above the higher of the two cutoffs
   dream_gap: 1.5            # mơ ước: at least this far below the lower cutoff
   # A mixed-method cutoff (the exam score combined with học bạ, V-ACT, certificates..., converted to 30 points) is
-  # not the student's exam total: such a program is never an toàn, at most this level (design decision 2026-10-07).
+  # not the student's exam total: such a program is never an toàn, at most this level.
   mixed_method_max_level: vua_suc
+  # Only the student's strong combinations count: a combination whose exam total is more than this below the
+  # student's best total over every combination of the database is not used. A program that admits only with such
+  # weak combinations is left out (a student with A01 27 and D01 23 is not placed at a D01-only program).
+  weak_combination_gap: 2.0
 
-# Wishes per level, in the order the shift-down follows (spec 4.5).
+# Wishes per level, in the order the shift-down follows.
 level_order: [mo_uoc, thu_suc, vua_suc, an_toan]
 quotas:
   one_item:
     item1: {mo_uoc: 3, thu_suc: 5, vua_suc: 4, an_toan: 3}
   # Item 2's wishes sit below item 1's easier vừa sức wishes, so its mơ ước wish could almost never be the one the
-  # student is admitted to (0% in a simulation of the sample students). Design decision 2026-10-07: item 2 has no mơ
-  # ước slot; it goes to item 1's mơ ước (spec 4.5 had 2/3/3/2 + 1/2/1/1).
+  # student is admitted to (0% in a simulation of the sample students). Item 2 has no mơ
+  # ước slot; it goes to item 1's mơ ước.
   two_items:
     item1: {mo_uoc: 3, thu_suc: 3, vua_suc: 3, an_toan: 2}
     item2: {mo_uoc: 0, thu_suc: 2, vua_suc: 1, an_toan: 1}
 
-# School score (spec 4.4): start at 100, subtract.
+# School score: start at 100, subtract.
 school_score:
   tuition_over_budget_small: 10      # tuition (higher end) over budget by at most tuition_small_over_ratio
   tuition_over_budget_large: 20      # more than that over
   tuition_small_over_ratio: 0.20
   far_from_home: 20                  # "muốn học gần nhà" and the program's city is not the home city
 
-# Chances of being admitted at each level or better (design decision 2026-10-07; plan/chances.py). Computed from how the
+# Chances of being admitted at each level or better. Computed from how the
 # database's own cutoffs changed from the earlier to the latest year, never from imported history; shown as history
 # ("theo biến động điểm chuẩn 2025-2026"), never as 100%.
 chances:
@@ -43,7 +46,7 @@ chances:
   # bench found lists with no an toàn wish (Sư phạm Toán at 21 points: 80%) where only the chance line said so.
   warn_no_admission_above: 0.05
 
-# Three recommended lists (design decision 2026-10-08).
+# Three recommended lists.
 three_lists:
   max_no_admission: 0.05     # every list keeps the chance of no admission at or below this (score entered)
   similar_overlap: 0.8       # two lists sharing this share of programs are called "gần giống nhau" (default)

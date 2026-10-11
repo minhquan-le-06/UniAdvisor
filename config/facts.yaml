@@ -1,4 +1,4 @@
-# Step 6: per-ngành facts from occupations. Values are the default unless noted.
+# Per-ngành facts from occupations. Values are the default unless noted.
 
 mapping:
   # Weight of a ngành -> CIP link by its rank and match quality (draft defaults).
@@ -16,7 +16,7 @@ mapping:
   postsecondary_factor: 0.5
 
 teacher_training:
-  # Design decision 2026-10-08. O*NET maps every Sư phạm ngành to the same teacher occupations, so they all look
+  # O*NET maps every Sư phạm ngành to the same teacher occupations, so they all look
   # alike (closeness 0.84-0.96). Two Sư phạm ngành are close only within one subject group; a Sư phạm ngành and a
   # non-teaching ngành only when that ngành is an education ngành (7140...) or a subject ngành of the group; this
   # wins over earlier reviews. A Sư phạm ngành's own subject ngành is always close and comes first. Groups and
@@ -52,7 +52,7 @@ teacher_training:
     "7140237": ["7220210"]
 
 work_context:
-  # O*NET Work Context (design decision 2026-10-08: data scores for step 7's questions). Every element's mean on its
+  # O*NET Work Context. Every element's mean on its
   # 1-5 scale (CX) is imported; rows O*NET flags "Recommend Suppress" are left out. Elements reported as category
   # shares (CT) are imported only as the share of the categories listed here (default, 2026-10-08).
   category_shares:

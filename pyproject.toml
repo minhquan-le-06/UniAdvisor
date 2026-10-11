@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "uniadvisor"
-version = "0.1.0"
-description = "UniAdvisor v2: helps Vietnamese grade-12 students choose a major and build their nguyện vọng list"
+version = "1.0.0"
+description = "UniAdvisor: helps Vietnamese grade-12 students choose a major and build their nguyện vọng list"
 requires-python = ">=3.12,<3.13"
 # Pinned to the versions the app was tested with: the chat classifier is a pickled scikit-learn pipeline
 # (models/message_classifier/model.joblib) that needs the same scikit-learn to load.
@@ -31,4 +31,5 @@ uniadvisor = ["data/schema.sql"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["."]          # the offline pipelines (pipelines/) are run from the repository root
 addopts = "-q"

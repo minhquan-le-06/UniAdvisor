@@ -21,4 +21,4 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 The MIT License covers the source code. Third-party data included in this repository keeps its own licence:
-data/inputs/onet_31_0/ is O*NET 31.0 Database content, used under CC BY 4.0 (see README, "Data sources").
+pipelines/data/inputs/onet_31_0/ is O*NET 31.0 Database content, used under CC BY 4.0 (see README, "Data sources").

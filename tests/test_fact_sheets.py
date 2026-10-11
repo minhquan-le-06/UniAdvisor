@@ -1,9 +1,9 @@
-"""Fact sheets (src/uniadvisor/facts/sheets.py): drafts say only what the pack says; the automatic checks catch the rest."""
+"""Fact sheets (pipelines/facts/sheets.py): drafts say only what the pack says; the automatic checks catch the rest."""
 
 import sqlite3
 
 from uniadvisor import db
-from uniadvisor.facts.sheets import (HEADINGS, SOURCES, check_sheet, draft_sheet, insert_sheets, read_sheet,
+from pipelines.facts.sheets import (HEADINGS, SOURCES, check_sheet, draft_sheet, insert_sheets, read_sheet,
                                      write_drafts)
 
 PACK = {

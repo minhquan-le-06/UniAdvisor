@@ -1,4 +1,4 @@
-"""Splitting one message into requests (spec 5, step 1): "Toán 8,5 rồi bỏ trường Bách khoa" -> two requests.
+"""Splitting one message into requests: "Toán 8,5 rồi bỏ trường Bách khoa" -> two requests.
 
 Strong breaks (sentence ends, 'rồi', 'sau đó', 'ngoài ra', 'với lại') always split. Weak breaks (',', 'và', 'còn')
 split only when the pieces are different change requests: "toán 8, văn 7" stays one request (both scores), "ngân

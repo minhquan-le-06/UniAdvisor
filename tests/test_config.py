@@ -31,4 +31,4 @@ def test_unknown_year_raises():
 def test_data_config_has_two_cutoff_years():
     cfg = load_data_config()
     assert cfg["cutoff_years"] == [2025, 2026]
-    assert cfg["cutoff_source_priority"][:2] == ["school_document", "vnexpress"]   # design decision 2026-10-07
+    assert cfg["cutoff_source_priority"][:2] == ["school_document", "vnexpress"]

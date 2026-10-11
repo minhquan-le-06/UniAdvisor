@@ -4,7 +4,7 @@ import pandas as pd
 import pytest
 
 from uniadvisor.data import scope, sources
-from uniadvisor.data.build import (Review, _choose_from_source, _scale, exclude_reused_codes, merge_site_duplicates,
+from pipelines.database.build import (Review, _choose_from_source, _scale, exclude_reused_codes, merge_site_duplicates,
                                     name_key, parse_tuition, reused_code, suggest_moet, to_30)
 from uniadvisor.data.text import combo_key, norm_code, parse_score, same_program_name, split_combos
 

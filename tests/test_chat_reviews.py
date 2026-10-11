@@ -3,7 +3,7 @@
 import pandas as pd
 import pytest
 
-from uniadvisor.chat.train import apply_judgements, apply_reviews, judgement, load_checks, review_rates
+from pipelines.chat_model.train import apply_judgements, apply_reviews, judgement, load_checks, review_rates
 
 
 @pytest.mark.parametrize("value, expected", [
@@ -59,7 +59,7 @@ def test_people_come_before_the_agent_and_agent_unsure_is_dropped():
 
 
 def test_agent_review_files_cover_the_generated_messages():
-    from uniadvisor.chat.train import clean, load_agent_reviews, load_generated
+    from pipelines.chat_model.train import clean, load_agent_reviews, load_generated
     agent = load_agent_reviews()
     if agent.empty:
         pytest.skip("no LLM review yet")

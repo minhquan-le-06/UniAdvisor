@@ -1,5 +1,5 @@
-# Home province -> home city (spec 4.4): provinces from Huế northward -> Hà Nội; from Đà Nẵng southward -> TP.HCM.
-# The 34 province-level units after the 2025 merger (Nghị quyết 202/2025/QH15, Điều 1; decision 2026-10-11).
+# Home province -> home city: provinces from Huế northward -> Hà Nội; from Đà Nẵng southward -> TP.HCM.
+# The 34 province-level units after the 2025 merger (Nghị quyết 202/2025/QH15, Điều 1).
 # Every merged unit lies wholly on one side of the Huế / Đà Nẵng line, so the city is the same for all its former
 # provinces. `aliases` are other names a student may type, including the former provinces merged into the unit;
 # they map to the same entry (an old plan file with a former province name opens on the new unit).

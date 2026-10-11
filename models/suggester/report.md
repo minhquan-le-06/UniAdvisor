@@ -1,4 +1,4 @@
-# Step 7 model report
+# Major suggester: model report
 
 Families: aya, gemma, mistral, qwen. Trained on 5519 kept students; tested on held-out family `mistral`. L2 = 0.1 (validation MRR by L2: {'0.03': 0.6129, '0.1': 0.623, '0.3': 0.6217, '1.0': 0.6021, '3.0': 0.5278}); data-score scale beta = 0.735.
 

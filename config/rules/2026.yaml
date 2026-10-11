@@ -1,12 +1,12 @@
 # Admission regulation facts for the 2026 admission year (THPT exam-score method only).
-# Source: spec section 8, verified against the official text: the 2026 Quy chế tuyển sinh (Thông tư
+# Source: verified against the official text: the 2026 Quy chế tuyển sinh (Thông tư
 # 06/2026/TT-BGDĐT, 15/02/2026, which replaces Thông tư 08/2022 and 06/2025; priority groups UT1 = đối tượng 01-03,
 # UT2 = 04-06, checked 2026-10-11) and the admission guidance (Công văn 2304/BGDĐT-GDĐH).
 # Change the facts in this file only from the official regulation text.
 
 admission_year: 2026
 source: "Thông tư 06/2026/TT-BGDĐT ngày 15/02/2026; Công văn 2304/BGDĐT-GDĐH"
-verified_by_owner: "2026-10-11"
+verified_on: "2026-10-11"
 
 priority:
   scale: 30                 # priority points are defined on the 30-point scale
