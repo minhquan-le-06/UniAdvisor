@@ -256,7 +256,7 @@ def _replace(text, norm, key, numbers, ctx):
         elif new is None:
             new = values
     wants_close = bool(CLOSE_WORDS.search(key)) or (old is not None and old[2])
-    item_options = [(i, f"Lựa chọn {i + 1}: {cat.label(main)}") for i, main, _ in current]
+    item_options = [(i, f"Hướng học {i + 1}: {cat.label(main)}") for i, main, _ in current]
 
     def new_params(item):
         if new is None:
@@ -280,7 +280,7 @@ def _replace(text, norm, key, numbers, ctx):
     item = Item("replace_item", {"index": old[0] if old else None, "code": new[0] if new and len(new) == 1 else None},
                 text=text)
     if old is None:
-        options = item_options + ([(len(current), "Thêm làm lựa chọn 2")] if len(current) == 1 else [])
+        options = item_options + ([(len(current), "Thêm làm hướng học 2")] if len(current) == 1 else [])
         item.open.append("index")
         item.options["index"] = options
     return [new_params(item)]

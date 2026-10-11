@@ -40,11 +40,11 @@ def _why_nv(item: Item, ctx: ChatContext) -> str:
             out.append(f"Danh sách hiện có {len(ctx.result.wishes)} nguyện vọng, không có NV{nv}.")
             continue
         c = w.candidate
-        part = ("Các nguyện vọng an toàn luôn nằm cuối danh sách (lựa chọn 1 trước) để giữ chỗ chắc chắn mà không chặn "
+        part = ("Các nguyện vọng an toàn luôn nằm cuối danh sách (hướng học 1 trước) để giữ chỗ chắc chắn mà không chặn "
                 "các nguyện vọng em muốn hơn; trong phần này, chương trình có điểm chuẩn năm gần nhất cao hơn điểm của em "
                 "nhiều hơn đứng trước."
                 if c.level == Level.AN_TOAN else
-                f"Các nguyện vọng chưa an toàn của lựa chọn {c.item_index + 1} xếp theo khoảng cách giữa điểm chuẩn "
+                f"Các nguyện vọng chưa an toàn của hướng học {c.item_index + 1} xếp theo khoảng cách giữa điểm chuẩn "
                 "năm gần nhất và điểm của em (cách xa hơn đứng trước), rồi theo điểm trường.")
         penalties = []
         if c.over_budget:

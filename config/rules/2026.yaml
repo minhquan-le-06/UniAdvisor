@@ -1,12 +1,12 @@
 # Admission regulation facts for the 2026 admission year (THPT exam-score method only).
-# Source: spec section 8, verified against the official text on 2026-09-29:
-#   Quy chế tuyển sinh đại học (Thông tư 08/2022/TT-BGDĐT, amended by Thông tư 06/2025/TT-BGDĐT)
-#   and the 2026 admission guidance (Công văn 2304/BGDĐT-GDĐH).
+# Source: spec section 8, verified against the official text: the 2026 Quy chế tuyển sinh (Thông tư
+# 06/2026/TT-BGDĐT, 15/02/2026, which replaces Thông tư 08/2022 and 06/2025; priority groups UT1 = đối tượng 01-03,
+# UT2 = 04-06, checked 2026-10-11) and the admission guidance (Công văn 2304/BGDĐT-GDĐH).
 # Change the facts in this file only from the official regulation text.
 
 admission_year: 2026
-source: "Thông tư 08/2022/TT-BGDĐT, sửa đổi bởi Thông tư 06/2025/TT-BGDĐT; Công văn 2304/BGDĐT-GDĐH"
-verified_by_owner: "2026-09-29"
+source: "Thông tư 06/2026/TT-BGDĐT ngày 15/02/2026; Công văn 2304/BGDĐT-GDĐH"
+verified_by_owner: "2026-10-11"
 
 priority:
   scale: 30                 # priority points are defined on the 30-point scale
@@ -17,8 +17,8 @@ priority:
     KV3: 0.0
   category:                 # đối tượng
     none: 0.0
-    UT1: 2.0                # nhóm đối tượng 01-04
-    UT2: 1.0                # nhóm đối tượng 05-07
+    UT1: 2.0                # nhóm đối tượng 01-03
+    UT2: 1.0                # nhóm đối tượng 04-06
   # A student whose total before priority is >= taper_from gets
   # priority = (30 - total) / taper_denominator * base_priority.
   taper_from: 22.5

@@ -110,6 +110,14 @@ def test_changed_content_is_dropped_with_warnings():
     assert any("KHTN" in w for w in warnings) and any("Hà Tây" in w for w in warnings)
 
 
+def test_former_province_opens_on_its_new_unit():
+    """A plan saved with a province merged in 2025 (config/provinces.yaml aliases) opens on the new unit, silently."""
+    known = Known(KNOWN.subjects, KNOWN.provinces | {"Ninh Bình"}, KNOWN.codes, KNOWN.schools, KNOWN.programs,
+                  {"Nam Định": "Ninh Bình", "Ninh Bình": "Ninh Bình"})
+    state, warnings = load(_edit(profile__home_province="Nam Định"), known)
+    assert state.home_province == "Ninh Bình" and warnings == []
+
+
 def test_favorite_school():
     assert FULL.to_profile().favorite_school == "HNA"
     data = json.loads(dump(FULL, 2027))

@@ -121,8 +121,10 @@ def test_school_score(tuition, budget, near, city, home, expected):
 def test_province_list_and_home_city():
     provinces = load_provinces()
     names = province_names()
-    assert len(names) == 61 and len(set(names)) == 61
-    assert "Bình Dương" not in names and "Bà Rịa - Vũng Tàu" not in names
+    assert len(names) == 34 and len(set(names)) == 34                  # Nghị quyết 202/2025/QH15
+    assert "Bình Dương" not in names and "Bà Rịa - Vũng Tàu" not in names and "Kon Tum" not in names
+    assert len(provinces) == 34 + 29 + 4          # + the 29 other former provinces + 4 other spellings
+    assert home_city("Bạc Liêu", provinces) == "HCM" and home_city("Hà Giang", provinces) == "HN"
     assert home_city("Bình Dương", provinces) == "HCM"
     assert home_city("Bà Rịa - Vũng Tàu", provinces) == "HCM"
     assert home_city("Huế", provinces) == "HN" and home_city("Thừa Thiên Huế", provinces) == "HN"

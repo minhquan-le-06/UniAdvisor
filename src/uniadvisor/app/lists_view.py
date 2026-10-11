@@ -20,7 +20,7 @@ from uniadvisor.app.state import PlanState
 from uniadvisor.app.texts import chance_pct, wish_rows
 from uniadvisor.plan.lists import CORNERS, Priority, Recommended, overlap
 
-LIST_VI = {Priority.NGANH: "Đúng ngành nhất", Priority.CAREER: "Nghề nghiệp nhất", Priority.MON: "Hợp môn nhất",
+LIST_VI = {Priority.NGANH: "Đúng ngành nhất", Priority.CAREER: "Nghề nghiệp hứa hẹn", Priority.MON: "Hợp môn học nhất",
            Priority.COST: "Tiết kiệm nhất"}
 LIST_HELP = {
     Priority.NGANH: "ưu tiên ngành em chọn, rồi đến ngành gần nhất",
@@ -85,7 +85,7 @@ def pentagon_chart(values: dict, color: str, title: str) -> alt.Chart:
         x, y = _point(k, 1.28)
         v = values.get(c)
         labels.append({"x": x, "y": y, "text": f"{CORNER_VI[c]} {round(v * 100)}%" if v is not None
-                       else f"{CORNER_VI[c]}: chưa có"})
+                       else f"{CORNER_VI[c]}: chưa có dữ liệu"})
     layers.append(alt.Chart(alt.Data(values=labels)).mark_text(fontSize=11).encode(
         longitude="x:Q", latitude="y:Q", text="text:N").project(**proj))
     return alt.layer(*layers).properties(width=SIZE, height=SIZE, title=title)
@@ -125,10 +125,10 @@ def recommendations(d: AppData, state: PlanState):
     cap = d.list_cfg["chances"]["display_cap"]
     floor = d.list_cfg["three_lists"]["max_no_admission"]
     colors = COLORS[_theme()]
-    st.subheader("Ba danh sách gợi ý cho em")
-    st.caption("Ba danh sách cùng quy tắc xếp nguyện vọng, chỉ khác điều được ưu tiên khi chọn chương trình. Mỗi hình "
+    st.subheader("Ba phương án gợi ý cho em")
+    st.caption("Ba phương án cùng quy tắc xếp nguyện vọng, chỉ khác điều được ưu tiên khi chọn chương trình. Mỗi hình "
                "năm góc cho biết điều em có thể chờ đợi ở chương trình em sẽ đỗ (tính trên 20.000 lần giả lập điểm "
-               "chuẩn năm sau); góc càng xa tâm càng tốt. Em chọn một danh sách để xem chi tiết và điều chỉnh.")
+               "chuẩn năm sau); góc càng xa tâm càng tốt. Em chọn một phương án để xem chi tiết và điều chỉnh.")
     best = _best(recs)
     cols = st.columns(3)
     for col, r, color in zip(cols, recs, colors):
@@ -153,11 +153,11 @@ def recommendations(d: AppData, state: PlanState):
             with st.expander(f"Xem {len(r.result.wishes)} nguyện vọng"):
                 rows = wish_rows(r.result, [e.main for e in state.shortlist], d.catalog)
                 st.dataframe(rows, hide_index=True, width="stretch")
-            st.button("Chọn danh sách này", key=f"choose_{r.priority.value}", on_click=_choose,
+            st.button("Chọn phương án này", key=f"choose_{r.priority.value}", on_click=_choose,
                       args=(r.priority.value, d, state), type="primary", width="stretch")
     if all(r.pentagon is None or r.pentagon.values["nghe_nghiep"] is None for r in recs):
-        st.caption("Em chưa trả lời 12 câu hỏi (Chọn ngành → Em chưa biết gì), nên ứng dụng gợi ý danh sách “Hợp môn "
-                   "nhất” thay cho “Nghề nghiệp nhất”, và góc Nghề nghiệp chưa có số liệu.")
+        st.caption("Em chưa trả lời 12 câu hỏi (Chọn ngành → Chưa xác định ngành), nên ứng dụng gợi ý phương án “Hợp môn "
+                   "học nhất” thay cho “Nghề nghiệp hứa hẹn”, và góc Nghề nghiệp chưa có dữ liệu.")
     similar = d.list_cfg["three_lists"]["similar_overlap"]
     for i in range(len(recs)):
         for j in range(i + 1, len(recs)):
@@ -171,7 +171,7 @@ def recommendations(d: AppData, state: PlanState):
         for r in recs:
             v = r.pentagon.values.get(c) if r.pentagon else None
             unknown = r.pentagon.unknown.get(c, 0.0) if r.pentagon else 0.0
-            row[LIST_VI[r.priority]] = ("chưa có" if v is None else f"{round(v * 100)}%") + (
+            row[LIST_VI[r.priority]] = ("chưa có dữ liệu" if v is None else f"{round(v * 100)}%") + (
                 f" (chưa rõ {round(unknown * 100)}%)" if v is not None and unknown >= 0.05 else "")
         table.append(row)
     with st.expander("Bảng so sánh", expanded=False):
@@ -192,10 +192,10 @@ def chosen_header(d: AppData, state: PlanState):
         if rec.pentagon:
             st.altair_chart(pentagon_chart(rec.pentagon.values, color, LIST_VI[rec.priority]), width="content")
     with c2:
-        st.markdown(f"**Danh sách em chọn: {LIST_VI[rec.priority]}** ({LIST_HELP[rec.priority]}).")
+        st.markdown(f"**Phương án em chọn: {LIST_VI[rec.priority]}** ({LIST_HELP[rec.priority]}).")
         if state.list_choice == Priority.CAREER.value and rec.priority is Priority.MON:
-            st.caption("Danh sách Nghề nghiệp nhất cần câu trả lời 12 câu hỏi (Chọn ngành → Em chưa biết gì). Em chưa "
-                       "trả lời nên ứng dụng dùng danh sách Hợp môn nhất thay thế.")
-        st.caption("Các điều chỉnh bên dưới chỉ thay đổi danh sách này; hình năm góc cập nhật theo. Ba danh sách gợi ý "
+            st.caption("Phương án Nghề nghiệp hứa hẹn cần câu trả lời 12 câu hỏi (Chọn ngành → Chưa xác định ngành). Em "
+                       "chưa trả lời nên ứng dụng dùng phương án Hợp môn học nhất thay thế.")
+        st.caption("Các điều chỉnh bên dưới chỉ thay đổi phương án này; hình năm góc cập nhật theo. Ba phương án gợi ý "
                    "ban đầu vẫn được lưu trong tệp kế hoạch.")
-        st.button("Xem lại ba danh sách gợi ý", on_click=_unchoose, key="unchoose")
+        st.button("Xem lại ba phương án gợi ý", on_click=_unchoose, key="unchoose")

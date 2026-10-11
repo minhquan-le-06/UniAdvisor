@@ -16,7 +16,7 @@ from uniadvisor.chat.diff import describe_diff
 from uniadvisor.plan.models import ListResult
 
 PAGES = ["1. Về em", "2. Chọn ngành", "3. Danh sách nguyện vọng", "4. Lưu kế hoạch"]
-PATHS = ["Em đã có vài lựa chọn", "Em biết sơ sơ lĩnh vực", "Em chưa biết gì"]
+PATHS = ["Đã có ngành quan tâm", "Chưa xác định ngành"]
 MAX_HISTORY = 30
 
 # Widget keys kept across pages (Streamlit forgets a widget's value when its page is not drawn).

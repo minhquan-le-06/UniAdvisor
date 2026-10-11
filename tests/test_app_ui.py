@@ -48,12 +48,12 @@ def test_profile_page(at):
     assert at.number_input(key="score_VA").label == "Ngữ văn" and at.number_input(key="score_TO").value is None
     assert at.number_input(key="grad_year").value == 2027
     assert at.selectbox(key="province").options[:2] == ["Hà Nội", "TP. Hồ Chí Minh"]
-    assert len(at.selectbox(key="province").options) == 61
+    assert len(at.selectbox(key="province").options) == 34
 
 
 def test_list_needs_scores_province_and_shortlist(at):
     go(at, "3. Danh sách nguyện vọng")
-    assert "điểm các môn" in at.info[0].value and "lựa chọn 1" in at.info[0].value
+    assert "điểm các môn" in at.info[0].value and "hướng học 1" in at.info[0].value
 
 
 def test_whole_flow(at):
@@ -77,17 +77,17 @@ def test_whole_flow(at):
 
     go(at, "3. Danh sách nguyện vọng")
     assert at.session_state["score_TO"] == 8.0 and at.session_state["province"] == "Hà Nội"   # kept across pages
-    assert "Ba danh sách gợi ý cho em" in [h.value for h in at.subheader]           # three lists first
+    assert "Ba phương án gợi ý cho em" in [h.value for h in at.subheader]           # three lists first
     assert len(at.get("vega_lite_chart")) == 3 and len(at.dataframe) == 4    # 3 lists + comparison table
     assert any(m.value.startswith("Khả năng đỗ ít nhất 1 nguyện vọng") for m in at.markdown)
     choose(at)
     assert at.session_state["list_choice"] == "dung_nganh" and len(at.session_state["recommended"]) == 3
-    assert any("Danh sách em chọn: Đúng ngành nhất" in m.value for m in at.markdown)
+    assert any("Phương án em chọn: Đúng ngành nhất" in m.value for m in at.markdown)
     rows = at.dataframe[0].value
     assert list(rows["NV"]) == list(range(1, len(rows) + 1))
     assert set(rows["Chương trình"]) == {"Khoa học máy tính", "Khoa học máy tính (hệ quân sự)", "Kỹ thuật phần mềm",
                                          "Kỹ thuật phần mềm *", "Công nghệ thông tin"}
-    assert set(rows["Lựa chọn"]) == {"1 · ngành chính", "1 · ngành gần của Khoa học máy tính", "2 · ngành chính"}
+    assert set(rows["Hướng học"]) == {"1 · ngành chính", "1 · ngành gần của Khoa học máy tính", "2 · ngành chính"}
     assert any("Danh sách chỉ có 5 nguyện vọng" in w.value for w in at.warning)
     assert any("Có dấu *" in c.value for c in at.caption)
     assert not any("trường thích nhất" in i.value for i in at.info)             # no favorite school chosen
@@ -116,15 +116,14 @@ def test_removing_a_pick_clears_its_rank(at):
     assert not at.exception
 
 
-def test_field_path_is_not_built_yet(at):
+def test_two_paths_only(at):
     go(at, "2. Chọn ngành")
-    at.radio(key="path").set_value("Em biết sơ sơ lĩnh vực").run()
-    assert "đang được xây dựng" in at.info[0].value
+    assert at.radio(key="path").options == ["Đã có ngành quan tâm", "Chưa xác định ngành"]
 
 
 def test_questionnaire_path_suggests_groups(at):
     go(at, "2. Chọn ngành")
-    at.radio(key="path").set_value("Em chưa biết gì").run()
+    at.radio(key="path").set_value("Chưa xác định ngành").run()
     assert not at.exception and len([w for w in at.multiselect if w.key.startswith("s7_")]) == 5
     at.multiselect(key="s7_q1").set_value(["Toán", "Tin học"])
     at.multiselect(key="s7_q2").set_value(["Toán"])                         # also liked: not counted
@@ -138,7 +137,7 @@ def test_questionnaire_path_suggests_groups(at):
     assert any("Vì em chọn" in m.value and "Máy tính" in m.value for m in at.markdown)
     at.button(key="s7_add_74801").click().run()
     assert "74801" in at.session_state["picks"]
-    assert "Các lựa chọn của em (1)" in [h.value for h in at.subheader]
+    assert "Các ngành em quan tâm (1)" in [h.value for h in at.subheader]
     go(at, "1. Về em")                                                     # answers kept across pages
     go(at, "2. Chọn ngành")
     assert at.multiselect(key="s7_q1").value == ["Toán", "Tin học"]
@@ -232,30 +231,30 @@ def test_second_list_follows_the_answers(at):
     fill_profile(at)
     at.session_state["picks"] = ["74801"]
     at.session_state["item1"] = "74801"
-    go(at, "3. Danh sách nguyện vọng")                                   # no answers: Hợp môn nhất
+    go(at, "3. Danh sách nguyện vọng")                                   # no answers: Hợp môn học nhất
     keys = {b.key for b in at.button if (b.key or "").startswith("choose_")}
     assert keys == {"choose_dung_nganh", "choose_hop_mon", "choose_tiet_kiem"}
-    assert any("thay cho “Nghề nghiệp nhất”" in c.value for c in at.caption)
+    assert any("thay cho “Nghề nghiệp hứa hẹn”" in c.value for c in at.caption)
 
     go(at, "2. Chọn ngành")                                                 # answer the questions
-    at.radio(key="path").set_value("Em chưa biết gì").run()
+    at.radio(key="path").set_value("Chưa xác định ngành").run()
     at.multiselect(key="s7_q6").set_value(["Máy tính"])
     next(b for b in at.button if b.label == "Xem gợi ý").click().run()
     go(at, "3. Danh sách nguyện vọng")
     keys = {b.key for b in at.button if (b.key or "").startswith("choose_")}
     assert keys == {"choose_dung_nganh", "choose_nghe_nghiep", "choose_tiet_kiem"}
     choose(at, "nghe_nghiep")
-    assert any("Danh sách em chọn: Nghề nghiệp nhất" in m.value for m in at.markdown)
+    assert any("Phương án em chọn: Nghề nghiệp hứa hẹn" in m.value for m in at.markdown)
 
     at.session_state["s7_answers"] = None                                   # answers cleared: Hợp môn instead
     at.run()
-    assert any("Danh sách em chọn: Hợp môn nhất" in m.value for m in at.markdown)
-    assert any("dùng danh sách Hợp môn nhất thay thế" in c.value for c in at.caption)
+    assert any("Phương án em chọn: Hợp môn học nhất" in m.value for m in at.markdown)
+    assert any("dùng phương án Hợp môn học nhất thay thế" in c.value for c in at.caption)
 
 
 def test_free_text_guesses_are_confirmed_first(at):
     go(at, "2. Chọn ngành")
-    at.radio(key="path").set_value("Em chưa biết gì").run()
+    at.radio(key="path").set_value("Chưa xác định ngành").run()
     at.text_area(key="s7_text").set_value("em thích vẽ nhưng sợ máu")
     next(b for b in at.button if b.label == "Xem gợi ý").click().run()
     assert not at.exception

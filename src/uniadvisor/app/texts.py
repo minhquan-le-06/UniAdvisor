@@ -13,8 +13,8 @@ from uniadvisor.plan.models import Candidate, Level, ListResult
 LEVEL_VI = {Level.MO_UOC: "mơ ước", Level.THU_SUC: "thử sức", Level.VUA_SUC: "vừa sức", Level.AN_TOAN: "an toàn"}
 CITY_VI = {"HN": "Hà Nội", "HCM": "TP.HCM"}
 AREA_VI = {"KV1": "KV1", "KV2-NT": "KV2-NT", "KV2": "KV2", "KV3": "KV3"}
-CATEGORY_VI = {"none": "Không thuộc đối tượng ưu tiên", "UT1": "Ưu tiên 1 (nhóm đối tượng 01-04)",
-               "UT2": "Ưu tiên 2 (nhóm đối tượng 05-07)"}
+CATEGORY_VI = {"none": "Không thuộc đối tượng ưu tiên", "UT1": "Ưu tiên 1 (nhóm đối tượng 01-03)",
+               "UT2": "Ưu tiên 2 (nhóm đối tượng 04-06)"}
 
 LEVEL_HELP = {
     Level.AN_TOAN: "điểm của em cao hơn điểm chuẩn cao nhất của hai năm gần nhất từ 2 điểm trở lên",
@@ -27,18 +27,18 @@ LEVEL_HELP = {
 HOW_THE_LIST_IS_BUILT = (
     "Danh sách gồm tối đa 15 nguyện vọng, xếp theo một thứ tự cố định. Mỗi chương trình được xếp mức "
     "(mơ ước, thử sức, vừa sức, an toàn) bằng cách so điểm của em với điểm chuẩn phương thức điểm thi THPT của hai "
-    "năm gần nhất; ứng dụng không dự đoán điểm chuẩn năm nay. Các nguyện vọng chưa an toàn của lựa chọn 1 đứng "
-    "đầu, tiếp theo là của lựa chọn 2, các nguyện vọng an toàn luôn nằm cuối danh sách; trong mỗi phần, chương trình có điểm chuẩn cao hơn điểm "
+    "năm gần nhất; ứng dụng không dự đoán điểm chuẩn năm nay. Các nguyện vọng chưa an toàn của hướng học 1 đứng "
+    "đầu, tiếp theo là của hướng học 2, các nguyện vọng an toàn luôn nằm cuối danh sách; trong mỗi phần, chương trình có điểm chuẩn cao hơn điểm "
     "của em nhiều hơn đứng trước. Lý do: em chỉ trúng tuyển "
     "nguyện vọng cao nhất mà em đạt, nên nguyện vọng an toàn đặt ở cuối để giữ chỗ chắc chắn mà không chặn các "
-    "nguyện vọng em muốn hơn. Vì vậy, nếu em đạt một nguyện vọng vừa sức của lựa chọn 2, em sẽ trúng tuyển ở đó dù "
-    "bên dưới còn nguyện vọng an toàn của lựa chọn 1."
+    "nguyện vọng em muốn hơn. Vì vậy, nếu em đạt một nguyện vọng vừa sức của hướng học 2, em sẽ trúng tuyển ở đó dù "
+    "bên dưới còn nguyện vọng an toàn của hướng học 1."
 )
 
 EXTRA_POINTS_REMINDER = (
-    "Ứng dụng chưa tính điểm cộng riêng của từng trường (IELTS, chứng chỉ, học sinh giỏi...). Em hãy xem quy định "
-    "của từng trường trong danh sách và tự tính điểm cộng của mình; phần nhập điểm cộng cho từng trường sẽ có ở "
-    "bước Điều chỉnh."
+    "Ứng dụng không tự tính điểm cộng riêng của từng trường (IELTS, chứng chỉ, học sinh giỏi...). Em hãy xem quy "
+    "định của từng trường trong danh sách, tự tính điểm cộng của mình và nhập ở phần Điều chỉnh → Các nút điều "
+    "chỉnh → Theo từng trường (cột Điểm cộng)."
 )
 
 MIXED_METHOD_NOTE = ("Có dấu * : điểm chuẩn của chương trình này được công bố cho phương thức kết hợp điểm thi với "
@@ -176,7 +176,7 @@ def wish_rows(result: ListResult, item_codes: list[str], catalog: Catalog) -> li
             "Trường": c.program.school_name,
             "Chương trình": c.program.name + (" *" if c.is_mixed_method else ""),
             "Ngành (tên Bộ GD&ĐT)": catalog.official(c.program.moet_code),
-            "Lựa chọn": f"{c.item_index + 1} · {relation_text(c, item_codes, catalog)}",
+            "Hướng học": f"{c.item_index + 1} · {relation_text(c, item_codes, catalog)}",
             "Điểm của em · điểm chuẩn": score_text(c),
             "Học phí": tuition_text(c),
             **({"Việc làm": employment_text(c)} if jobs else {}),
@@ -192,14 +192,14 @@ def note_texts(result: ListResult, item_codes: list[str], catalog: Catalog) -> l
         kind, *rest = note.split(":")
         if kind == "shifted_down":
             item, level, n = int(rest[0]), Level(rest[1]), int(rest[2])
-            out.append(f"Lựa chọn {item} ({catalog.label(item_codes[item - 1])}): không đủ chương trình ở mức "
+            out.append(f"Hướng học {item} ({catalog.label(item_codes[item - 1])}): không đủ chương trình ở mức "
                        f"{LEVEL_VI[level]}, {n} chỗ còn trống được chuyển xuống mức an toàn hơn.")
         elif kind == "topped_up":
             item, n = int(rest[0]), int(rest[1])
-            out.append(f"Lựa chọn {item}: thêm {n} nguyện vọng an toàn từ các ngành gần khác.")
+            out.append(f"Hướng học {item}: thêm {n} nguyện vọng an toàn từ các ngành gần khác.")
         elif kind == "short":
             item, n = int(rest[0]), int(rest[1])
-            out.append(f"Lựa chọn {item} ({catalog.label(item_codes[item - 1])}): thiếu {n} nguyện vọng vì không "
+            out.append(f"Hướng học {item} ({catalog.label(item_codes[item - 1])}): thiếu {n} nguyện vọng vì không "
                        "còn chương trình phù hợp có điểm chuẩn.")
         elif kind == "short_list":
             out.append(f"Danh sách chỉ có {rest[0]} nguyện vọng (tối đa 15). Em có thể thêm ngành gần hoặc chọn "
@@ -214,8 +214,8 @@ EXCLUDED_VI = {
     "removed_school": "em đã bỏ trường này",
     "removed_program": "em đã bỏ nguyện vọng này",
     "not_selected": "đã đủ số nguyện vọng ở mức này",
-    "taken_by_item1": "đã có trong lựa chọn 1",
-    "taken_by_item2": "đã có trong lựa chọn 2",
+    "taken_by_item1": "đã có trong hướng học 1",
+    "taken_by_item2": "đã có trong hướng học 2",
     "not_in_hn_hcm": "không học ở Hà Nội hoặc TP.HCM",
 }
 
@@ -255,7 +255,7 @@ def chance_note(years: tuple[int, int]) -> str:
 
 def no_admission_warning(none: float, cap: float) -> str:
     return (f"Với danh sách này, khả năng em không trúng tuyển nguyện vọng nào là khoảng {chance_pct(none, cap)}, vì "
-            "danh sách thiếu nguyện vọng chắc chắn. Em có thể thêm ngành gần hoặc lựa chọn 2 có điểm chuẩn thấp hơn, "
+            "danh sách thiếu nguyện vọng chắc chắn. Em có thể thêm ngành gần hoặc hướng học 2 có điểm chuẩn thấp hơn, "
             "hoặc bỏ bớt trường đã loại, để có thêm nguyện vọng an toàn.")
 
 
@@ -263,7 +263,7 @@ def favorite_note(school_name: str, result: ListResult) -> str | None:
     """Why the favorite school is everywhere on the list, and what to do about it (design decision 2026-10-07)."""
     on_list = [w for w in result.wishes if w.candidate.favorite]
     if not on_list:
-        return (f"{school_name} (trường em thích nhất) không có chương trình nào phù hợp với lựa chọn và điểm của em "
+        return (f"{school_name} (trường em thích nhất) không có chương trình nào phù hợp với hướng học và điểm của em "
                 "để đưa vào danh sách.")
     other = [w.nv for w in on_list if w.candidate.relation == "favorite_school"]
     text = (f"Vì em chọn {school_name} là trường thích nhất, chương trình của trường được ưu tiên ở mọi mức "

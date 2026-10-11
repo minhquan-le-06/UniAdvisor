@@ -9,7 +9,7 @@ longer offered, a removed province name): such values are dropped with a warning
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from uniadvisor.app.state import (AREAS, CATEGORIES, LIST_CHOICES, MAX_CLOSE, MAX_CUTOFF_SHIFT, MAX_ITEMS, SCALES,
                                   SCORE_KINDS, PlanState, ShortlistEntry)
@@ -31,6 +31,7 @@ class Known:
     codes: frozenset[str]                   # ngành and nhóm ngành the app offers
     schools: frozenset[str]
     programs: frozenset[str]
+    province_aliases: dict[str, str] = field(default_factory=dict)   # former province or other name -> current name
 
 
 def dump(state: PlanState, admission_year: int) -> str:
@@ -163,6 +164,8 @@ def load(raw: bytes | str, known: Known) -> tuple[PlanState, list[str]]:
         province = profile["home_province"]
         if province is not None and not isinstance(province, str):
             raise PlanFileError("Tệp kế hoạch có tỉnh/thành không hợp lệ.")
+        if province is not None and province not in known.provinces and province in known.province_aliases:
+            province = known.province_aliases[province]          # a former province (2025 merger) -> its new unit
         if province is not None and province not in known.provinces:
             warnings.append(f"Không còn tỉnh/thành “{province}” trong danh sách; em chọn lại nhé.")
             province = None

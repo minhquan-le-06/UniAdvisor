@@ -259,7 +259,7 @@ def find_levels(text: str) -> list[Mention]:
 
 _AREA = re.compile(r"\b(?:kv|khu vuc)\s*([123])(?:\s*[-_ ]?\s*(nt|nong thon))?\b")
 _CATEGORY = re.compile(r"\b(?:ut|uu tien|doi tuong uu tien|nhom uu tien)\s*([12])\b"
-                       r"|\b(?:doi tuong|nhom doi tuong|nhom)\s*0?([1-7])\b")
+                       r"|\b(?:doi tuong|nhom doi tuong|nhom)\s*0?([1-6])\b")
 _NO_CATEGORY = re.compile(r"\bkhong\s+(?:thuoc\s+)?(?:dien\s+|doi tuong\s+|nhom\s+)?uu tien\b")
 
 
@@ -276,7 +276,7 @@ def find_area(text: str) -> list[Mention]:
 
 
 def find_category(text: str) -> list[Mention]:
-    """'UT1', 'ưu tiên 2', 'đối tượng 01' (nhóm 01-04 -> UT1, 05-07 -> UT2, spec 8), 'không ưu tiên'."""
+    """'UT1', 'ưu tiên 2', 'đối tượng 01' (nhóm 01-03 -> UT1, 04-06 -> UT2, Thông tư 06/2026), 'không ưu tiên'."""
     key = strip_accents(normalise(text))
     out = [Mention("category", ("none",), m.start(), m.end(), m.group(0)) for m in _NO_CATEGORY.finditer(key)]
     for m in _CATEGORY.finditer(key):
@@ -285,6 +285,6 @@ def find_category(text: str) -> list[Mention]:
         if m.group(1):
             value = f"UT{m.group(1)}"
         else:
-            value = "UT1" if int(m.group(2)) <= 4 else "UT2"
+            value = "UT1" if int(m.group(2)) <= 3 else "UT2"
         out.append(Mention("category", (value,), m.start(), m.end(), m.group(0)))
     return sorted(out, key=lambda m: m.start)

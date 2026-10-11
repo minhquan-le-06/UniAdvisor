@@ -64,6 +64,16 @@ def load_provinces() -> dict[str, str]:
     return out
 
 
+def province_canonical() -> dict[str, str]:
+    """Province name or alias (a former province, another spelling) -> the name the student picks from."""
+    out: dict[str, str] = {}
+    for entries in _read_yaml(CONFIG_DIR / "provinces.yaml").values():
+        for entry in entries:
+            for name in [entry["name"], *entry.get("aliases", [])]:
+                out[name] = entry["name"]
+    return out
+
+
 def province_names() -> list[str]:
     """The provinces a student chooses from (no aliases), in file order."""
     data = _read_yaml(CONFIG_DIR / "provinces.yaml")

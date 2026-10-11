@@ -56,7 +56,7 @@ def test_area_category_nv_level():
     assert [m.values[0] for m in find_area("KV1 và kv3")] == ["KV1", "KV3"]
     assert find_area("kv1-nt") == []                          # only KV2 has a nông thôn variant
     assert [m.values[0] for m in find_category("đối tượng 06")] == ["UT2"]
-    assert [m.values[0] for m in find_category("nhóm đối tượng 04")] == ["UT1"]
+    assert [m.values[0] for m in find_category("nhóm đối tượng 04")] == ["UT2"]
     assert [m.values[0] for m in find_category("UT1")] == ["UT1"]
     assert [m.values[0] for m in find_category("ưu tiên 2")] == ["UT2"]
     assert [m.values[0] for m in find_category("em không thuộc diện ưu tiên")] == ["none"]

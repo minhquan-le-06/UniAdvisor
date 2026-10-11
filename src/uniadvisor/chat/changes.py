@@ -113,7 +113,7 @@ def apply(state: PlanState, item: Item, ctx: ChatContext) -> PlanState:
         s.removed_programs = [x for x in s.removed_programs if x != p["program"]]
     elif k == "swap_items":
         if len(s.shortlist) != 2:
-            raise ChangeError("Em mới có một lựa chọn, chưa có gì để đổi thứ tự.")
+            raise ChangeError("Em mới có một hướng học, chưa có gì để đổi thứ tự.")
         s.shortlist.reverse()
     elif k == "replace_item":
         i, code = p["index"], p["code"]
@@ -124,13 +124,13 @@ def apply(state: PlanState, item: Item, ctx: ChatContext) -> PlanState:
         elif 0 <= i < len(s.shortlist):
             s.shortlist[i] = ShortlistEntry(code, [c for c in s.shortlist[i].close if c != code])
         else:
-            raise ChangeError("Không có lựa chọn này.")
+            raise ChangeError("Không có hướng học này.")
         if code not in s.picks:
             s.picks.append(code)
     elif k == "set_close":
         i, old, new = p["index"], p.get("old"), p.get("new")
         if not 0 <= i < len(s.shortlist):
-            raise ChangeError("Không có lựa chọn này.")
+            raise ChangeError("Không có hướng học này.")
         entry = s.shortlist[i]
         close = [c for c in entry.close if c != old]
         if new is not None:
@@ -140,7 +140,7 @@ def apply(state: PlanState, item: Item, ctx: ChatContext) -> PlanState:
                 raise ChangeError("Ngành gần phải khác ngành chính.")
             if new not in close:
                 if len(close) >= MAX_CLOSE:
-                    raise ChangeError(f"Mỗi lựa chọn có tối đa {MAX_CLOSE} ngành gần; em bỏ bớt một ngành trước.")
+                    raise ChangeError(f"Mỗi hướng học có tối đa {MAX_CLOSE} ngành gần; em bỏ bớt một ngành trước.")
                 close.append(new)
         entry.close = close
     else:
@@ -204,15 +204,15 @@ def describe(item: Item, ctx: ChatContext) -> str:
         return f"Đưa lại nguyện vọng {ctx.program_label(p['program'])}" if p.get("program") else \
             "Đưa lại nguyện vọng nào?"
     if k == "swap_items":
-        return "Đổi thứ tự hai lựa chọn (lựa chọn 2 lên trước)"
+        return "Đổi thứ tự hai hướng học (hướng học 2 lên trước)"
     if k == "replace_item":
         i = p.get("index")
         old = ctx.shortlist_codes()[i] if i is not None and i < len(ctx.shortlist_codes()) else None
-        head = f"Lựa chọn {i + 1}" if i is not None else "Lựa chọn nào?"
+        head = f"Hướng học {i + 1}" if i is not None else "Hướng học nào?"
         return f"{head}: {nganh(old) + ' → ' if old else ''}{nganh(p.get('code'))}"
     if k == "set_close":
         i = p.get("index")
-        head = f"Ngành gần của lựa chọn {i + 1}" if i is not None else "Ngành gần của lựa chọn nào?"
+        head = f"Ngành gần của hướng học {i + 1}" if i is not None else "Ngành gần của hướng học nào?"
         parts = ([f"bỏ {nganh(p['old'])}"] if p.get("old") else []) + \
                 ([f"thêm {nganh(p['new'])}"] if p.get("new") or "new" in item.open else [])
         return f"{head}: {', '.join(parts)}"

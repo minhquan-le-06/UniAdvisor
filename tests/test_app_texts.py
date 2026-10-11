@@ -40,7 +40,7 @@ def test_wish_rows(setting):
     ktpm = rows["Kỹ thuật phần mềm *"]                    # HCB:KTPM, mixed method, 100-point 2026 cutoff
     assert ktpm["Trường"] == "Trường Đại học Giả TP.HCM"
     assert ktpm["Ngành (tên Bộ GD&ĐT)"] == "Kỹ thuật phần mềm"
-    assert ktpm["Lựa chọn"] == "1 · trong nhóm ngành đã chọn"
+    assert ktpm["Hướng học"] == "1 · trong nhóm ngành đã chọn"
     assert ktpm["Điểm của em · điểm chuẩn"] == (
         "23,23 (A01, đã gồm 0,23 điểm ưu tiên) · 24,5 (2025) · 24,0 (2026, quy đổi từ 80/100, xét kết hợp)")
     assert ktpm["Học phí"] == "học phí chưa rõ"
@@ -51,7 +51,7 @@ def test_wish_rows(setting):
     # another site gives 24.5 for 2026 (the chosen value is 24.2); 2025 agrees, so nothing is said
     assert cs1["Điểm của em · điểm chuẩn"].endswith("25,0 (2025) · 24,2 (2026, nguồn khác: Tuyensinh247 ghi 24,5)")
     assert cs1["Mức"] in {"mơ ước", "thử sức", "vừa sức", "an toàn"}
-    assert rows["Công nghệ thông tin"]["Lựa chọn"] == "1 · ngành gần của Khoa học máy tính, Trí tuệ nhân tạo (AI), " \
+    assert rows["Công nghệ thông tin"]["Hướng học"] == "1 · ngành gần của Khoa học máy tính, Trí tuệ nhân tạo (AI), " \
                                                       "Kỹ thuật phần mềm"
     assert [r["NV"] for r in wish_rows(result, ["74801"], setting[0])] == list(range(1, len(result.wishes) + 1))
     assert notes[-1].startswith(f"Danh sách chỉ có {len(result.wishes)} nguyện vọng")
@@ -61,7 +61,7 @@ def test_wish_rows(setting):
 def test_main_relation_and_no_priority(setting):
     profile = Profile(scores={"TO": 8.0, "LI": 7.0, "HO": 7.0, "N1": 8.0}, home_province="Hà Nội")
     _, rows, _ = rows_for(setting, profile, [ShortlistItem("7480101")])
-    assert rows["Khoa học máy tính"]["Lựa chọn"] == "1 · ngành chính"
+    assert rows["Khoa học máy tính"]["Hướng học"] == "1 · ngành chính"
     assert rows["Khoa học máy tính"]["Điểm của em · điểm chuẩn"].startswith("23,0 (A01) · ")
 
 
@@ -88,12 +88,12 @@ def test_favorite_school_texts(setting):
     result, rows, _ = rows_for(setting, profile, [ShortlistItem("7480101")])
     fav = [w for w in result.wishes if w.candidate.favorite]
     assert [w.candidate.program.id for w in fav if w.candidate.relation == "favorite_school"] == ["HCB:DD"]
-    assert rows["Điều dưỡng"]["Lựa chọn"] == "1 · trường yêu thích · ngành khác"
+    assert rows["Điều dưỡng"]["Hướng học"] == "1 · trường yêu thích · ngành khác"
     note = favorite_note("Trường Đại học Giả TP.HCM", result)
     assert note.startswith("Vì em chọn Trường Đại học Giả TP.HCM là trường thích nhất")
     assert "là ngành khác ngành em chọn" in note
     nothing = favorite_note("X", type(result)([], [], []))
-    assert nothing == "X (trường em thích nhất) không có chương trình nào phù hợp với lựa chọn và điểm của em để đưa "                       "vào danh sách."
+    assert nothing == "X (trường em thích nhất) không có chương trình nào phù hợp với hướng học và điểm của em để đưa "                       "vào danh sách."
 
 
 def test_correction_texts(setting):
@@ -114,3 +114,13 @@ def test_employment_text(setting):
     assert employment_text(c) == "chưa rõ"
     c = replace(c, program=replace(c.program, employment=(0.952, 2024)))
     assert employment_text(c) == "95% có việc làm (khóa tốt nghiệp 2024)"
+
+
+def test_disliked_answers_read_as_dislikes_in_reasons():
+    from uniadvisor.app.discover import _reason_label
+    from uniadvisor.suggest.questions import load_questionnaire
+    qn = load_questionnaire()
+    label = {(q.id, o.code): _reason_label(q, o) for q in qn.questions for o in q.options}
+    assert label[("q1", "TO")] == "Toán" and label[("q2", "SU")] == "không thích Lịch sử"
+    assert label[("q7", "health")].startswith("không muốn học ")
+    assert label[("q12", "night_shift")] == "không muốn làm ca đêm"

@@ -7,11 +7,17 @@ name = "uniadvisor"
 version = "0.1.0"
 description = "UniAdvisor v2: helps Vietnamese grade-12 students choose a major and build their nguyện vọng list"
 requires-python = ">=3.12,<3.13"
+# Pinned to the versions the app was tested with: the chat classifier is a pickled scikit-learn pipeline
+# (models/message_classifier/model.joblib) that needs the same scikit-learn to load.
 dependencies = [
-    "pandas>=2.2",
-    "pyyaml>=6.0",
-    "streamlit>=1.50",
-    "scikit-learn>=1.5",
+    "pandas==3.0.6",
+    "numpy==2.5.3",
+    "pyyaml==6.0.3",
+    "streamlit==1.65.0",
+    "altair==6.3.0",
+    "scikit-learn==1.9.1",
+    "scipy==1.18.1",
+    "joblib==1.6.0",
 ]
 
 [project.optional-dependencies]

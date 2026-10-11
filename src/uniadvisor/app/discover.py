@@ -19,8 +19,9 @@ from uniadvisor.suggest.questions import Question
 
 DROPDOWN_FROM = 9            # a capped question with more options than this: a dropdown (it enforces the cap)
 METHOD_NOTE = ("Gợi ý được tính từ dữ liệu nghề nghiệp O*NET (sở thích nghề nghiệp, kiến thức cần có, điều kiện làm "
-               "việc) và các tổ hợp xét tuyển của từng nhóm ngành. Đây là bản đầu tiên, chưa học từ câu trả lời của học "
-               "sinh; em nên xem kỹ từng nhóm ngành trước khi chọn.")
+               "việc) và các tổ hợp xét tuyển của từng nhóm ngành, cộng với trọng số mô hình học từ hồ sơ học sinh giả định "
+               "do mô hình ngôn ngữ viết, chưa học từ câu trả lời của học sinh thật; em nên xem kỹ từng nhóm ngành "
+               "trước khi chọn.")
 
 
 def key(qid: str) -> str:
@@ -47,6 +48,18 @@ def answer_widgets(d: AppData, answers: dict) -> dict[str, object]:
         elif isinstance(value, list):
             out[key(q.id)] = [label[c] for c in value if c in label]
     return out
+
+
+def _reason_label(q: Question, o) -> str:
+    """An answer as a reason after "Vì em chọn": a disliked subject, topic or working condition says so, so that
+    "Sức khỏe" picked under "không muốn học" is not read as a liked topic."""
+    if o.subject and q.negative:
+        return f"không thích {o.label}"
+    if q.negative:
+        return f"không muốn học {o.label[0].lower()}{o.label[1:]}"
+    if any(x.against for x in q.options):              # q12: working conditions the student does not want
+        return f"không muốn {o.label[0].lower()}{o.label[1:]}"
+    return o.label
 
 
 def _hint(q: Question, number: dict[str, int]) -> str:
@@ -172,7 +185,7 @@ def questionnaire(d: AppData, picks: list[str], max_picks: int, on_pick: Callabl
     st.subheader("Nhóm ngành có thể hợp với em")
     if answered < 4:
         st.caption("Em mới trả lời ít câu; trả lời thêm sẽ cho gợi ý sát hơn.")
-    labels = {(q.id, o.code): o.label for q in qn.questions for o in q.options}
+    labels = {(q.id, o.code): _reason_label(q, o) for q in qn.questions for o in q.options}
     cat = d.catalog
     for code, reasons in s.suggest(answers, cfg["top"], cfg["reasons"]):
         m = cat.majors[code]

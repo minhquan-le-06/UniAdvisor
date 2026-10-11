@@ -17,8 +17,8 @@ MLAI Hackathon 2026, Phase 1 submission. Code licence: MIT (see `LICENSE`).
    priority points), a level against the 2025 and 2026 cutoffs (an toàn / vừa sức / thử sức / mơ ước), quotas per
    level, and an order in which the safe wishes sit at the bottom. Chances come from 20,000 simulated next-year
    cutoffs built from how real cutoffs moved between 2025 and 2026.
-3. **Three recommended lists.** The same rules with three different priorities for which program fills a slot:
-   **Đúng ngành nhất** (the chosen ngành first), **Nghề nghiệp nhất** (best career fit; **Hợp môn nhất**, the strongest
+3. **Three recommended lists** ("phương án" in the app). The same rules with three different priorities for which program fills a slot:
+   **Đúng ngành nhất** (the chosen ngành first), **Nghề nghiệp hứa hẹn** (best career fit; **Hợp môn học nhất**, the strongest
    subjects, for a student who skipped the questions) and **Tiết kiệm nhất** (cheapest within budget). Each list shows a
    pentagon of its expected outcome (subject fit, ambitious wish, right ngành, tuition, career) and must keep the
    chance of no admission at or below 5%. The student picks one and adjusts it with controls or a chat (a small local
@@ -36,7 +36,7 @@ python3.12 -m venv .venv
 ```
 
 **The app needs the database** `data/build/uniadvisor.db` (SQLite, about 29 MB), which is **not in this repository**
-(see "Data"). Reviewers can use the hosted demo: **[demo link]**. With the database file:
+(see "Data"). Reviewers can use the hosted demo: **[demo link]** (deployed from a private copy that holds the database). With the database file:
 
 ```bash
 UNIADVISOR_DB=/path/to/uniadvisor.db .venv/bin/python -m streamlit run app.py     # or put it at data/build/uniadvisor.db
@@ -73,15 +73,15 @@ LLM-generated training data. They took a long collection and cleaning effort and
 redistribution terms we could not verify. The build code is included: `python -m uniadvisor.data.build` rebuilds the
 database when those inputs are present.
 
-What the database holds (build of 2026-10-09, from `data/build/coverage.md` written by the build): 159 universities
-(98 Hà Nội, 61 TP.HCM), 3,880 programs in scope, of which 3,718 (95.8%, 363 ngành) have a ngành code, a cutoff and a
+What the database holds (build of 2026-10-11, from `data/build/coverage.md` written by the build): 159 universities
+(98 Hà Nội, 61 TP.HCM), 3,880 programs in scope, of which 3,829 (98.7%, 364 ngành) have a ngành code, a cutoff and a
 known exam combination and can be placed in a list; tuition is known for 1,940 programs.
 
 ## Measured results
 
 | Result | Value | Command (needs the database unless noted) |
 |---|---|---|
-| Test suite | 440 passed, 1 skipped (it needs the LLM review files, not published) | `python -m pytest` (no database needed) |
+| Test suite | 442 passed, 1 skipped (it needs the LLM review files, not published) | `python -m pytest` (no database needed) |
 | List bench: 272 invented students (17 shortlists x totals 15-29 x 2 cities) | 210 lists reach 15 wishes; from a total of 23 points the mean chance of no admission is at most 0.02% | `python -m uniadvisor.plan.bench` -> `data/build/bench.md` |
 | Three-list bench (the same 272 students x 3 lists) | every list meets the 5% no-admission floor from a total of 19; 98 of 102 lists at 17 | `python -m uniadvisor.plan.bench_lists` -> `data/build/bench_lists.md` |
 | Suggestion model, held-out LLM family (SeaLLM-7B-v2, 656 students) | target group in the top 5: 43.4% (data scores alone 26.5%); 31/31 hand-written cases | `models/suggester/report.md`, written by `python -m uniadvisor.suggest.train` (needs the generated students) |
@@ -109,7 +109,7 @@ No salary reports are used.
 questionnaire, list view, controls, chat, plan file), step 1 facts and closeness, the step 1 suggestion model and the
 free-text reader. **In progress:** more invented students from one more LLM family and a retrain of the suggestion
 model; tuition (known for half of the programs) and university employment rates (none yet) from the universities'
-own documents. **Planned:** the "I roughly know the field" path of step 1 (shown as coming soon), more fact sheets
+own documents. **Planned:** more fact sheets
 (75 of 379 ngành have one) and testing on real students' messages.
 
 ## Tóm tắt (tiếng Việt)
@@ -117,9 +117,9 @@ own documents. **Planned:** the "I roughly know the field" path of step 1 (shown
 UniAdvisor giúp học sinh lớp 12 chọn ngành và lập danh sách 15 nguyện vọng cho các chương trình đại học ở Hà Nội và
 TP.HCM, xét bằng điểm thi tốt nghiệp THPT. Bước 1: em đã biết ngành thì chọn thẳng; chưa biết thì trả lời 12 câu hỏi
 và mô hình gợi ý 3-5 nhóm ngành kèm lý do. Bước 2: ứng dụng tính điểm của em cho từng chương trình, xếp mức (an toàn,
-vừa sức, thử sức, mơ ước) theo điểm chuẩn 2025 và 2026, và đề xuất **ba danh sách**: Đúng ngành nhất, Nghề nghiệp nhất
-(hoặc Hợp môn nhất) và Tiết kiệm nhất, mỗi danh sách có biểu đồ năm cạnh về kết quả dự kiến và giữ khả năng trượt hết ở
-mức không quá 5%. Em chọn một danh sách rồi điều chỉnh bằng các nút hoặc khung chat. Mọi câu chữ đều từ mẫu cố định với
+vừa sức, thử sức, mơ ước) theo điểm chuẩn 2025 và 2026, và đề xuất **ba phương án**: Đúng ngành nhất, Nghề nghiệp hứa hẹn
+(hoặc Hợp môn học nhất) và Tiết kiệm nhất, mỗi phương án có biểu đồ năm cạnh về kết quả dự kiến và giữ khả năng trượt hết ở
+mức không quá 5%. Em chọn một phương án rồi điều chỉnh bằng các nút hoặc khung chat. Mọi câu chữ đều từ mẫu cố định với
 dữ liệu thật; ứng dụng không lưu thông tin em nhập.
 
 Cơ sở dữ liệu (điểm chuẩn, học phí, mã ngành đã làm sạch) không có trong kho mã này; người chấm dùng bản demo trực

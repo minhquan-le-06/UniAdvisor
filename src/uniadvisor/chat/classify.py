@@ -36,8 +36,9 @@ QUESTION = _rx(r"\?|\b(vi sao|tai sao|sao|why|la gi|nghia la|nghia gi|the nao|nh
                r"(hoi|biet)|giai thich|khac gi|khac nhau|lam sao|bao nhieu)\b")
 UNDO = _rx(r"\b(hoan tac|undo|quay lai (nhu )?(cu|truoc)|tro lai nhu (cu|truoc)|lui lai|huy (thay doi|thao tac)( vua"
            r" (roi|xong))?|cho lai nhu cu)\b")
-RERANK = _rx(r"\b(doi thu tu|dao (thu tu|nguoc|lai)|dao 2|hoan doi|doi cho (2|hai) lua chon|lua chon 2 (len )?(truoc|"
-             r"dau|tren)|dua lua chon 2 len|uu tien lua chon 2|xep lai thu tu|doi (vi tri|lai) (2|hai) lua chon)\b")
+RERANK = _rx(r"\b(doi thu tu|dao (thu tu|nguoc|lai)|dao 2|hoan doi|doi cho (2|hai) (lua chon|huong hoc)|"
+             r"(lua chon|huong hoc) 2 (len )?(truoc|dau|tren)|dua (lua chon|huong hoc) 2 len|uu tien (lua chon|huong hoc)"
+             r" 2|xep lai thu tu|doi (vi tri|lai) (2|hai) (lua chon|huong hoc))\b")
 RESTORE = _rx(r"\b(dua (lai|tro lai|vao lai)|them lai|lay lai|cho (vao )?lai|tra lai|khoi phuc|quay lai)\b")
 REMOVE = _rx(r"\b(bo|xoa|loai|gach|cat|khong (muon|thich|can|hoc) (hoc )?(o |truong |nv |nguyen vong )?)\b")
 EXTRA = _rx(r"\b(diem cong|cong (them )?\d|duoc cong|cong cho|ielts|chung chi|hoc sinh gioi|uu tien xet tuyen|"

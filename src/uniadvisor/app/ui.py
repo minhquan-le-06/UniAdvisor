@@ -1,4 +1,4 @@
-"""The Streamlit page (spec 2): Về em -> Chọn ngành ("Em đã có vài lựa chọn") -> Danh sách nguyện vọng -> Lưu kế hoạch.
+"""The Streamlit page (spec 2): Về em -> Chọn ngành ("Đã có ngành quan tâm" / "Chưa xác định ngành") -> Danh sách nguyện vọng -> Lưu kế hoạch.
 
 Privacy (spec 6): the page keeps what the student enters only in the Streamlit session (memory, per browser tab). It
 logs nothing, sends nothing out, and the plan file is downloaded to the student's device. Usage statistics are turned
@@ -27,6 +27,14 @@ from uniadvisor.plan.models import LEVEL_ORDER
 
 MAIN_SUBJECTS = ["TO", "VA", "N1", "LI", "HO", "SI", "SU", "DI", "GDKTPL", "TI"]
 MAX_PICKS = 6
+# Streamlit's upload box has fixed English text ("Upload", "1MB per file • JSON"); this swaps it for Vietnamese.
+UPLOADER_VI = """<style>
+[data-testid="stFileUploaderDropzone"] button [data-testid="stMarkdownContainer"] p {font-size: 0;}
+[data-testid="stFileUploaderDropzone"] button [data-testid="stMarkdownContainer"] p::after {
+  content: "Chọn tệp"; font-size: 0.875rem;}
+[data-testid="stFileUploaderDropzoneInstructions"] span {font-size: 0;}
+[data-testid="stFileUploaderDropzoneInstructions"] span::after {content: "Tệp .json, tối đa 1 MB"; font-size: 0.75rem;}
+</style>"""
 
 
 def _load_plan():
@@ -117,11 +125,9 @@ def _where(d: AppData, code: str) -> str:
 
 def page_choose(d: AppData):
     st.header("Chọn ngành")
-    st.radio("Em bắt đầu thế nào?", PATHS, key="path", captions=["", "sắp có", "trả lời 12 câu hỏi"])
+    st.radio("Em bắt đầu thế nào?", PATHS, key="path",
+             captions=["tìm và so sánh tối đa 6 ngành", "trả lời 12 câu hỏi"])
     if st.session_state["path"] == PATHS[1]:
-        st.info("Cách này đang được xây dựng. Em dùng “Em đã có vài lựa chọn” hoặc “Em chưa biết gì” nhé.")
-        return
-    if st.session_state["path"] == PATHS[2]:
         questionnaire(d, st.session_state["picks"], MAX_PICKS, _add_pick)
     else:
         _search(d)
@@ -158,9 +164,9 @@ def _search(d: AppData):
 def _shortlist(d: AppData):
     cat = d.catalog
     picks = st.session_state["picks"]
-    st.subheader(f"Các lựa chọn của em ({len(picks)})")
+    st.subheader(f"Các ngành em quan tâm ({len(picks)})")
     if not picks:
-        st.caption("Chưa có lựa chọn nào. Em có thể chọn 1 ngành, hoặc từ 2 ngành trở lên để so sánh.")
+        st.caption("Chưa có ngành nào. Em có thể chọn 1 ngành, hoặc từ 2 ngành trở lên để so sánh.")
         return
     for code in picks:
         c1, c2 = st.columns([5, 1])
@@ -174,15 +180,16 @@ def _shortlist(d: AppData):
         st.caption("Muốn so sánh, em chọn thêm ít nhất 1 ngành nữa; hoặc xếp thứ tự ngay bên dưới.")
 
     st.subheader("Xếp thứ tự")
-    st.caption("Em chọn tối đa 2 lựa chọn, theo thứ tự em thích hơn. Danh sách nguyện vọng ưu tiên lựa chọn 1.")
+    st.caption("Em chọn tối đa 2 hướng học, theo thứ tự em thích hơn. Mỗi hướng học gồm một ngành chính và tối đa "
+               "2 ngành gần. Danh sách nguyện vọng ưu tiên hướng học 1.")
     ss = st.session_state
     for key in ("item1", "item2"):
         if ss.get(key) not in picks:
             ss[key] = None
     if ss["item2"] == ss["item1"]:
         ss["item2"] = None
-    st.selectbox("Lựa chọn 1", picks, key="item1", index=None, format_func=cat.label, placeholder="Chọn")
-    st.selectbox("Lựa chọn 2 (không bắt buộc)", [c for c in picks if c != ss["item1"]], key="item2", index=None,
+    st.selectbox("Hướng học 1", picks, key="item1", index=None, format_func=cat.label, placeholder="Chọn")
+    st.selectbox("Hướng học 2 (không bắt buộc)", [c for c in picks if c != ss["item1"]], key="item2", index=None,
                  format_func=cat.label, placeholder="Không chọn")
 
     nganh = cat.nganh_codes()
@@ -196,11 +203,11 @@ def _shortlist(d: AppData):
             ss[f"close{i}"] = d.facts.proposed_close(main, MAX_CLOSE, exclude={main, ss.get("item1"), ss.get("item2")})
             ss[f"_close_for{i}"] = main
         ss[f"close{i}"] = [c for c in ss[f"close{i}"] if c in nganh and c != main]
-        st.multiselect(f"Ngành gần của lựa chọn {i} ({cat.label(main)}), tối đa {MAX_CLOSE}",
+        st.multiselect(f"Ngành gần của hướng học {i} ({cat.label(main)}), tối đa {MAX_CLOSE}",
                        [c for c in nganh if c != main], key=f"close{i}", max_selections=MAX_CLOSE,
                        format_func=cat.label, placeholder="Không có")
     st.caption("Ngành gần là ngành có công việc sau khi ra trường và kiến thức cần có giống ngành em chọn. Ứng dụng "
-               "đề xuất sẵn tối đa 2 ngành gần (tính từ dữ liệu nghề nghiệp, bản nháp đang được duyệt); em có thể bỏ "
+               "đề xuất sẵn tối đa 2 ngành gần (tính từ dữ liệu nghề nghiệp, đã rà soát); em có thể bỏ "
                "hoặc thay.")
     st.button("Tiếp: xem danh sách nguyện vọng →", on_click=_go, args=(PAGES[2],), type="primary",
               disabled=not ss.get("item1"))
@@ -261,7 +268,7 @@ def page_list(d: AppData):
     missing = state.missing_for_list()
     if missing:
         what = {"scores": "điểm các môn (trang Về em)", "home_province": "tỉnh/thành nơi em ở (trang Về em)",
-                "shortlist": "lựa chọn 1 (trang Chọn ngành)"}
+                "shortlist": "hướng học 1 (trang Chọn ngành)"}
         st.info("Để lập danh sách, em cần nhập: " + "; ".join(what[m] for m in missing) + ".")
         return
     if state.list_choice is None:                 # three recommended lists first
@@ -328,6 +335,7 @@ def sidebar(d: AppData):
         st.radio("Các bước", PAGES, key="page", label_visibility="collapsed")
         st.divider()
         st.markdown("**Mở kế hoạch đã lưu**")
+        st.markdown(UPLOADER_VI, unsafe_allow_html=True)
         st.file_uploader("Tệp kế hoạch (.json)", type=["json"], key="plan_upload", label_visibility="collapsed")
         st.button("Mở kế hoạch", on_click=_load_plan)
         msgs = st.session_state.pop("load_msgs", None)

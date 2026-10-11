@@ -184,7 +184,7 @@ def test_own_score_changes_the_list(d):
     (Item("set_area", {"value": "KV4"}), "Khu vực"),
     (Item("set_close", {"index": 0, "old": None, "new": "74802"}), "ngành cụ thể"),
     (Item("set_close", {"index": 1, "old": None, "new": "7220201"}), "khác ngành chính"),
-    (Item("replace_item", {"index": 5, "code": "7720101"}), "Không có lựa chọn"),
+    (Item("replace_item", {"index": 5, "code": "7720101"}), "Không có hướng học"),
     (Item("set_score", {"subject": None, "value": 8}, open=["subject"]), "chưa đủ thông tin"),
 ])
 def test_bad_changes_are_refused(item, message, ctx):
@@ -197,7 +197,7 @@ def test_too_many_close_nganh(ctx):
     with pytest.raises(ChangeError, match="tối đa 2"):
         apply(s, Item("set_close", {"index": 0, "old": None, "new": "7480103"}), ctx)
     one = PlanState(**{**STATE.__dict__, "shortlist": [ShortlistEntry("74801")]})
-    with pytest.raises(ChangeError, match="một lựa chọn"):
+    with pytest.raises(ChangeError, match="một hướng học"):
         apply(one, Item("swap_items"), ctx)
 
 
@@ -207,7 +207,7 @@ def test_describe(ctx):
     assert describe(Item("set_budget", {"value": None}), ctx) == "Bỏ giới hạn ngân sách học phí"
     assert describe(Item("remove_school", {"school": "HNA"}), ctx) == \
         "Bỏ Trường Đại học Giả Hà Nội (mọi chương trình của trường)"
-    assert describe(Item("replace_item", {"index": 1, "code": "7720101"}), ctx) == "Lựa chọn 2: Ngôn ngữ Anh → Y khoa"
+    assert describe(Item("replace_item", {"index": 1, "code": "7720101"}), ctx) == "Hướng học 2: Ngôn ngữ Anh → Y khoa"
 
 
 def test_split(rules):

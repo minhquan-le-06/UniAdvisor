@@ -89,7 +89,7 @@ print(torch.cuda.device_count(), "GPU(s)")
 TYPES = {
     "change_score": ("đổi điểm một hoặc vài môn thi của em", "subjects_scores"),
     "change_priority": ("đổi khu vực ưu tiên (KV1, KV2-NT, KV2, KV3) hoặc đối tượng ưu tiên (ưu tiên 1 / nhóm đối tượng "
-                        "01-04, ưu tiên 2 / nhóm 05-07, hoặc không ưu tiên)", "priority"),
+                        "01-03, ưu tiên 2 / nhóm 04-06, hoặc không ưu tiên)", "priority"),
     "change_budget": ("đổi ngân sách học phí mỗi năm (triệu đồng), hoặc bỏ giới hạn ngân sách", "budget"),
     "change_near_home": ("bật hoặc tắt mong muốn học gần nhà", "near_home"),
     "extra_points": ("nhập điểm cộng mà một trường cụ thể cho em (em đã tự tính theo quy định của trường)",

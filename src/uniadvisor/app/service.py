@@ -18,7 +18,9 @@ from uniadvisor.app.plan_file import Known
 from uniadvisor.app.state import PlanState
 from uniadvisor.chat.classify import Classifier, load_classifier
 from uniadvisor.chat.context import ChatContext, Indexes
-from uniadvisor.config import load_data_config, load_list_config, load_provinces, load_rules, province_names
+from uniadvisor.config import (
+    load_data_config, load_list_config, load_provinces, load_rules, province_canonical, province_names,
+)
 from uniadvisor.paths import DB_PATH, ROOT
 from uniadvisor.plan.chances import ChangeModel, Chances, chances
 from uniadvisor.plan.lists import ListFacts, Priority, Recommended, build_with_floor, recommend, usable
@@ -114,7 +116,7 @@ class AppData:
 
     @cached_property
     def indexes(self) -> Indexes:
-        return Indexes.build(self.catalog, self.all_school_names, self.provinces, self.school_aliases)
+        return Indexes.build(self.catalog, self.all_school_names, list(self.province_city), self.school_aliases)
 
     @cached_property
     def classifier(self) -> Classifier:
@@ -130,7 +132,7 @@ class AppData:
 
     def known(self) -> Known:
         return Known(frozenset(self.subjects), frozenset(self.provinces), frozenset(self.catalog.majors),
-                     frozenset(self.school_names), frozenset(p.id for p in self.programs))
+                     frozenset(self.school_names), frozenset(p.id for p in self.programs), province_canonical())
 
     def shortlist_items(self, state: PlanState) -> list[ShortlistItem]:
         """The student's shortlist plus, per item, the next closest ngành (step 6) for the an toàn top-up (spec 4.5)."""

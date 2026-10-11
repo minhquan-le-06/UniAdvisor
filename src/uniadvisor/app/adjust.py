@@ -110,7 +110,7 @@ def change_card(d: AppData, state: PlanState, result: ListResult | None):
 def _param_label(item: Item, param: str) -> str:
     if item.kind == "set_cutoff_shift" and param == "value":
         return "Cao hơn bao nhiêu điểm? (thấp hơn: nhập số âm)"
-    return {"school": "Trường nào?", "subject": "Môn nào?", "value": "Bao nhiêu?", "index": "Lựa chọn nào?",
+    return {"school": "Trường nào?", "subject": "Môn nào?", "value": "Bao nhiêu?", "index": "Hướng học nào?",
             "code": "Ngành nào?", "new": "Ngành gần nào?", "target": "Đưa lại gì?"}.get(param, param)
 
 
@@ -298,25 +298,25 @@ def controls(d: AppData, state: PlanState, result: ListResult | None):
             st.button(f"Đưa lại {label}", key=f"adj_rp_{p}", on_click=_do,
                       args=([Item("restore_program", {"program": p})],))
 
-    st.markdown("**Lựa chọn ngành**")
+    st.markdown("**Hướng học**")
     if len(state.shortlist) == 2:
-        st.button("Đổi thứ tự hai lựa chọn", key="adj_swap", on_click=_do, args=([Item("swap_items")],))
+        st.button("Đổi thứ tự hai hướng học", key="adj_swap", on_click=_do, args=([Item("swap_items")],))
     indexes = list(range(len(state.shortlist))) + ([len(state.shortlist)] if len(state.shortlist) < 2 else [])
 
     def item_label(i):
-        return f"Lựa chọn {i + 1}: {cat.label(state.shortlist[i].main)}" if i < len(state.shortlist) else \
-            "Thêm làm lựa chọn 2"
+        return f"Hướng học {i + 1}: {cat.label(state.shortlist[i].main)}" if i < len(state.shortlist) else \
+            "Thêm làm hướng học 2"
 
     c1, c2, c3 = st.columns([2, 2, 1], vertical_alignment="bottom")
     _keep_valid("adj_rep_idx", indexes)
-    c1.selectbox("Thay", indexes, key="adj_rep_idx", index=None, format_func=item_label, placeholder="Chọn lựa chọn")
+    c1.selectbox("Thay", indexes, key="adj_rep_idx", index=None, format_func=item_label, placeholder="Chọn hướng học")
     c2.selectbox("bằng ngành", sorted(cat.majors), key="adj_rep_code", index=None, format_func=cat.label,
                  placeholder="Chọn ngành")
     c3.button("Thay", key="adj_rep_btn", disabled=_selected("adj_rep_idx") is None or not _selected("adj_rep_code"),
               on_click=_do, args=([Item("replace_item", {"index": _selected("adj_rep_idx"),
                                                          "code": _selected("adj_rep_code")})],))
     for i, entry in enumerate(state.shortlist):
-        st.caption(f"Ngành gần của lựa chọn {i + 1} ({cat.label(entry.main)}), tối đa {MAX_CLOSE}")
+        st.caption(f"Ngành gần của hướng học {i + 1} ({cat.label(entry.main)}), tối đa {MAX_CLOSE}")
         for code in entry.close:
             st.button(f"Bỏ ngành gần {cat.label(code)}", key=f"adj_close_rm_{i}_{code}", on_click=_do,
                       args=([Item("set_close", {"index": i, "old": code, "new": None})],))
