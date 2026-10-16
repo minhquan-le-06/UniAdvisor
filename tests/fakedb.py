@@ -110,8 +110,7 @@ def build_fake_db(path: Path | str):
     conn.executemany(
         "INSERT INTO moet_major (code, level, name, parent_code, source_id) VALUES (?,?,?,?, 'moet_tt09_2022')", MOET
     )
-    conn.executemany("INSERT INTO display_name (code, display_name, aliases, status, origin, source_id) "
-                     "VALUES (?,?,?,?,?, 'fake')", DISPLAY)
+    conn.executemany("INSERT INTO display_name VALUES (?,?,?,?,?, 'fake')", DISPLAY)
     conn.executemany("INSERT INTO subject VALUES (?,?,1,'fake')", SUBJECTS)
     for code, subjects in COMBOS.items():
         conn.execute("INSERT INTO combo VALUES (?,1,'fake')", (code,))
@@ -121,8 +120,7 @@ def build_fake_db(path: Path | str):
     conn.executemany(
         "INSERT INTO school VALUES (?,?,?,?,?,'fake',?,?,'fake')", SCHOOLS
     )
-    conn.executemany("INSERT INTO school_alias (school_code, alias, status, origin, source_id) "
-                     "VALUES (?,?,'draft','agent_draft','fake')", SCHOOL_ALIASES)
+    conn.executemany("INSERT INTO school_alias VALUES (?,?,'draft','agent_draft','fake')", SCHOOL_ALIASES)
     for pid, school, code, name, moet, scale, tuition, combos in PROGRAMS:
         tmin, tmax, tyear = tuition or (None, None, None)
         in_scope = 0 if school == "OUT" else 1
@@ -204,6 +202,5 @@ def add_facts(conn):
     conn.executemany("INSERT INTO nganh_work_context VALUES (?,?,?,?,?)",
                      [(n, e, e, "CX", v) for n, d in WORK_CONTEXT.items() for e, v in d.items()])
     conn.executemany("INSERT INTO nganh_close VALUES (?,?,?,?,0,0)", CLOSE)
-    conn.executemany("INSERT INTO name_vi (kind, key, name_vi, description, status, origin) "
-                     "VALUES (?,?,?,?,'draft','test')",
+    conn.executemany("INSERT INTO name_vi VALUES (?,?,?,?,'draft','test')",
                      [("occupation", c, vi, None) for c, _, vi in OCCUPATIONS] + NAMES)

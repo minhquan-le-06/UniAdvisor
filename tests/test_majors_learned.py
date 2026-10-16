@@ -1,7 +1,6 @@
 """The learned major suggester: fitting, the interface shared with the data scores, saving and the app's ready gate."""
 
 import json
-import sqlite3
 
 import numpy as np
 import pandas as pd
@@ -9,9 +8,8 @@ import pytest
 
 from uniadvisor.ui.catalog import Catalog
 from pipelines.majors_model import checks
-from uniadvisor.majors.model import Features, LearnedScorer, fit, fit_present, metrics
+from uniadvisor.majors.model import Features, LearnedScorer, fit, metrics
 from uniadvisor.majors.score import DataScorer, load_config
-from uniadvisor.paths import DB_PATH, ROOT
 from pipelines.majors_model.train import split, train
 
 
@@ -57,21 +55,11 @@ def test_learned_scorer_shares_the_interface(scorer, tmp_path):
     again = LearnedScorer.load(tmp_path, scorer)
     assert again is not None and again.rank({"q4": ["cooking"]})[0] == "77203" and again.info["ready"] is False
     meta = json.loads((tmp_path / "model.json").read_text(encoding="utf-8"))
-    assert LearnedScorer.mismatch(tmp_path, scorer) is None
     meta["groups"] = meta["groups"][:-1]                                  # fitted on other groups: not loaded
     (tmp_path / "model.json").write_text(json.dumps(meta), encoding="utf-8")
     assert LearnedScorer.load(tmp_path, scorer) is None
-    assert f"new: {scorer.codes[-1]}" in LearnedScorer.mismatch(tmp_path, scorer)
     assert checks.run(model, [], {**load_config(), "checks": {**load_config()["checks"], "random_sets": 50}})[
         "deterministic"]
-
-
-def test_learned_scorer_carries_the_suggest_settings_the_page_reads(scorer):
-    # The questionnaire page and the web API read scorer.cfg["suggest"]; a ready model must have it like the data scores
-    # (the real database uses the learned model, the fake one the data scores, so this went unnoticed).
-    features = Features.from_questionnaire(scorer)
-    model = LearnedScorer(scorer, features, 1.0, np.zeros((len(features.options), len(scorer.codes))))
-    assert model.cfg["suggest"] == scorer.cfg["suggest"] and {"top", "reasons"} <= set(model.cfg["suggest"])
 
 
 def test_metrics_and_split(scorer):
@@ -96,28 +84,3 @@ def test_train_without_a_held_out_family_is_not_ready(scorer):
     model, report = train(pd.DataFrame(rows), scorer, cfg)
     assert report["test_family"] is None and report["train_students"] > 0
     assert report["test_kept"]["model"]["hit1"] >= report["test_kept"]["baseline"]["hit1"]
-
-
-def test_a_group_without_students_keeps_the_data_scores():
-    rng = np.random.default_rng(0)
-    n = 200
-    D = rng.normal(size=(n, 3))
-    y = rng.integers(0, 2, size=n)                  # nobody was written for group 2
-    X = np.zeros((n, 1))
-    X[y == 1, 0] = 1.0
-    beta, W = fit_present(D, X, y, l2=0.1)
-    assert W.shape == (1, 3) and W[0, 2] == 0.0 and W[0, 1] > 0.5
-    _, W_all = fit(D, X, y, l2=0.1)                 # fitted over every group, group 2 is only pushed down
-    assert W_all[0, 2] < 0.0
-
-
-@pytest.mark.skipif(not (DB_PATH.exists() and (ROOT / "models" / "suggester" / "weights.npz").exists()),
-                    reason="needs the built database and the trained model (not in the public repository)")
-def test_shipped_model_fits_the_database():
-    """The app silently fell back to the data scores for days when a data round added two groups (2026-10-13)."""
-    conn = sqlite3.connect(DB_PATH)
-    try:
-        data = DataScorer.load(conn, Catalog.load(conn))
-    finally:
-        conn.close()
-    assert LearnedScorer.mismatch(ROOT / "models" / "suggester", data) is None

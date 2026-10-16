@@ -85,19 +85,17 @@ def test_whole_flow(at):
     go(at, "3. Danh sách nguyện vọng")
     assert at.session_state["score_TO"] == 8.0 and at.session_state["province"] == "Hà Nội"   # kept across pages
     assert "Ba phương án gợi ý cho em" in [h.value for h in at.subheader]           # three lists first
-    assert len(at.get("vega_lite_chart")) == 6 and len(at.dataframe) == 4    # 3 in the cards + 3 under Xem chi tiết; 3 lists + table
-    assert any(s.value.startswith("**Gợi ý cho em: ") for s in at.success)     # one list is recommended
-    assert sum("✅ Gợi ý" in m.value for m in at.markdown) == 1
-    assert any("đều đủ nguyện vọng an toàn" in c.value for c in at.caption)
+    assert len(at.get("vega_lite_chart")) == 3 and len(at.dataframe) == 4    # 3 lists + comparison table
+    assert any(m.value.startswith("Khả năng đỗ ít nhất 1 nguyện vọng") for m in at.markdown)
     choose(at)
     assert at.session_state["list_choice"] == "dung_nganh" and len(at.session_state["recommended"]) == 3
     assert any("Phương án em chọn: Đúng ngành nhất" in m.value for m in at.markdown)
     rows = at.dataframe[0].value
     assert list(rows["NV"]) == list(range(1, len(rows) + 1))
-    assert set(rows["Chương trình"]) == {"Khoa học máy tính", "Kỹ thuật phần mềm", "Kỹ thuật phần mềm *",
-                                         "Công nghệ thông tin"}              # the military course is over 4 points away
+    assert set(rows["Chương trình"]) == {"Khoa học máy tính", "Khoa học máy tính (hệ quân sự)", "Kỹ thuật phần mềm",
+                                         "Kỹ thuật phần mềm *", "Công nghệ thông tin"}
     assert set(rows["Hướng học"]) == {"1 · ngành chính", "1 · ngành gần của Khoa học máy tính", "2 · ngành chính"}
-    assert any("Danh sách chỉ có 4 nguyện vọng" in w.value for w in at.warning)
+    assert any("Danh sách chỉ có 5 nguyện vọng" in w.value for w in at.warning)
     assert any("Có dấu *" in c.value for c in at.caption)
     assert not any("trường thích nhất" in i.value for i in at.info)             # no favorite school chosen
     chance = [m.value for m in at.markdown if "khả năng trúng tuyển" in m.value]   # expected scores: 3 lines
@@ -190,7 +188,8 @@ def test_chat_card_confirm_and_undo(at):
     at.checkbox[1].uncheck()                                            # [Sửa]-style: untick one change
     button(at, "Xác nhận").click().run()
     assert at.session_state["removed_schools"] == ["HNA"] and at.session_state["budget"] is None
-    assert "Trường Đại học Giả Hà Nội" in at.success[0].value
+    assert at.success[0].value.startswith("Đã áp dụng: Bỏ Trường Đại học Giả Hà Nội")
+    assert "ra vì em đã bỏ trường" in at.success[0].value
     button(at, "Hoàn tác thay đổi gần nhất").click().run()
     assert at.session_state["removed_schools"] == [] and not at.exception
 
@@ -208,17 +207,10 @@ def test_chat_card_asks_what_is_unclear(at):
 def test_chat_answers_and_help(at):
     ready_list(at)
     at.chat_input[0].set_value("vì sao NV1 lại ở đó?").run()
-    assert at.chat_message[-1].markdown[0].value.startswith("**NV1 · ")
+    assert at.chat_message[-1].markdown[0].value.startswith("NV1: ")
     at.chat_input[0].set_value("trời đẹp quá").run()
     assert at.chat_message[-1].markdown[0].value.startswith("Mình chưa hiểu ý em")
     assert not at.checkbox                                               # no card for questions or chit-chat
-
-
-def test_wish_reason_button_uses_the_current_wish(at):
-    ready_list(at)
-    button(at, "Vì sao ở đây? · NV1").click().run()
-    assert not at.exception
-    assert any("**Vì sao có trong danh sách:**" in markdown.value for markdown in at.markdown)
 
 
 def test_controls(at):
@@ -250,7 +242,7 @@ def test_second_list_follows_the_answers(at):
     go(at, "3. Danh sách nguyện vọng")                                   # no answers: Hợp môn học nhất
     keys = {b.key for b in at.button if (b.key or "").startswith("choose_")}
     assert keys == {"choose_dung_nganh", "choose_hop_mon", "choose_tiet_kiem"}
-    assert any("thay cho “Hợp sở thích nhất”" in c.value for c in at.caption)
+    assert any("thay cho “Nghề nghiệp hứa hẹn”" in c.value for c in at.caption)
 
     go(at, "2. Chọn ngành")                                                 # answer the questions
     at.radio(key="path").set_value("Chưa xác định ngành").run()
@@ -260,7 +252,7 @@ def test_second_list_follows_the_answers(at):
     keys = {b.key for b in at.button if (b.key or "").startswith("choose_")}
     assert keys == {"choose_dung_nganh", "choose_nghe_nghiep", "choose_tiet_kiem"}
     choose(at, "nghe_nghiep")
-    assert any("Phương án em chọn: Hợp sở thích nhất" in m.value for m in at.markdown)
+    assert any("Phương án em chọn: Nghề nghiệp hứa hẹn" in m.value for m in at.markdown)
 
     at.session_state["quiz_answers"] = None                                   # answers cleared: Hợp môn instead
     at.run()

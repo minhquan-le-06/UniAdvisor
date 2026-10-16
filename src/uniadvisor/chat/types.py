@@ -26,22 +26,11 @@ QUESTION_TYPES = [
     "ask_compare",         # difference between ngành A and B
     "ask_what_is",         # what is ngành A (study, jobs, strong subjects)
     "ask_level",           # what does this level mean
-    "ask_tuition",         # a program's published tuition
-    "ask_cutoff",          # a program's published THPT cutoffs
-    "ask_combos",          # a program's accepted exam combinations
-    "ask_employment",      # a school's employment rate for one ngành
-    "ask_extra_policy",    # a school's rules for IELTS / other extra points (not in our data)
-    "out_procedure",       # application dates and administrative procedure: outside scope
-    "out_admission_method",# school records, certificates, aptitude tests: outside scope
-    "out_forecast",        # predicting a future cutoff: outside scope
-    "out_advice",          # an open-ended personal recommendation: redirect to supported actions
 ]
 
 OTHER = "other"
 # Types added after the classifier's first training run: the rules decide them until the model is retrained.
-PART4_TYPES = ["ask_tuition", "ask_cutoff", "ask_combos", "ask_employment", "ask_extra_policy",
-               "out_procedure", "out_admission_method", "out_forecast", "out_advice"]
-LATE_TYPES = ["favorite_school", "own_score", "cutoff_shift", *PART4_TYPES]
+LATE_TYPES = ["favorite_school", "own_score", "cutoff_shift"]
 ALL_TYPES = CHANGE_TYPES + QUESTION_TYPES + [OTHER]
 
 TYPE_VI = {
@@ -51,16 +40,11 @@ TYPE_VI = {
     "own_score": "nhập điểm xét tuyển em tự tính ở một trường",
     "cutoff_shift": "điều chỉnh điểm chuẩn của một trường cho riêng em",
     "remove": "bỏ một trường hoặc một nguyện vọng",
-    "restore": "đưa lại trường hoặc nguyện vọng đã bỏ", "rerank": "đổi thứ tự hai hướng học",
-    "replace_nganh": "thay hướng học hoặc ngành gần", "undo": "hoàn tác thay đổi gần nhất",
+    "restore": "đưa lại trường hoặc nguyện vọng đã bỏ", "rerank": "đổi thứ tự hai lựa chọn",
+    "replace_nganh": "thay lựa chọn hoặc ngành gần", "undo": "hoàn tác thay đổi gần nhất",
     "ask_why_nv": "hỏi vì sao một chương trình ở NV đó", "ask_why_not": "hỏi vì sao một trường không có trong danh sách",
     "ask_compare": "hỏi hai ngành khác nhau thế nào", "ask_what_is": "hỏi một ngành học gì",
     "ask_level": "hỏi một mức nghĩa là gì", "other": "khác",
-    "ask_tuition": "hỏi học phí của chương trình", "ask_cutoff": "hỏi điểm chuẩn đã công bố",
-    "ask_combos": "hỏi tổ hợp xét tuyển", "ask_employment": "hỏi tỷ lệ có việc làm",
-    "ask_extra_policy": "hỏi quy định điểm cộng của trường",
-    "out_procedure": "hỏi thủ tục hoặc lịch tuyển sinh", "out_admission_method": "hỏi phương thức xét tuyển khác",
-    "out_forecast": "hỏi dự báo điểm chuẩn", "out_advice": "xin lời khuyên chung",
 }
 
 # Shown when a request has no type: what the chat can do, with examples.
@@ -75,13 +59,10 @@ EXAMPLES_VI = [
     "Điểm chuẩn trường Công nghệ thông tin thực ra thấp hơn 1 điểm",
     "Bỏ trường Bách khoa Hà Nội; bỏ NV7",
     "Đưa Bách khoa Hà Nội trở lại",
-    "Đổi thứ tự hai hướng học",
+    "Đổi thứ tự hai lựa chọn",
     "Thay ngành gần Marketing bằng Logistics",
     "Hoàn tác",
     "Vì sao NV3 lại ở đó?",
-    "Học phí NV3 bao nhiêu?",
-    "NV5 xét tổ hợp nào?",
-    "Điểm chuẩn ngành Công nghệ thông tin ở trường Bách khoa là bao nhiêu?",
     "Sao không có trường Kinh tế Quốc dân?",
     "Khoa học máy tính với Công nghệ thông tin khác gì nhau?",
     "Ngành Logistics học gì?",

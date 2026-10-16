@@ -13,7 +13,6 @@ the words it came from, and the student confirms every guess. A clause that says
 from __future__ import annotations
 
 import re
-import sys
 import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
@@ -207,7 +206,6 @@ def main():
     OUT.mkdir(parents=True, exist_ok=True)
     text = "\n".join(lines) + "\n"
     (OUT / "report.md").write_text(text, encoding="utf-8")
-    sys.stdout.reconfigure(encoding="utf-8")
     print(text)
 
 

@@ -82,20 +82,6 @@ def fit(D: np.ndarray, X: np.ndarray, y: np.ndarray, l2: float,
     return float(res.x[0]), res.x[1:].reshape(k, g)
 
 
-def fit_present(D: np.ndarray, X: np.ndarray, y: np.ndarray, l2: float,
-                cap: np.ndarray | None = None) -> tuple[float, np.ndarray]:
-    """`fit` over the groups that have at least one student; the other groups keep W = 0 (data scores only).
-    A group nobody was written for would otherwise only be pushed down (it is never the right answer), so a group
-    added to the database after the students were generated would start below every other group."""
-    present = np.unique(y)
-    remap = np.full(D.shape[1], -1)
-    remap[present] = np.arange(len(present))
-    beta, W_present = fit(D[:, present], X, remap[y], l2, cap)
-    W = np.zeros((X.shape[1], D.shape[1]))
-    W[:, present] = W_present
-    return beta, W
-
-
 def fit_baseline(D: np.ndarray, y: np.ndarray) -> float:
     """The data scores alone with a fitted scale (the baseline's best calibration; its ranking is the data scores')."""
     beta, _ = fit(D, np.zeros((len(y), 0)), y, 0.0)
@@ -108,7 +94,6 @@ class LearnedScorer:
     def __init__(self, data: DataScorer, features: Features, beta: float, W: np.ndarray, info: dict | None = None):
         self.data = data
         self.qn = data.qn
-        self.cfg = data.cfg                  # the page reads the suggest settings (top, reasons) from either scorer
         self.codes = data.codes
         self.features = features
         self.beta = beta
@@ -148,30 +133,15 @@ class LearnedScorer:
             {"groups": self.codes, "options": [list(o) for o in self.features.options], **self.info},
             ensure_ascii=False, indent=1), encoding="utf-8")
 
-    @staticmethod
-    def mismatch(folder: Path, data: DataScorer) -> str | None:
-        """Why a saved model cannot be used with these data scores (None: it can, or there is no model)."""
+    @classmethod
+    def load(cls, folder: Path, data: DataScorer) -> "LearnedScorer | None":
+        """None when there is no model, or it was fitted on other groups or options than the current ones."""
         if not (folder / "weights.npz").exists():
             return None
         meta = json.loads((folder / "model.json").read_text(encoding="utf-8"))
-        if meta["groups"] != data.codes:
-            added = sorted(set(data.codes) - set(meta["groups"]))
-            gone = sorted(set(meta["groups"]) - set(data.codes))
-            return (f"the model was fitted on {len(meta['groups'])} groups, the database has {len(data.codes)} "
-                    f"(new: {', '.join(added) or '-'}; gone: {', '.join(gone) or '-'}); retrain "
-                    f"(python -m pipelines.majors_model.prepare, then .train)")
-        if [tuple(o) for o in meta["options"]] != Features.from_questionnaire(data).options:
-            return "the questionnaire's options changed since the model was fitted; regenerate students and retrain"
-        return None
-
-    @classmethod
-    def load(cls, folder: Path, data: DataScorer) -> "LearnedScorer | None":
-        """None when there is no model, or it was fitted on other groups or options than the current ones
-        (`mismatch` says why)."""
-        if not (folder / "weights.npz").exists() or cls.mismatch(folder, data):
-            return None
-        meta = json.loads((folder / "model.json").read_text(encoding="utf-8"))
         features = Features.from_questionnaire(data)
+        if meta["groups"] != data.codes or [tuple(o) for o in meta["options"]] != features.options:
+            return None
         w = np.load(folder / "weights.npz")
         return cls(data, features, float(w["beta"][0]), w["W"], meta)
 

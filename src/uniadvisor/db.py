@@ -8,7 +8,7 @@ from pathlib import Path
 
 from uniadvisor.paths import DB_PATH
 
-SCHEMA_VERSION = "8"      # 8: the tables loaded from curated CSVs carry every column of their CSV
+SCHEMA_VERSION = "7"
 
 
 def schema_sql() -> str:

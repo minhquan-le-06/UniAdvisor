@@ -1,2 +1,2 @@
-# Runtime dependencies for the Streamlit app (Streamlit Community Cloud installs from this file).
--e .[ui]
+# Runtime dependencies (Streamlit Community Cloud installs from this file).
+-e .

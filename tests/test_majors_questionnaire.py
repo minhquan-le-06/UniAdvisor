@@ -102,11 +102,11 @@ def test_notebook_builder(fake_db_path, monkeypatch, tmp_path):
     assert "MAX_HOURS" in sources[1] and "time.time() > deadline" in sources[7]   # stops before Kaggle's limit
     compile(ns["WORKER"], "worker", "exec")
     assert 'if __name__ == "__main__":\n    main()' in ns["WORKER"]          # safe when vLLM spawns processes
-    assert 'ENGINES = {' in sources[1] and '"gemma": ["transformers"]' in sources[1]   # vLLM cannot load gemma on T4s
-    assert '"max_num_batched_tokens": 8192' in sources[1]
+    assert '"gemma": {"dtype": "float32", "quantization": "bitsandbytes"}' in sources[1]
+    assert "vllm-bnb-plugin" in "".join(sources) and '"max_num_batched_tokens": 8192' in sources[1]
     exec("import glob, os\nimport pandas as pd\n" + "def previous(" + sources[7].split("def previous(")[1]
          .split("def run_family(")[0], ns)
-    ns["REQUIRE_PREVIOUS"], ns["FRESH"] = [], []
+    ns["REQUIRE_PREVIOUS"] = False
     assert ns["previous"]("nobody") == []                                       # resume: nothing attached
     attached = tmp_path / "input"
     attached.mkdir()
@@ -117,19 +117,16 @@ def test_notebook_builder(fake_db_path, monkeypatch, tmp_path):
     ns["glob"] = type("G", (), {"glob": staticmethod(lambda *a, **k: sorted(str(p) for p in attached.iterdir()))})
     assert [r["student_id"] for r in ns["previous"]("gemma")] == ["gemma-1-0"]  # review samples are not more students
     ns["glob"] = glob
-    ns["FRESH"] = ["gemma"]                                                     # a rerun ignores the attached file
-    assert ns["previous"]("gemma") == []
-    ns["FRESH"] = []
-    ns["REQUIRE_PREVIOUS"] = ["nobody"]                                         # a top-up run stops before the model
+    ns["REQUIRE_PREVIOUS"] = True                                               # a top-up run stops before the model
     with pytest.raises(SystemExit, match="No earlier nobody file"):
         ns["previous"]("nobody")
-    assert ns["previous"]("other") == []                                        # only the listed families are required
-    rerun = make_notebook.build(rerun=True)
-    config = "".join(rerun["cells"][2]["source"])
-    assert 'RUN_FAMILIES = ["aya", "gemma"]' in config and 'REQUIRE_PREVIOUS = ["gemma"]' in config
-    assert 'FRESH = ["aya"]' in config and '"aya": 40, "gemma": 25' in config and "MAX_HOURS = 10.5" in config
-    assert 'FAMILY_HOURS = {"aya": 3.5, "gemma": 7.5}' in config
-    assert "1,600" in "".join(rerun["cells"][0]["source"])
+    topup = make_notebook.build(topup="gemma")
+    config = "".join(topup["cells"][2]["source"])
+    assert 'RUN_FAMILIES = ["gemma"]' in config and "REQUIRE_PREVIOUS = True" in config and '"gemma": 20' in config
+    aya = make_notebook.build(topup="aya")
+    config = "".join(aya["cells"][2]["source"])
+    assert 'RUN_FAMILIES = ["aya"]' in config and "MAX_HOURS = 4.6 " in config and '"aya": 40' in config
+    assert "2,008" in "".join(aya["cells"][0]["source"])
     compile(config, "config", "exec")
 
 
@@ -142,7 +139,7 @@ def test_notebook_engines_fall_through(fake_db_path, monkeypatch):
     ns = {"pd": pd, "os": os}
     exec(sources[1], ns)
     exec(sources[5], ns)
-    exec(sources[7].replace("results = run_all()", ""), ns)
+    exec(sources[7].replace("results = {f: run_family(f) for f in RUN_FAMILIES}", ""), ns)
     earlier = [{"student_id": "gemma-x-0"}]                                   # a trial leaves the attached file alone
     ns.update(TRIAL=True, VLLM_OK=True, previous=lambda family: earlier,
               save=lambda rows, family, final=False: pd.DataFrame(rows))
@@ -155,8 +152,7 @@ def test_notebook_engines_fall_through(fake_db_path, monkeypatch):
         rows += [ns["row"](sid, group, family, attrs, answer, "transformers") for sid, group, _, attrs in todo]
 
     ns.update(run_vllm=fake_vllm, run_transformers=fake_transformers)
-    df = ns["run_family"]("aya")
+    df = ns["run_family"]("gemma")
     engines = [json.loads(a)["engine"] for a in df["attributes"]]
     assert len(df) == 6 and engines.count("vllm") == 2 and engines.count("transformers") == 4
     assert (df["answers"] != "").all()
-

@@ -16,7 +16,7 @@ from dataclasses import dataclass
 
 from uniadvisor.data.text import name_words
 from uniadvisor.planner.chances import ChangeModel, chances
-from uniadvisor.planner.models import LEVEL_ORDER, Candidate, Level, ListResult, Profile, ShortlistItem
+from uniadvisor.planner.models import LEVEL_ORDER, Level, ListResult, Profile, ShortlistItem
 from uniadvisor.planner.strategy import build_list
 
 SUBJECTS = ("TO", "VA", "N1", "LI", "HO", "SI", "SU", "DI")
@@ -42,9 +42,7 @@ class Measure:
     city: str
     wishes: int
     levels: dict[Level, int]
-    useless: int                  # harder (by USELESS_MARGIN) than a wish above it of the same item
-    item2_below_item1: int        # item 2's wishes harder than an item 1 wish above them (by design, 2026-10-07)
-    teacher_late: int             # sư phạm wishes below the regulation's position (application.teacher_training)
+    useless: int
     duplicated: int               # wishes whose school and name (variant markers kept) repeat an earlier wish
     safe: int
     safe_schools: int
@@ -67,26 +65,10 @@ def shortlist(codes: Iterable[str], close: Callable[[str], list[str]]) -> list[S
     return items
 
 
-def useless_counts(ws: list[Candidate]) -> tuple[int, int]:
-    """(wishes harder than a wish above them of the same item, item 2's wishes harder only than an item 1 wish above
-    them). The second is the owner's design (2026-10-07): item 2 sits below item 1's easier vừa sức wishes."""
-    same = other = 0
-    for j, later in enumerate(ws):
-        blockers = [e for e in ws[:j] if later.gap > e.gap + USELESS_MARGIN]
-        if any(e.item_index == later.item_index for e in blockers):
-            same += 1
-        elif blockers:
-            other += 1
-    return same, other
-
-
 def measure(case: str, total: float, city: str, result: ListResult, model: ChangeModel | None = None,
-            list_cfg: dict | None = None, rules: dict | None = None) -> Measure:
+            list_cfg: dict | None = None) -> Measure:
     ws = [w.candidate for w in result.wishes]
-    useless, item2_below = useless_counts(ws)
-    tt = ((rules or {}).get("application") or {}).get("teacher_training") or {}
-    late = sum(w.nv > tt["max_position"] and (w.candidate.program.moet_code or "").startswith(tuple(tt["prefixes"]))
-               for w in result.wishes) if tt else 0
+    useless = sum(any(later.gap > earlier.gap + USELESS_MARGIN for earlier in ws[:j]) for j, later in enumerate(ws))
     seen, duplicated = set(), 0
     for c in ws:
         key = (c.program.school_code, frozenset(name_words(c.program.name, keep_variant=True)))
@@ -98,7 +80,7 @@ def measure(case: str, total: float, city: str, result: ListResult, model: Chang
     if model is not None and ws:
         none, none_minus_1 = (chances(result, model, list_cfg, s).none for s in (0.0, -1.0))
     return Measure(case, total, city, len(ws), {lv: sum(c.level == lv for c in ws) for lv in LEVEL_ORDER}, useless,
-                   item2_below, late, duplicated, len(safe), len(per_school), max(per_school.values(), default=0),
+                   duplicated, len(safe), len(per_school), max(per_school.values(), default=0),
                    sum(c.is_mixed_method for c in safe), none, none_minus_1)
 
 
@@ -113,7 +95,7 @@ def run_bench(programs, nganh_parent: dict[str, str], close: Callable[[str], lis
             for city, province in homes:
                 result = build_list(student(total, province), items, programs, nganh_parent, rules, list_cfg,
                                     provinces, admission_year)
-                out.append(measure(label, total, city, result, model, list_cfg, rules))
+                out.append(measure(label, total, city, result, model, list_cfg))
     return out
 
 
@@ -122,14 +104,12 @@ def render(ms: list[Measure]) -> str:
            "Invented students, equally good in every subject (each subject = total / 3), KV3, no budget, no gần nhà; "
            f"{len({m.case for m in ms})} shortlist cases x {len({m.total for m in ms})} totals x 2 home cities "
            f"= {len(ms)} lists. Close ngành as the app proposes them. A wish is useless when it is harder for the "
-           f"student (cutoff minus score) by more than {USELESS_MARGIN} than a wish above it of the same item; item 2's "
-           "wishes below an easier item 1 wish are counted apart (by design). Sư phạm late: sư phạm wishes below the "
-           "position the regulation allows (must be 0).", "",
+           f"student (cutoff minus score) by more than {USELESS_MARGIN} than a wish above it.", "",
            "## By total", "",
            "| total | lists | 15 wishes | mean wishes | mơ ước / thử sức / vừa sức / an toàn (mean) | no an toàn | "
-           "useless (mean) | item 2 below item 1 (mean) | sư phạm late | duplicated | mixed an toàn | "
-           "an toàn at 1 school only | no admission: mean / worst | ... if 1 point lower |",
-           "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
+           "useless (mean) | duplicated | mixed an toàn | an toàn at 1 school only | no admission: mean / worst | "
+           "... if 1 point lower |",
+           "|---|---|---|---|---|---|---|---|---|---|---|---|"]
     for total in sorted({m.total for m in ms}):
         g = [m for m in ms if m.total == total]
         n = len(g)
@@ -137,7 +117,6 @@ def render(ms: list[Measure]) -> str:
         lv = " / ".join(f"{mean(lambda m: m.levels[x]):.1f}" for x in LEVEL_ORDER)
         out.append(f"| {total:g} | {n} | {sum(m.wishes == 15 for m in g)} | {mean(lambda m: m.wishes):.1f} | {lv} | "
                    f"{sum(m.safe == 0 for m in g)} | {mean(lambda m: m.useless):.2f} | "
-                   f"{mean(lambda m: m.item2_below_item1):.2f} | {sum(m.teacher_late for m in g)} | "
                    f"{sum(m.duplicated for m in g)} | {sum(m.mixed_safe for m in g)} | "
                    f"{sum(m.safe > 1 and m.safe_schools == 1 for m in g)} | {_risk(g, 'none')} | "
                    f"{_risk(g, 'none_minus_1')} |")
@@ -157,15 +136,12 @@ def _risk(g: list[Measure], field: str) -> str:
 
 
 def main():
-    import sys
-
     from uniadvisor import db
     from uniadvisor.ui.catalog import Catalog
     from uniadvisor.ui.facts import FactsIndex
     from uniadvisor.config import load_data_config, load_list_config, load_provinces, load_rules
     from uniadvisor.paths import BUILD_DIR
     from uniadvisor.planner.repository import load_nganh_parents, load_programs
-    sys.stdout.reconfigure(encoding="utf-8")
 
     conn = db.connect()
     catalog = Catalog.load(conn)

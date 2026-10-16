@@ -37,8 +37,7 @@ CREATE TABLE display_name (
     aliases      TEXT,                       -- '; '-separated search words (abbreviations, everyday words)
     status       TEXT NOT NULL CHECK (status IN ('draft', 'reviewed')),
     origin       TEXT NOT NULL,              -- 'group_labels_old_repo', 'agent_draft', a reviewer's name
-    source_id    TEXT NOT NULL REFERENCES source (id),
-    note         TEXT
+    source_id    TEXT NOT NULL REFERENCES source (id)
 );
 
 CREATE TABLE subject (
@@ -82,7 +81,6 @@ CREATE TABLE school_alias (
     status      TEXT NOT NULL CHECK (status IN ('draft', 'reviewed')),
     origin      TEXT NOT NULL,
     source_id   TEXT NOT NULL REFERENCES source (id),
-    note        TEXT,
     PRIMARY KEY (school_code, alias)
 );
 
@@ -158,7 +156,7 @@ CREATE TABLE cutoff_observation (
     program_code TEXT NOT NULL,
     program_id  TEXT,                       -- NULL when it could not be linked to a program
     year        INTEGER NOT NULL,
-    combos      TEXT NOT NULL,              -- ';'-joined combination codes; '' when the row names none
+    combos      TEXT,
     score       REAL,
     raw_score   TEXT,
     note        TEXT,
@@ -246,9 +244,6 @@ CREATE TABLE nganh_cip (                       -- pipelines/data/curated/nganh_c
     status     TEXT NOT NULL,                  -- draft, reviewed, rejected, unsure (a reviewer's doubt; a person decides)
     origin     TEXT NOT NULL,
     source_id  TEXT NOT NULL REFERENCES source (id),
-    reviewed_by    TEXT,
-    reviewed_on    TEXT,
-    review_comment TEXT,
     PRIMARY KEY (nganh_code, cip_code)
 );
 
@@ -294,17 +289,13 @@ CREATE TABLE nganh_close (                     -- derived: closest ngành, best 
     PRIMARY KEY (nganh_code, other_code)
 );
 
-CREATE TABLE name_vi (                         -- Vietnamese names (pipelines/data/curated/names_vi.csv), drafts until reviewed
+CREATE TABLE name_vi (                         -- Vietnamese names (pipelines/data/curated/*_names_vi.csv), drafts until reviewed
     kind        TEXT NOT NULL CHECK (kind IN ('occupation', 'knowledge', 'riasec')),
     key         TEXT NOT NULL,                 -- occupation code, knowledge area (English name), RIASEC type
     name_vi     TEXT NOT NULL,
-    description TEXT,                          -- only the Holland types (riasec) have one
+    description TEXT,
     status      TEXT NOT NULL,
     origin      TEXT NOT NULL,
-    onet_id     TEXT,                          -- O*NET element id of a knowledge area
-    english     TEXT,                          -- the English name the translation started from
-    reviewed_by TEXT,
-    note        TEXT,
     PRIMARY KEY (kind, key)
 );
 

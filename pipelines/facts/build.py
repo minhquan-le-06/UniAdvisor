@@ -40,14 +40,13 @@ from pathlib import Path
 import pandas as pd
 import yaml
 
-from uniadvisor.data import tables
 from uniadvisor.paths import CONFIG_DIR
 
 ONET_DIR = "onet_31_0"
 RIASEC = ["Realistic", "Investigative", "Artistic", "Social", "Enterprising", "Conventional"]
 # Vietnamese names of occupations, knowledge areas and Holland types: one row per name, `kind` = occupation | knowledge |
 # riasec; `key` = what the name_vi table uses (occupation code, knowledge area, Holland type).
-NAMES_FILE = tables.CURATED_TABLES["name_vi"]
+NAMES_FILE = "names_vi.csv"
 
 
 def load_config() -> dict:
@@ -320,17 +319,18 @@ def build_facts(conn, inputs: Path, curated: Path, review, cfg: dict | None = No
                      cross[cross["onet_soc_code"].isin(known_occ)][["cip_code", "onet_soc_code"]]
                      .drop_duplicates().itertuples(index=False))
 
-    cip_columns = tables.table_columns(conn, "nganh_cip")
-    mapping = pd.DataFrame(tables.read_table_csv(curated / tables.CURATED_TABLES["nganh_cip"], "nganh_cip", cip_columns),
-                           columns=cip_columns, dtype=str)
+    path = curated / "nganh_cip.csv"
+    mapping = pd.read_csv(path, dtype=str, keep_default_na=False) if path.exists() else pd.DataFrame(
+        columns=["nganh_code", "rank", "cip_code", "match", "confidence", "retrieved", "note", "status", "origin"])
     catalog = {c for (c,) in conn.execute("SELECT code FROM moet_major WHERE level = 'nganh'")}
     ok = mapping["nganh_code"].isin(catalog) & mapping["cip_code"].isin(set(cips.index))
     for r in mapping[~ok].itertuples():
         review.add("nganh_cip_invalid", nganh_code=r.nganh_code, cip_code=r.cip_code,
                    issue="nganh_not_in_catalog" if r.nganh_code not in catalog else "cip_not_in_crosswalk")
     mapping = mapping[ok]
-    tables.insert_rows(conn, "nganh_cip", [{**row, "rank": int(row["rank"]), "source_id": row["source_id"] or "curated"}
-                                           for row in mapping.to_dict("records")])
+    conn.executemany("INSERT INTO nganh_cip VALUES (?,?,?,?,?,?,?,?,?, 'curated')",
+                     [(r.nganh_code, int(r.rank), r.cip_code, r.match, r.confidence, r.retrieved, r.note or None,
+                       r.status, r.origin) for r in mapping.itertuples()])
 
     titles = dict(zip(onet["occupation"]["code"], onet["occupation"]["title"]))
     cross_known = match_residual_families(cross[cross["onet_soc_code"].isin(known_occ)], titles)
@@ -497,7 +497,12 @@ def _review_mapping(conn, mapping: pd.DataFrame, curated: Path, review) -> None:
 
 def _load_names(conn, curated: Path) -> None:
     """Vietnamese names of occupations, knowledge areas and Holland types (drafts until reviewed)."""
-    rows = tables.read_table_csv(curated / tables.CURATED_TABLES["name_vi"], "name_vi", tables.table_columns(conn, "name_vi"))
+    path = curated / NAMES_FILE
+    if not path.exists():
+        return
+    df = pd.read_csv(path, dtype=str, keep_default_na=False)
     known_occ = {c for (c,) in conn.execute("SELECT code FROM occupation")}
-    tables.insert_rows(conn, "name_vi", [r for r in rows if r["name_vi"].strip()
-                                         and (r["kind"] != "occupation" or r["key"] in known_occ)])
+    df = df[(df["kind"] != "occupation") | df["key"].isin(known_occ)]
+    conn.executemany("INSERT INTO name_vi VALUES (?,?,?,?,?,?)",
+                     [(r["kind"], r["key"], r["name_vi"], r["description_vi"] if r["kind"] == "riasec" else None,
+                       r["status"], r["origin"]) for _, r in df.iterrows() if r["name_vi"].strip()])

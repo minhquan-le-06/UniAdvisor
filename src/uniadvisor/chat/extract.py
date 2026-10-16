@@ -316,71 +316,10 @@ def _level(text, norm, key, numbers, ctx):
     return [Item("ask_level", {"levels": [m.values[0] for m in find_levels(text)]}, text=text)]
 
 
-def _data_question(kind, text, norm, key, numbers, ctx):
-    """Keep only references that identify a program without guessing one.
-
-    A wish number is unambiguous in the current list.  Otherwise a school and a ngành can be combined by the answer
-    layer; a school or ngành on its own is intentionally left incomplete so the student is asked to narrow it down.
-    """
-    nv = [int(m.values[0]) for m in find_nv(text)]
-    if not nv:
-        nv = [int(n.value) for n in numbers if n.value == int(n.value) and 1 <= n.value <= 15 and not n.weak]
-    years = [int(n.value) for n in numbers if n.value == int(n.value) and 2000 <= n.value <= 2100 and not n.weak]
-    schools = [m.values for m in ctx.indexes.schools.find(text)]
-    codes = [prefer_nganh(m.values, ctx.catalog)[0] for m in ctx.indexes.nganh.find(text)]
-    return [Item(kind, {"nv": list(dict.fromkeys(nv)), "schools": schools,
-                        "codes": list(dict.fromkeys(codes)), "years": list(dict.fromkeys(years))}, text=text)]
-
-
-def _tuition(text, norm, key, numbers, ctx):
-    return _data_question("ask_tuition", text, norm, key, numbers, ctx)
-
-
-def _cutoff(text, norm, key, numbers, ctx):
-    return _data_question("ask_cutoff", text, norm, key, numbers, ctx)
-
-
-def _combos(text, norm, key, numbers, ctx):
-    return _data_question("ask_combos", text, norm, key, numbers, ctx)
-
-
-def _employment(text, norm, key, numbers, ctx):
-    return _data_question("ask_employment", text, norm, key, numbers, ctx)
-
-
-def _extra_policy(text, norm, key, numbers, ctx):
-    schools = [m.values for m in ctx.indexes.schools.find(text)]
-    nv = [int(m.values[0]) for m in find_nv(text)]
-    return [Item("ask_extra_policy", {"schools": schools, "nv": list(dict.fromkeys(nv))}, text=text)]
-
-
-def _out_of_scope(kind, text, norm, key, numbers, ctx):
-    return [Item(kind, text=text)]
-
-
-def _out_procedure(text, norm, key, numbers, ctx):
-    return _out_of_scope("out_procedure", text, norm, key, numbers, ctx)
-
-
-def _out_admission_method(text, norm, key, numbers, ctx):
-    return _out_of_scope("out_admission_method", text, norm, key, numbers, ctx)
-
-
-def _out_forecast(text, norm, key, numbers, ctx):
-    return _out_of_scope("out_forecast", text, norm, key, numbers, ctx)
-
-
-def _out_advice(text, norm, key, numbers, ctx):
-    return _out_of_scope("out_advice", text, norm, key, numbers, ctx)
-
-
 _EXTRACTORS = {
     "change_score": _scores, "change_priority": _priority, "change_budget": _budget,
     "change_near_home": _near_home, "extra_points": _extra, "favorite_school": _favorite, "own_score": _own_score,
     "cutoff_shift": _cutoff_shift, "remove": _remove, "restore": _restore,
     "rerank": _rerank, "replace_nganh": _replace, "undo": _undo, "ask_why_nv": _why_nv, "ask_why_not": _why_not,
     "ask_compare": _compare, "ask_what_is": _what_is, "ask_level": _level,
-    "ask_tuition": _tuition, "ask_cutoff": _cutoff, "ask_combos": _combos, "ask_employment": _employment,
-    "ask_extra_policy": _extra_policy, "out_procedure": _out_procedure,
-    "out_admission_method": _out_admission_method, "out_forecast": _out_forecast, "out_advice": _out_advice,
 }

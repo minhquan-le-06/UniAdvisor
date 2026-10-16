@@ -9,19 +9,20 @@ from __future__ import annotations
 
 import streamlit as st
 
-from uniadvisor.explanations import build_wish_explanation
 from uniadvisor.ui import plan_file
 from uniadvisor.ui.adjust import adjust_panel
 from uniadvisor.ui.discover import questionnaire
 from uniadvisor.ui.lists_view import chosen_header, recommendations
-from uniadvisor.ui import major_info
+from uniadvisor.ui.facts import ONET_CREDIT
 from uniadvisor.ui.service import AppData
 from uniadvisor.ui.session import PAGES, PATHS, apply_state, current_state, data, init_session
 from uniadvisor.ui.state import AREAS, CATEGORIES, COMPULSORY, MAX_CLOSE
 from uniadvisor.ui.texts import (
+    INCOME_CONTEXT,
     CATEGORY_VI, EXTRA_POINTS_REMINDER, HOW_THE_LIST_IS_BUILT, LEVEL_HELP, LEVEL_VI, MIXED_METHOD_NOTE, chance_lines,
     chance_note, favorite_note, no_admission_warning, note_texts, num, wish_rows,
 )
+from uniadvisor.data.school_docs import combo_label
 from uniadvisor.planner.models import LEVEL_ORDER
 
 # Electives in the order students know them (the THPT exam since 2025); other exam subjects follow.
@@ -132,6 +133,15 @@ def _remove_pick(code: str):
             ss[f"item{i}"], ss[f"close{i}"] = None, []
 
 
+def _kind(d: AppData, code: str) -> str:
+    return "Nhóm ngành" if d.catalog.majors[code].level == "nhom_nganh" else "Ngành"
+
+
+def _where(d: AppData, code: str) -> str:
+    m = d.catalog.majors[code]
+    return f"{m.n_programs_hn} chương trình ở Hà Nội, {m.n_programs_hcm} ở TP.HCM"
+
+
 def page_choose(d: AppData):
     st.header("Chọn ngành")
     st.radio("Em bắt đầu thế nào?", PATHS, key="path",
@@ -144,26 +154,29 @@ def page_choose(d: AppData):
 
 
 def _search(d: AppData):
+    cat = d.catalog
     st.subheader("Tìm ngành")
     query = st.text_input("Gõ tên ngành, tên viết tắt hoặc từ quen thuộc (ví dụ: CNTT, KHMT, logistics, bác sĩ)",
                           key="query")
     if query:
-        hits = major_info.search(d, query)
+        hits = cat.search(query, limit=12)
         if not hits:
             st.caption("Không tìm thấy ngành nào. Em thử cách gọi khác nhé.")
         for h in hits:
+            m = cat.majors[h.code]
             c1, c2 = st.columns([5, 1])
-            text = f"**{h['label']}** · {h['kind'].lower()}"
-            if h["official"]:
-                text += "  \n:gray[Tên Bộ GD&ĐT: " + h["official"] + "]"
-            if h["matched"]:
-                text += "  \n:gray[Khớp với tên chương trình ở trường: " + h["matched"] + "]"
-            if h["children"]:
-                text += "  \n:gray[Gồm: " + ", ".join(h["children"]) + (", ..." if h["more_children"] else "") + "]"
-            text += "  \n:gray[" + h["where"] + "]"
+            text = f"**{m.label}** · {_kind(d, h.code).lower()}"
+            if m.display and m.display != m.official:
+                text += f"  \n:gray[Tên Bộ GD&ĐT: {m.official}]"
+            if h.tier == 3:
+                text += f"  \n:gray[Khớp với tên chương trình ở trường: {h.matched}]"
+            if m.level == "nhom_nganh":
+                text += "  \n:gray[Gồm: " + ", ".join(cat.label(c) for c in m.children[:4]) + \
+                        (", ..." if len(m.children) > 4 else "") + "]"
+            text += f"  \n:gray[{_where(d, h.code)}]"
             c1.markdown(text)
-            picked = h["code"] in st.session_state["picks"]
-            c2.button("Đã chọn" if picked else "Chọn", key="add_" + h["code"], on_click=_add_pick, args=(h["code"],),
+            picked = h.code in st.session_state["picks"]
+            c2.button("Đã chọn" if picked else "Chọn", key=f"add_{h.code}", on_click=_add_pick, args=(h.code,),
                       disabled=picked or len(st.session_state["picks"]) >= MAX_PICKS)
 
 
@@ -176,7 +189,7 @@ def _shortlist(d: AppData):
         return
     for code in picks:
         c1, c2 = st.columns([5, 1])
-        c1.markdown(f"**{cat.label(code)}** · {major_info.kind(d, code).lower()}")
+        c1.markdown(f"**{cat.label(code)}** · {_kind(d, code).lower()}")
         c2.button("Bỏ", key=f"rm_{code}", on_click=_remove_pick, args=(code,))
 
     if len(picks) >= 2:
@@ -222,52 +235,58 @@ def _shortlist(d: AppData):
 def compare(d: AppData, picks: list[str]):
     """One row per ngành: a one-line summary, and the four facts (content, strong subjects, jobs, who it suits; O*NET
     and the accepted combinations) behind "Xem chi tiết"; income not yet."""
+    cat = d.catalog
     pending = ":gray[Chưa có dữ liệu.]"
-    details = [major_info.detail(d, code) for code in picks]
-    for x in details:
+    any_facts = False
+    for code in picks:
+        m = cat.majors[code]
+        f = d.facts.get(code)
+        any_facts |= not f.empty
+        shares = cat.combo_shares(code, top=4)
         with st.container(border=True):
-            st.markdown(f"**{x['label']}** · {x['kind'].lower()}"
-                        + (f"  \n:gray[Tên Bộ GD&ĐT: {x['official']}]" if x["official"] else ""))
-            summary = [x["where"]]
-            if x["top_combos"]:
-                summary.append("tổ hợp hay gặp: " + ", ".join(x["top_combos"]))
-            if x["interest_names"]:
-                summary.append("hợp với người thích " + ", ".join(x["interest_names"]))
+            st.markdown(f"**{m.label}** · {_kind(d, code).lower()}"
+                        + (f"  \n:gray[Tên Bộ GD&ĐT: {m.official}]" if m.display and m.display != m.official else ""))
+            summary = [_where(d, code)]
+            if shares:
+                summary.append("tổ hợp hay gặp: " + ", ".join(combo_label(s.combo) for s in shares[:3]))
+            if f.interests:
+                summary.append("hợp với người thích " + ", ".join(name.lower() for name, _ in f.interests[:2]))
             st.caption(" · ".join(summary))
             with st.expander("Xem chi tiết"):
                 c1, c2, c3, c4 = st.columns(4)
                 with c1:
                     st.markdown("**Học gì**")
-                    st.markdown("Kiến thức chính: " + ", ".join(x["knowledge"]) if x["knowledge"] else pending)
-                    if x["children"]:
-                        st.caption("Gồm: " + ", ".join(x["children"]))
+                    st.markdown("Kiến thức chính: " + ", ".join(f.knowledge) if f.knowledge else pending)
+                    if m.level == "nhom_nganh":
+                        st.caption("Gồm: " + ", ".join(cat.label(c) for c in m.children))
                 with c2:
                     st.markdown("**Cần mạnh môn nào**")
-                    if x["combos"]:
+                    if shares:
                         st.markdown("Tổ hợp hay gặp:  \n" + "  \n".join(
-                            f"{s['label']} ({' - '.join(s['subjects'])}): {s['share_pct']}% chương trình"
-                            for s in x["combos"]))
+                            f"{combo_label(s.combo)} ({' - '.join(s.subjects)}): {round(s.share * 100)}% chương trình"
+                            for s in shares))
                     else:
                         st.markdown(pending)
                 with c3:
                     st.markdown("**Việc làm sau khi ra trường**")
-                    st.markdown("; ".join(x["jobs"]) if x["jobs"] else pending)
-                    st.caption(f"Thu nhập: {x['income']}.")
+                    st.markdown("; ".join(f.jobs) if f.jobs else pending)
+                    st.caption(f"Thu nhập: {INCOME_CONTEXT}.")
                 with c4:
                     st.markdown("**Có hợp với em không**")
-                    if x["interests"]:
-                        st.markdown("Hợp với người thích: " + "; ".join(
-                            f"{i['name'].lower()} ({i['description']})" if i["description"] else i["name"]
-                            for i in x["interests"]))
+                    if f.interests:
+                        st.markdown("Hợp với người thích: " + "; ".join(f"{name.lower()} ({desc})" if desc else name
+                                                                        for name, desc in f.interests))
                     else:
                         st.markdown(pending)
-                    if x["close"]:
-                        st.caption("Ngành gần: " + ", ".join(x["close"]))
-            if x["sheet"]:
+                    if f.close:
+                        st.caption("Ngành gần: " + ", ".join(cat.label(c) for c in f.close[:3]))
+            sheet = (d.sheets or {}).get(code)
+            if sheet:
                 with st.expander("Bản tóm tắt nhóm ngành"):
-                    st.markdown(x["sheet"])
-    if credit := major_info.credit(details):
-        st.caption(credit)
+                    st.markdown(sheet.split("\n", 1)[1] if sheet.startswith("# ") else sheet)
+    if any_facts:
+        st.caption(ONET_CREDIT + (" Tên tiếng Việt và cách ghép ngành với nghề đang là bản nháp, chưa duyệt."
+                                  if any(d.facts.get(c).draft for c in picks) else ""))
 
 
 def page_list(d: AppData):
@@ -308,7 +327,6 @@ def page_list(d: AppData):
         return
     rows = wish_rows(result, [e.main for e in state.shortlist], d.catalog)
     st.dataframe(rows, hide_index=True, width="stretch", height=36 * (len(rows) + 1) + 3)   # every row visible
-    _wish_reasons(d, state, result)
     if any(w.candidate.is_mixed_method for w in result.wishes):
         st.caption(MIXED_METHOD_NOTE)
     chs = d.chances(state, result)
@@ -325,27 +343,6 @@ def page_list(d: AppData):
                f"Điểm của em gồm tổng 3 môn của tổ hợp có lợi nhất và điểm ưu tiên "
                f"({state.area}, {CATEGORY_VI[state.category].lower()}).")
     adjust_panel(d, state, result)
-
-
-def _wish_reasons(d: AppData, state, result):
-    """A visible route to the same fixed explanation as “Vì sao NVn ở đó?” in chat.
-
-    This is deliberately not generated prose (a fixed template, `explanations.py`) and does not add an item to the chat
-    history.  A keyed toggle keeps one explanation open while the student reads it; it is rebuilt from the current list
-    after every confirmed change.
-    """
-    st.subheader("Vì sao từng nguyện vọng ở đây?")
-    st.caption("Chọn một nguyện vọng để xem lý do có mặt và thứ tự của nó trong danh sách.")
-    context = d.chat_context(state, result)
-    cols = st.columns(3)
-    for index, wish in enumerate(result.wishes):
-        key = f"why_wish_{wish.nv}"
-        with cols[index % len(cols)]:
-            if st.button(f"Vì sao ở đây? · NV{wish.nv}", key=f"why_wish_button_{wish.nv}"):
-                st.session_state[key] = not st.session_state.get(key, False)
-            if st.session_state.get(key, False):
-                explanation = build_wish_explanation(wish, context)
-                st.markdown(explanation.markdown())
 
 
 def page_save(d: AppData):

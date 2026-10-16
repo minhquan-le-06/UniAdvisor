@@ -109,7 +109,6 @@ class Candidate:
     over_budget: bool
     far_from_home: bool
     favorite: bool = False                    # at the student's favorite school
-    other_codes: tuple[str, ...] = ()         # ids of the same program under other codes, left out (2026-10-14)
 
     @property
     def level(self) -> Level:
@@ -143,8 +142,7 @@ class Excluded:
     program_id: str
     item_index: int
     reason: str            # removed_school, removed_program, no_cutoff, no_usable_combination, weak_combination,
-                           # below_floor, taken_by_item1, quota_full, not_in_hn_hcm, same_program_other_code,
-                           # teacher_training_limit, over_budget (Tiết kiệm nhất only), too_hard (over 4 points below the cutoff)
+                           # below_floor, taken_by_item1, quota_full, not_in_hn_hcm
 
 
 @dataclass(frozen=True)

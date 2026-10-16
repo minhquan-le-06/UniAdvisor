@@ -5,7 +5,6 @@ both years): an toàn C <= 22, vừa sức 22 < C <= 24, thử sức 24 < C < 25
 """
 
 import random
-from dataclasses import replace
 
 import pytest
 
@@ -25,9 +24,7 @@ def prog(pid, moet="7480201", cutoff=23.0, city="HN", tuition=None, school=None,
          mixed=False):
     cuts = cutoffs if cutoffs is not None else (Cutoff(2025, None, cutoff, cutoff, 30, False),
                                                 Cutoff(2026, None, cutoff, cutoff, 30, False))
-    # Names compare without digits (one program under two codes is merged), so each test program gets letters only.
-    name = "Ngành " + pid.translate(str.maketrans("0123456789:", "abcdefghijx"))
-    return ProgramFacts(pid, school or pid.split(":")[0], f"Trường {pid}", name, moet, city,
+    return ProgramFacts(pid, school or pid.split(":")[0], f"Trường {pid}", f"Ngành {pid}", moet, city,
                         combos or dict(A00), tuple(cuts), tuition, is_mixed_method=mixed)
 
 
@@ -112,51 +109,6 @@ def test_converted_and_mixed_cutoffs_are_used():
              mixed=True)
     s, _ = evaluate(p, STUDENT, RULES, CFG, 2027)
     assert s.level == Level.THU_SUC and {y: c.score_30 for y, c in s.cutoffs.items()} == {2025: 24.5, 2026: 24.0}
-
-
-def test_dream_has_an_upper_limit():
-    """Student 24.0: mơ ước from 1.5 below the lower cutoff up to 4.0; further below the program is left out."""
-    exactly_one_and_a_half = evaluate(prog("A:1", cutoff=25.5), STUDENT, RULES, CFG, 2027)[0]
-    exactly_four = evaluate(prog("B:1", cutoff=28.0), STUDENT, RULES, CFG, 2027)[0]
-    assert exactly_one_and_a_half.level == Level.MO_UOC and exactly_four.level == Level.MO_UOC
-    assert evaluate(prog("C:1", cutoff=28.01), STUDENT, RULES, CFG, 2027) == (None, "too_hard")
-    just_under = evaluate(prog("D:1", cutoff=25.49), STUDENT, RULES, CFG, 2027)[0]
-    assert just_under.level == Level.THU_SUC
-
-
-def test_the_limit_uses_the_lower_cutoff_of_the_two_years():
-    far_then_near = prog("A:1", cutoffs=(Cutoff(2025, None, 29.0, 29.0, 30, False), Cutoff(2026, None, 27.0, 27.0, 30, False)))
-    s, reason = evaluate(far_then_near, STUDENT, RULES, CFG, 2027)
-    assert reason is None and s.level == Level.MO_UOC                 # 27.0 - 24.0 = 3.0, the 29.0 does not count
-    both_far = prog("B:1", cutoffs=(Cutoff(2025, None, 29.0, 29.0, 30, False), Cutoff(2026, None, 28.5, 28.5, 30, False)))
-    assert evaluate(both_far, STUDENT, RULES, CFG, 2027) == (None, "too_hard")
-
-
-def test_another_combination_keeps_a_program_that_is_far_for_the_first():
-    p = prog("S:1", combos={"A00": ("HO", "LI", "TO"), "D01": ("N1", "TO", "VA")},
-             cutoffs=(Cutoff(2026, frozenset({"A00"}), 30.0, 30.0, 30, False),
-                      Cutoff(2026, frozenset({"D01"}), 25.0, 25.0, 30, False)))
-    student = Profile(scores={"TO": 8.0, "LI": 8.0, "HO": 8.0, "N1": 7.5, "VA": 7.5}, home_province="Hà Nội")
-    s, reason = evaluate(p, student, RULES, CFG, 2027)
-    assert reason is None and s.combo == "D01"                        # A00 is 6 below, D01 (23.0) only 2 below
-
-
-def test_the_limit_follows_the_students_own_score_and_cutoff_shift():
-    far = prog("A:1", cutoff=29.0)
-    own = Profile(scores=STUDENT.scores, home_province="Hà Nội", own_scores={"A": (28.0, 30)})
-    assert evaluate(far, own, RULES, CFG, 2027)[0].level == Level.THU_SUC     # 28.0 against 29.0
-    shifted = Profile(scores=STUDENT.scores, home_province="Hà Nội", cutoff_shifts={"A": -2.0})
-    assert evaluate(far, shifted, RULES, CFG, 2027)[0].level == Level.MO_UOC  # 27.0 against 24.0
-    assert evaluate(far, STUDENT, RULES, CFG, 2027) == (None, "too_hard")
-
-
-def test_a_list_drops_out_of_reach_programs_and_shifts_the_slots_down():
-    reachable = full_pool(n=5)
-    far = [prog(f"X{i}:7480201", cutoff=29.0 - i * 0.1) for i in range(4)]
-    r = run(reachable + far, [ShortlistItem("7480201")])
-    ids = {w.candidate.program.id for w in r.wishes}
-    assert not any(i.startswith("X") for i in ids)
-    assert {e.program_id for e in r.excluded if e.reason == "too_hard"} == {p.id for p in far}
 
 
 def test_mixed_method_is_never_an_toan():
@@ -407,51 +359,3 @@ def test_no_favorite_school_changes_nothing():
     pool = full_pool() + [prog("F:7340101", "7340101", CUTOFF[Level.AN_TOAN])]
     a, b = run(pool, [ShortlistItem("7480201")]), run(pool, [ShortlistItem("7480201")], fav_student("NONE"))
     assert [w.candidate.program.id for w in a.wishes] == [w.candidate.program.id for w in b.wishes]
-
-
-# ---------------------------------------------------------------- list quality rules (2026-10-14)
-
-def test_capped_mixed_method_program_sits_with_the_an_toan_wishes():
-    """It passes its converted cutoff by 9 points: still vừa sức (capped), but ordered by its real gap, so it no longer
-    sits above easier-looking an toàn wishes."""
-    r = run(full_pool(n=2) + [prog("MX:1", cutoff=15.0, mixed=True)], [ShortlistItem("7480201")])
-    ws = [w.candidate for w in r.wishes]
-    assert ws[-1].program.id == "MX:1" and ws[-1].level == Level.VUA_SUC and ws[-1].student.capped_mixed_method
-    assert all(c.level == Level.AN_TOAN for c in ws[-3:-1])
-
-
-def test_one_program_under_two_codes_is_listed_once():
-    a = replace(prog("D:1", cutoff=CUTOFF[Level.VUA_SUC]), name="Kỹ thuật phần mềm")
-    b = replace(prog("D:2", cutoff=CUTOFF[Level.VUA_SUC] - 0.5), name="Kỹ thuật phần mềm")
-    r = run([a, b], [ShortlistItem("7480201")])
-    assert [w.candidate.program.id for w in r.wishes] == ["D:2"]                  # the easier code is kept
-    assert r.wishes[0].candidate.other_codes == ("D:1",)
-    assert ("D:1", "same_program_other_code") in {(e.program_id, e.reason) for e in r.excluded}
-    other_campus = run([a, replace(b, city="HCM")], [ShortlistItem("7480201")])
-    assert len(other_campus.wishes) == 2
-
-
-def test_an_toan_wishes_spread_over_schools():
-    safe = [prog(f"A:{i}", cutoff=CUTOFF[Level.AN_TOAN] - i * 0.01) for i in range(3)] + [
-        prog("B:1", cutoff=CUTOFF[Level.AN_TOAN] - 0.5)]
-    pool = [p for lv in (Level.MO_UOC, Level.THU_SUC, Level.VUA_SUC) for p in many(lv.value[:2].upper(), lv, 6)]
-    r = run(pool + safe, [ShortlistItem("7480201")])
-    safe_schools = [w.candidate.program.school_code for w in r.wishes if w.candidate.level == Level.AN_TOAN]
-    assert len(safe_schools) == 3 and set(safe_schools) == {"A", "B"}
-    fav = run(pool + safe, [ShortlistItem("7480201")], fav_student("A"))      # the favorite school keeps every slot
-    assert {w.candidate.program.school_code for w in fav.wishes if w.candidate.level == Level.AN_TOAN} == {"A"}
-
-
-def test_su_pham_only_in_the_first_five_wishes():
-    sp = [p for lv in Level for p in many(f"S{lv.value[:1].upper()}", lv, 3, moet="7140209")]   # 12 sư phạm
-    other = [p for lv in (Level.THU_SUC, Level.VUA_SUC) for p in many(f"T{lv.value[:1].upper()}", lv, 4,
-                                                                       moet="7460101")]
-    r = run(sp + other, [ShortlistItem("7140209", (), ("7460101",))])
-    teacher = [w.nv for w in r.wishes if w.candidate.program.moet_code == "7140209"]
-    assert 0 < len(teacher) <= 5 and teacher == list(range(1, len(teacher) + 1))      # at most 5, first
-    assert any(w.candidate.level == Level.AN_TOAN for w in r.wishes if w.nv in teacher)   # its safe wishes kept
-    assert any(w.candidate.program.moet_code == "7460101" for w in r.wishes)          # the rest from other ngành
-    assert f"teacher_training_first:{len(teacher)}" in r.notes
-    assert "teacher_training_limit" in {e.reason for e in r.excluded}
-    plain = run(full_pool(), [ShortlistItem("7480201")])
-    assert not any(n.startswith("teacher_training") for n in plain.notes)

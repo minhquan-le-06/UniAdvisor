@@ -5,12 +5,10 @@ classifier:
   # for testing. A family is the base model line, not the fine-tune.
   train_families: [qwen, aya, gemma]
   test_family: mistral                 # SeaLLM-7B-v2, built on Mistral 7B (Vistral-7B-Chat: approval never came)
-  # Target scores (default). The trained model replaces the rules only when it reaches every gate and beats the rules.
+  # Target scores (default). The trained model replaces the rules only when it reaches both, and beats the rules.
   targets:
     test_family_macro_f1: 0.90
     checks_accuracy: 0.90               # on pipelines/data/chat/checks.csv rows people have judged (status: reviewed)
-    human_checks_accuracy: 0.90         # independent Part 4 human-written holdout, never used for training/threshold tuning
-    human_checks_min_rows: 90           # at least 10 reviewed rows for each of the nine Part 4 types
   # Below this probability the request is treated as "other" and the chat says what it can do (default).
   other_threshold: 0.35
   # Training data filter after Sahu et al. (2022): a generated message that a model trained on the other messages

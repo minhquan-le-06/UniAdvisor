@@ -7,7 +7,7 @@ import pytest
 
 from tests.rawfixture import write_raw_inputs
 from uniadvisor.config import load_data_config
-from pipelines.database.prepare import prepare
+from pipelines.database.build import build
 from pipelines.database.coverage import compute, render
 from uniadvisor.data.school_docs import ANY_TWO_SUBJECTS, any_two
 
@@ -18,7 +18,7 @@ def built(tmp_path_factory):
     inputs = write_raw_inputs(root / "inputs")
     curated = root / "curated"
     curated.mkdir()
-    result = prepare(inputs=inputs, curated=curated, out_db=root / "out" / "test.db", cfg=load_data_config())
+    result = build(inputs=inputs, curated=curated, out_db=root / "out" / "test.db", cfg=load_data_config())
     conn = sqlite3.connect(result["db"])
     yield conn, result
     conn.close()
@@ -111,7 +111,7 @@ def test_confirmed_same_program_keeps_the_earlier_year(tmp_path):
     curated.mkdir()
     (curated / "same_program.csv").write_text(
         "program_id,year,note,reviewed_by,reviewed_on\nMXS:MX1,2025,renamed,tester,2026-10-07\n", encoding="utf-8")
-    result = prepare(inputs=inputs, curated=curated, out_db=tmp_path / "o" / "x.db", cfg=load_data_config())
+    result = build(inputs=inputs, curated=curated, out_db=tmp_path / "o" / "x.db", cfg=load_data_config())
     conn = sqlite3.connect(result["db"])
     assert one(conn, "SELECT score FROM cutoff WHERE program_id = 'MXS:MX1' AND year = 2025") == 20.0
     assert "cutoff_name_changed" not in result["review_counts"]
@@ -181,8 +181,8 @@ def _dump(path):
 def test_build_is_deterministic(tmp_path):
     inputs = write_raw_inputs(tmp_path / "inputs")
     (tmp_path / "curated").mkdir()
-    a = prepare(inputs=inputs, curated=tmp_path / "curated", out_db=tmp_path / "a" / "x.db", cfg=load_data_config())
-    b = prepare(inputs=inputs, curated=tmp_path / "curated", out_db=tmp_path / "b" / "x.db", cfg=load_data_config())
+    a = build(inputs=inputs, curated=tmp_path / "curated", out_db=tmp_path / "a" / "x.db", cfg=load_data_config())
+    b = build(inputs=inputs, curated=tmp_path / "curated", out_db=tmp_path / "b" / "x.db", cfg=load_data_config())
     assert _dump(a["db"]) == _dump(b["db"])
 
 
@@ -196,7 +196,7 @@ def test_curated_overrides_are_applied(tmp_path):
     (curated / "school_overrides.csv").write_text(
         "school_code,city,in_scope,reason,reviewed_by,reviewed_on\nDNG,,0,checked_da_nang,tester,2026-10-06\n",
         encoding="utf-8")
-    result = prepare(inputs=inputs, curated=curated, out_db=tmp_path / "o" / "x.db", cfg=load_data_config())
+    result = build(inputs=inputs, curated=curated, out_db=tmp_path / "o" / "x.db", cfg=load_data_config())
     conn = sqlite3.connect(result["db"])
     assert one(conn, "SELECT moet_code, moet_code_basis FROM program WHERE id = 'HNA:X9'") == ("7480101", "override")
     assert one(conn, "SELECT scope_reason, city_basis FROM school WHERE code = 'DNG'") == ("checked_da_nang", "override")
@@ -208,11 +208,11 @@ def test_display_names_are_loaded(tmp_path):
     curated = tmp_path / "curated"
     curated.mkdir()
     (curated / "display_names.csv").write_text(
-        "code,display_name,aliases,status,origin,source_id,note\n"
-        "74801,\"Khoa học máy tính, Trí tuệ nhân tạo\",KHMT;  AI ;,draft,group_labels_old_repo,curated,\n"
-        "7480201,,IT,reviewed,tester,curated,\n"
-        "99999,Không có,,draft,agent_draft,curated,\n", encoding="utf-8")
-    result = prepare(inputs=inputs, curated=curated, out_db=tmp_path / "o" / "x.db", cfg=load_data_config())
+        "code,level,display_name,aliases,status,source,note\n"
+        "74801,nhom_nganh,\"Khoa học máy tính, Trí tuệ nhân tạo\",KHMT;  AI ;,draft,group_labels_old_repo,\n"
+        "7480201,nganh,,IT,reviewed,tester,\n"
+        "99999,nhom_nganh,Không có,,draft,agent_draft,\n", encoding="utf-8")
+    result = build(inputs=inputs, curated=curated, out_db=tmp_path / "o" / "x.db", cfg=load_data_config())
     conn = sqlite3.connect(result["db"])
     rows = conn.execute("SELECT code, display_name, aliases, status, origin FROM display_name ORDER BY code").fetchall()
     assert rows == [("74801", "Khoa học máy tính, Trí tuệ nhân tạo", "KHMT; AI", "draft", "group_labels_old_repo"),
@@ -225,7 +225,7 @@ def test_former_hcm_provinces_can_be_switched_off(tmp_path):
     inputs = write_raw_inputs(tmp_path / "inputs")
     (tmp_path / "curated").mkdir()
     cfg = dict(load_data_config(), include_former_provinces_merged_into_hcm=False)
-    result = prepare(inputs=inputs, curated=tmp_path / "curated", out_db=tmp_path / "o" / "x.db", cfg=cfg)
+    result = build(inputs=inputs, curated=tmp_path / "curated", out_db=tmp_path / "o" / "x.db", cfg=cfg)
     conn = sqlite3.connect(result["db"])
     assert one(conn, "SELECT in_scope, scope_reason FROM school WHERE code = 'BDU'") == (
         0, "former_province_merged_into_hcm")
@@ -291,7 +291,7 @@ def test_combinations_defined_from_vnexpress_titles(built):
 
 
 def test_program_name_vs_moet_review(fake_db):
-    from pipelines.database.prepare import Review, _name_vs_moet
+    from pipelines.database.build import Review, _name_vs_moet
     review = Review()
     _name_vs_moet(fake_db, review)                     # every fake program is named like its ngành
     assert review.rows.get("program_name_vs_moet", []) == []
@@ -299,7 +299,7 @@ def test_program_name_vs_moet_review(fake_db):
 
 def test_program_name_vs_moet_flags_unrelated_names(tmp_path):
     from uniadvisor import db
-    from pipelines.database.prepare import Review, _name_vs_moet
+    from pipelines.database.build import Review, _name_vs_moet
     conn = db.create(tmp_path / "x.db")
     conn.execute("INSERT INTO source VALUES ('s', 's', 'curated', NULL, NULL, NULL)")
     conn.executemany("INSERT INTO moet_major (code, level, name, parent_code, source_id) VALUES (?,?,?,?, 's')",
@@ -337,7 +337,7 @@ def test_school_documents(tmp_path):
         "HNA,CS1,10000000,10000000,per_year,2025-2026,Viec4/HNA/HNA.png,older than VnExpress 2026,,\n"
         "HNA,NEW1,14250000,14250000,per_semester,2026-2027,Viec4/HNA/HNA.png,3 hoc ky/nam,3,"
         "semesters_per_year_stated\n", encoding="utf-8")
-    result = prepare(inputs=inputs, curated=curated, out_db=tmp_path / "o" / "x.db", cfg=load_data_config())
+    result = build(inputs=inputs, curated=curated, out_db=tmp_path / "o" / "x.db", cfg=load_data_config())
     conn = sqlite3.connect(result["db"])
     assert one(conn, """SELECT score, source_id, is_mixed_method, mixed_method_basis FROM cutoff
                         WHERE program_id = 'MXS:IU1'""") == (22.5, "school_document", 1,
@@ -369,7 +369,7 @@ def test_school_stated_scale(tmp_path):
     (curated / "school_scales.csv").write_text(
         "school_code,year,program_pattern,scale,source_file,note\nHNA,2025,,40,Viec2/HNA/HNA25.pdf,thang 40\n"
         "HNA,2025,CS1,30,Viec2/HNA/HNA25.pdf,CS1 on 30\nHNA,2026,,,Viec2/HNA/HNA26.pdf,no scale\n", encoding="utf-8")
-    result = prepare(inputs=inputs, curated=curated, out_db=tmp_path / "o" / "x.db", cfg=load_data_config())
+    result = build(inputs=inputs, curated=curated, out_db=tmp_path / "o" / "x.db", cfg=load_data_config())
     conn = sqlite3.connect(result["db"])
     assert one(conn, "SELECT scale, scale_basis, score_30 FROM cutoff WHERE program_id = 'HNA:CS1' AND year = 2025"
                ) == (30, "school_document_states_scale", 25.0)              # the program's own row wins
@@ -391,7 +391,7 @@ def test_catalog_extension(tmp_path):
     (curated / "program_overrides.csv").write_text(
         "program_id,moet_code,in_scope,reason,reviewed_by,reviewed_on,source_file\n"
         "HNA:X9,7480118,,,tester,2026-10-07,Viec1/X/X.pdf p.1\n", encoding="utf-8")
-    result = prepare(inputs=inputs, curated=curated, out_db=tmp_path / "o" / "x.db", cfg=load_data_config())
+    result = build(inputs=inputs, curated=curated, out_db=tmp_path / "o" / "x.db", cfg=load_data_config())
     conn = sqlite3.connect(result["db"])
     assert one(conn, "SELECT parent_code, source_id FROM moet_major WHERE code = '7480118'") == (
         "74801", "school_document")
@@ -409,14 +409,14 @@ def test_school_employment(tmp_path):
     (tmp_path / "manual_sources").mkdir()
     (tmp_path / "manual_sources" / "HNA_viec_lam_1.pdf").write_bytes(b"%PDF")
     (curated / "school_employment.csv").write_text(
-        "school_code,moet_code,graduation_year,rate,source_file,reviewed_by,reviewed_on,note,source_id\n"
-        "HNA,7480101,2024,0.952,HNA_viec_lam_1.pdf p.12,Quan,2026-10-10,survey 12 months after graduation,school_document\n"
-        "hna,7480201,2024,0.9,HNA_viec_lam_2.pdf,,,,\n"                 # file not captured: kept, listed
-        "HNA,7480201,2023,95.2,HNA_viec_lam_1.pdf,,,,\n"                # a percentage, not 0-1
-        "HNA,7210403,,0.8,HNA_viec_lam_1.pdf,,,,\n"                     # no year
-        "DNG,7480201,2024,0.8,HNA_viec_lam_1.pdf,,,,\n"                 # DNG offers no Công nghệ thông tin
-        "HNA,7480101,2024,0.9,HNA_viec_lam_1.pdf,,,,\n", encoding="utf-8")   # duplicate
-    result = prepare(inputs=inputs, curated=curated, out_db=tmp_path / "o" / "x.db", cfg=load_data_config())
+        "school_code,moet_code,rate,graduation_year,source_file,reviewed_by,reviewed_on,note\n"
+        "HNA,7480101,0.952,2024,HNA_viec_lam_1.pdf p.12,Quan,2026-10-10,survey 12 months after graduation\n"
+        "hna,7480201,0.9,2024,HNA_viec_lam_2.pdf,,,\n"                 # file not captured: kept, listed
+        "HNA,7480201,95.2,2023,HNA_viec_lam_1.pdf,,,\n"                # a percentage, not 0-1
+        "HNA,7210403,0.8,,HNA_viec_lam_1.pdf,,,\n"                     # no year
+        "DNG,7480201,0.8,2024,HNA_viec_lam_1.pdf,,,\n"                 # DNG offers no Công nghệ thông tin
+        "HNA,7480101,0.9,2024,HNA_viec_lam_1.pdf,,,\n", encoding="utf-8")   # duplicate
+    result = build(inputs=inputs, curated=curated, out_db=tmp_path / "o" / "x.db", cfg=load_data_config())
     conn = sqlite3.connect(result["db"])
     rows = conn.execute("SELECT school_code, moet_code, graduation_year, rate, reviewed_by, source_id "
                         "FROM school_employment ORDER BY moet_code").fetchall()
@@ -439,7 +439,7 @@ def test_program_combos_and_any_two_rule(tmp_path):
         "school_code,program_code,combos,source_file,note\n"
         "HNA,X9,TO+2,list.csv,\n"
         "HNA,NOPE,A00,list.csv,\n", encoding="utf-8")
-    result = prepare(inputs=inputs, curated=curated, out_db=tmp_path / "o" / "x.db", cfg=load_data_config())
+    result = build(inputs=inputs, curated=curated, out_db=tmp_path / "o" / "x.db", cfg=load_data_config())
     conn = sqlite3.connect(result["db"])
     combos = [c for (c,) in conn.execute("SELECT combo_code FROM program_combo WHERE program_id = 'HNA:X9'")]
     exam = {c for (c,) in conn.execute("SELECT code FROM subject WHERE is_exam = 1")} & set(ANY_TWO_SUBJECTS)
@@ -453,44 +453,7 @@ def test_program_combos_and_any_two_rule(tmp_path):
     assert unmatched["program_code"].tolist() == ["NOPE"]
 
 
-def test_anchor_fixed_subject_and_any_one_is_a_subset_of_anchor_and_any_two():
-    """'Văn, Anh, 1 môn bất kì' (VA+N1+1): the sets of VA+2 that contain Anh, with the same codes."""
-    from uniadvisor.data.school_docs import ANY_ONE, ANY_TWO
-    assert ANY_ONE.match("VA+N1+1") and ANY_ONE.match("TO+N4+1") and not ANY_ONE.match("VA+2")
-    assert ANY_TWO.match("VA+2") and not ANY_TWO.match("VA+N1+1") and not ANY_ONE.match("LI+N1+1")
-    from uniadvisor.data.school_docs import any_one
-    some = any_one("VA", "N1")
-    assert len(some) == 16 and all(v[0] == "VA" and "N1" in v for v in some.values())    # 16 other subjects besides Anh
-    assert set(some) <= set(any_two("VA")) and "Văn+Lí+Anh" in some
-    assert any_one("VA", "VA") == {}
-
-
 def test_any_two_covers_the_real_exam():
     sets = any_two("TO")
     assert len(sets) == 136 and sets["Toán+Văn+Anh"] == ["TO", "VA", "N1"]   # 17 other subjects, 2 of them
     assert all(len(set(v)) == 3 and v[0] == "TO" for v in sets.values())
-
-
-def test_tuition_per_credit_x35_and_repeated_code(tmp_path):
-    """Per credit x 35 (owner rule) and two programs sharing a code, told apart by the id suffix; a later row wins."""
-    from uniadvisor.data.school_docs import load_tuition
-
-    class Review:
-        def __init__(self):
-            self.rows = []
-
-        def add(self, name, **kw):
-            self.rows.append(name)
-
-    (tmp_path / "school_tuition.csv").write_text(
-        "school_code,program_pattern,min_vnd,max_vnd,unit,school_year,source_file,note,per_year_factor,factor_basis\n"
-        "XX,^(108)$,31500000,31500000,per_year,2026-2027,f.md,,,\n"
-        "XX,^(108~2)$,63000000,63000000,per_year,2026-2027,f.md,,,\n"
-        "XX,^(200)$,1000000,1000000,per_credit,2026,f.md,,35,credits_per_year_owner_rule\n", encoding="utf-8")
-    programs = {"XX:108": {"school_code": "XX", "program_code": "108"}, "XX:108~2": {"school_code": "XX", "program_code": "108"},
-                "XX:200": {"school_code": "XX", "program_code": "200"}}
-    review = Review()
-    out = load_tuition(tmp_path, programs, review)
-    assert out["XX:108"][:2] == (31_500_000, 31_500_000) and out["XX:108~2"][:2] == (63_000_000, 63_000_000)
-    assert out["XX:200"][0] == 35_000_000 and out["XX:200"][5] == "credits_per_year_owner_rule"
-    assert review.rows == []

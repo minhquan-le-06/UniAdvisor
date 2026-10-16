@@ -7,7 +7,7 @@ exam subjects (no subject weights); cutoffs are compared through their linear co
 from __future__ import annotations
 
 from uniadvisor.planner.models import LEVEL_ORDER, Level, ProgramFacts, Profile, StudentScore
-from uniadvisor.planner.rules import cutoffs_for_combo, floor_for, level_for, priority_points, too_far_above
+from uniadvisor.planner.rules import cutoffs_for_combo, floor_for, level_for, priority_points
 
 
 def best_exam_total(programs, scores: dict[str, float]) -> float | None:
@@ -27,7 +27,7 @@ def best_exam_total(programs, scores: dict[str, float]) -> float | None:
 def evaluate(program: ProgramFacts, profile: Profile, rules: dict, list_cfg: dict,
              admission_year: int, best_total: float | None = None) -> tuple[StudentScore | None, str | None]:
     """(best StudentScore, None) or (None, reason) with reason in no_usable_combination, weak_combination,
-    below_floor, no_cutoff, too_hard (more than `levels.dream_max_gap` below the lower cutoff for every combination).
+    below_floor, no_cutoff.
 
     Only the student's strong combinations count: given `best_total` (best_exam_total over all programs), a
     combination more than `levels.weak_combination_gap` below it is not used, and a program left with none is
@@ -71,7 +71,6 @@ def evaluate(program: ProgramFacts, profile: Profile, rules: dict, list_cfg: dic
     lv = list_cfg["levels"]
     cap = Level(lv.get("mixed_method_max_level", Level.AN_TOAN.value))
     options = []
-    out_of_reach = False
     for combo, exam_total, prio in totals:
         cutoffs = cutoffs_for_combo(program.cutoffs, combo)
         own_cutoffs = {y: c for y, c in cutoffs.items() if own and c.scale == own[1]}
@@ -85,15 +84,12 @@ def evaluate(program: ProgramFacts, profile: Profile, rules: dict, list_cfg: dic
         else:
             continue
         values = [c.score_30 + shift for c in cutoffs.values()]
-        if lv.get("dream_max_gap") is not None and too_far_above(score, values, lv["dream_max_gap"]):
-            out_of_reach = True
-            continue
         level = level_for(score, values, lv["safe_margin"], lv["dream_gap"])
         capped = capped_by_method and LEVEL_ORDER.index(level) > LEVEL_ORDER.index(cap)
         options.append(StudentScore(combo, exam_total, prio, 0.0 if own_cutoffs else extra, score, cutoffs,
                                     cap if capped else level, capped, own if own_cutoffs else None, shift))
     if not options:
-        return None, "too_hard" if out_of_reach else "no_usable_combination"
+        return None, "no_usable_combination"
 
     def rank(o: StudentScore):
         values = [c.score_30 + o.cutoff_shift for c in o.cutoffs.values()]

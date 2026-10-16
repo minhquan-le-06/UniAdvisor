@@ -20,17 +20,11 @@ pipelines/data/inputs/unipilot/*
 pipelines/data/cache/
 pipelines/data/collected/
 pipelines/data/curated/
-pipelines/data/tables/
 pipelines/data/manual_sources/
 pipelines/data/students/
 pipelines/data/chat/*
 !pipelines/data/chat/checks.csv
 pipelines/data/reviews/
-
-# Web frontend: node_modules and the build are made by the Dockerfile
-web/node_modules/
-web/dist/
-.env
 
 # Editors / OS
 .vscode/
