@@ -234,7 +234,8 @@ def test_pipeline(ctx, rules):
 def test_answers(ctx, rules):
     nv1 = ctx.result.wishes[0]
     answer = handle("vì sao NV1 lại ở đó?", ctx, rules).answers[0]
-    assert answer.startswith(f"NV1: {nv1.candidate.program.school_name} · {nv1.candidate.program.name}")
+    assert answer.startswith("**NV1 · ") and f"{nv1.candidate.program.school_name} · {nv1.candidate.program.name}" in answer
+    assert "Vị trí:" in answer and "Có trong danh sách vì:" in answer
     assert "Danh sách hiện có" in handle("vì sao NV15 ở đó?", ctx, rules).answers[0]
     assert "ngoài phạm vi" in handle("sao không có trường Giả Đà Nẵng?", ctx, rules).answers[0]
     compare = handle("Khoa học máy tính và Công nghệ thông tin khác gì?", ctx, rules).answers[0]

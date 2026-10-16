@@ -1,0 +1,17 @@
+@keyframes open { from { height: 0; opacity: 0; } to { height: var(--radix-accordion-content-height); opacity: 1; } }
+@keyframes close { from { height: var(--radix-accordion-content-height); opacity: 1; } to { height: 0; opacity: 0; } }
+
+.root { width: 100%; }
+.item { border: var(--border) solid var(--line); border-radius: var(--radius); background: var(--surface); overflow: hidden; }
+.header { margin: 0; }
+.trigger {
+  width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 14px 16px; border: 0; background: transparent; font-weight: 800; text-align: left; cursor: pointer;
+}
+.trigger:hover { background: var(--surface-2); }
+.chev { flex: none; color: var(--accent-text); transition: transform var(--t) var(--ease-out); }
+.trigger[data-state="open"] .chev { transform: rotate(180deg); }
+.content { overflow: hidden; }
+.content[data-state="open"] { animation: open var(--t) var(--ease-out); }
+.content[data-state="closed"] { animation: close var(--t) var(--ease-out); }
+.inner { padding: 4px 16px 16px; }

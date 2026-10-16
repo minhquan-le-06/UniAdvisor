@@ -21,19 +21,19 @@ from uniadvisor.planner.strategy import build_list, default_quotas
 
 class Priority(str, Enum):
     NGANH = "dung_nganh"            # Đúng ngành nhất
-    CAREER = "nghe_nghiep"          # Nghề nghiệp hứa hẹn (needs the student's answers to the 12 questions)
-    MON = "hop_mon"                 # Hợp môn học nhất: in place of Nghề nghiệp hứa hẹn when there are no answers
+    CAREER = "nghe_nghiep"          # Hợp sở thích nhất (needs the student's answers to the 12 questions)
+    MON = "hop_mon"                 # Hợp môn học nhất: in place of Hợp sở thích nhất when there are no answers
                                     # (2026-10-08)
     COST = "tiet_kiem"              # Tiết kiệm nhất
 
 
 def priorities(facts: "ListFacts") -> tuple[Priority, Priority, Priority]:
-    """The three lists: Nghề nghiệp hứa hẹn when the student answered the 12 questions, else Hợp môn học nhất."""
+    """The three lists: Hợp sở thích nhất when the student answered the 12 questions, else Hợp môn học nhất."""
     return (Priority.NGANH, Priority.CAREER if facts.career else Priority.MON, Priority.COST)
 
 
 def usable(priority: Priority, facts: "ListFacts") -> Priority:
-    """The list that can be built: Nghề nghiệp hứa hẹn without career scores (the answers were cleared, or an old plan
+    """The list that can be built: Hợp sở thích nhất without career scores (the answers were cleared, or an old plan
     file) becomes Hợp môn học nhất, the list that takes its place."""
     return Priority.MON if priority is Priority.CAREER and not facts.career else priority
 
@@ -73,17 +73,15 @@ def nganh_fit(c: Candidate, shortlist: list[ShortlistItem], facts: ListFacts) ->
     return score
 
 
-def tuition_value(c: Candidate, budget_trieu: float | None, known_fees: list[int]) -> float | None:
-    """1 within the budget, budget / tuition above it; no budget: 1 for the cheapest known fee among `known_fees`, 0
-    for the dearest. None when the tuition is unknown."""
+def tuition_value(c: Candidate, budget_trieu: float | None) -> float | None:
+    """Affordability: 1 within the budget, budget / tuition above it. None when the tuition is unknown or no budget
+    was given (without a budget there is nothing to be affordable against; saving money is the Tiết kiệm nhất list's
+    priority, not a corner)."""
     fee = c.program.tuition_max_vnd
-    if fee is None:
+    if fee is None or budget_trieu is None:
         return None
-    if budget_trieu is not None:
-        budget = budget_trieu * 1_000_000
-        return 1.0 if fee <= budget else budget / fee
-    fees = sorted(set(known_fees))
-    return 1.0 if len(fees) < 2 else 1 - fees.index(fee) / (len(fees) - 1)
+    budget = budget_trieu * 1_000_000
+    return 1.0 if fee <= budget else budget / fee
 
 
 def pick_key(priority: Priority, shortlist: list[ShortlistItem], facts: ListFacts,
@@ -98,19 +96,16 @@ def pick_key(priority: Priority, shortlist: list[ShortlistItem], facts: ListFact
             fit = nganh_fit(c, shortlist, facts)
             return (-c.favorite, 0 if c.relation in ("main", "group") else 1, -(fit if fit is not None else -1), *tail(c))
     elif priority is Priority.CAREER:
-        def key(c):                                  # among programs of one ngành, the school's employment rate
-            career, job = facts.career_of(c), c.program.employment       # first
-            return (-c.favorite, career is None, -(career or 0.0), job is None, -(job[0] if job else 0.0), *tail(c))
+        def key(c):          # career fit only: employment rates cover too few schools to break ties fairly
+            career = facts.career_of(c)
+            return (-c.favorite, career is None, -(career or 0.0), *tail(c))
     elif priority is Priority.MON:
         def key(c):                                  # the student's best combination total for the program
             return (-c.favorite, -c.student.exam_total, *tail(c))
     else:
-        budget = profile.budget_trieu * 1_000_000 if profile.budget_trieu is not None else None
-
-        def key(c):
+        def key(c):                                  # over-budget programs never get here (drop_over_budget)
             fee = c.program.tuition_max_vnd
-            band = 2 if fee is None else (1 if budget is not None and fee > budget else 0)
-            return (-c.favorite, band, fee if fee is not None else 0, *tail(c))
+            return (-c.favorite, fee is None, fee if fee is not None else 0, *tail(c))
     return key
 
 
@@ -125,13 +120,11 @@ def pentagon(result: ListResult, ch: Chances, profile: Profile, shortlist: list[
              facts: ListFacts) -> Pentagon:
     wishes = [w.candidate for w in result.wishes]
     best_total = max((c.student.exam_total for c in result.candidates), default=0.0)
-    # No budget: fees ranked among every program the shortlist brings in, the same for the three lists.
-    fees = [c.program.tuition_max_vnd for c in result.candidates if c.program.tuition_max_vnd is not None]
     per_wish = {
         "hop_mon": [c.student.exam_total / best_total if best_total else None for c in wishes],
         "nguyen_vong_cao": [1.0 if c.level in HIGH_LEVELS else 0.0 for c in wishes],
         "dung_nganh": [nganh_fit(c, shortlist, facts) for c in wishes],
-        "hoc_phi": [tuition_value(c, profile.budget_trieu, fees) for c in wishes],
+        "hoc_phi": [tuition_value(c, profile.budget_trieu) for c in wishes],
         "nghe_nghiep": [facts.career_of(c) for c in wishes],
     }
     admitted = ch.admitted or tuple(0.0 for _ in wishes)
@@ -173,13 +166,13 @@ def build_with_floor(profile: Profile, shortlist: list[ShortlistItem], programs:
     key = pick_key(priority, shortlist, facts, profile)
     quotas = default_quotas(list_cfg, len(shortlist))
 
-    # Nghề nghiệp hứa hẹn may fill any level from the further close ngành too (ranked by career fit), so it can choose
+    # Hợp sở thích nhất may fill any level from the further close ngành too (ranked by career fit), so it can choose
     # other ngành whose careers suit the student better; the other lists keep the shortlist's ngành.
     pool = ("main", "group", "close") + (("further_close",) if priority is Priority.CAREER else ())
 
     def build(q, items):
         return build_list(profile, items, programs, nganh_parent, rules, list_cfg, provinces, admission_year,
-                          pick_key=key, quotas=q, pool=pool)
+                          pick_key=key, quotas=q, pool=pool, drop_over_budget=priority is Priority.COST)
 
     def safe(r):
         return sum(w.candidate.level == Level.AN_TOAN for w in r.wishes)

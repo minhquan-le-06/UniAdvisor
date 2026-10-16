@@ -16,8 +16,10 @@ scores.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import random
+import sys
 import sqlite3
 from pathlib import Path
 
@@ -26,7 +28,7 @@ import pandas as pd
 
 from uniadvisor.paths import ROOT
 from pipelines.majors_model.checks import load_cases, run as run_checks
-from uniadvisor.majors.model import Features, LearnedScorer, fit, metrics
+from uniadvisor.majors.model import Features, LearnedScorer, fit_present, metrics
 from uniadvisor.majors.score import DataScorer, load_config
 
 CLEAN = ROOT / "pipelines" / "data" / "students" / "clean" / "students.csv"
@@ -67,7 +69,7 @@ def choose_l2(rows: pd.DataFrame, scorer: DataScorer, features: Features, grid: 
     pairs = list(zip(val["parsed"], val["target_group"]))
     results = {}
     for l2 in grid:
-        beta, W = fit(D, X, y, l2, cap)
+        beta, W = fit_present(D, X, y, l2, cap)
         results[l2] = metrics(LearnedScorer(scorer, features, beta, W), pairs)["mrr"]
     return max(results, key=lambda k: (results[k], k)), results
 
@@ -97,10 +99,13 @@ def train(students: pd.DataFrame, scorer: DataScorer, cfg: dict) -> tuple[Learne
     cap = features.capped(m.get("no_positive", []))
     l2, grid = choose_l2(train_rows, scorer, features, m["l2_grid"], m["seed"], cap)
     D, X, y = matrices(train_rows, scorer, features)
-    beta, W = fit(D, X, y, l2, cap)
+    beta, W = fit_present(D, X, y, l2, cap)
+    untrained = [scorer.codes[i] for i in sorted(set(range(len(scorer.codes))) - set(y.tolist()))]
     model = LearnedScorer(scorer, features, beta, W)
     report = {"families": families, "test_family": test_family, "train_students": int(len(y)), "l2": l2,
-              "l2_grid_mrr": {str(k): round(v, 4) for k, v in grid.items()}, "beta": round(beta, 3)}
+              "l2_grid_mrr": {str(k): round(v, 4) for k, v in grid.items()}, "beta": round(beta, 3),
+              "untrained_groups": untrained,
+              "kept_by_family": {f: int(n) for f, n in sorted(kept["family"].value_counts().items())}}
     for name, rows in (("test_kept", test_kept), ("test_all_parsed", test_all)):
         pairs = list(zip(rows["parsed"], rows["target_group"]))
         report[name] = {"baseline": metrics(scorer, pairs), "model": metrics(model, pairs)}
@@ -116,7 +121,10 @@ def render(report: dict, checks_model: dict, checks_base: dict, weights: list[st
     lines = ["# Major suggester: model report", "",
              f"Families: {', '.join(report['families'])}. Trained on {report['train_students']} kept students; tested "
              f"on {test}. L2 = {report['l2']} (validation MRR by L2: {report['l2_grid_mrr']}); data-score scale "
-             f"beta = {report['beta']}.", "", "| Test set | students | Hit@1 | Hit@5 | MRR | median rank |",
+             f"beta = {report['beta']}."
+             + (f" Groups without a generated student (data scores only, no learned weights): "
+                f"{', '.join(report['untrained_groups'])}." if report.get("untrained_groups") else ""),
+             "", "| Test set | students | Hit@1 | Hit@5 | MRR | median rank |",
              "|---|---|---|---|---|---|"]
     for key, title in (("test_kept", "kept"), ("test_all_parsed", "all parsed")):
         lines.append(row(f"{title}: data scores (baseline)", report[key]["baseline"]))
@@ -140,6 +148,8 @@ def summary(result: dict, n_cases: int) -> dict:
 def main():
     from uniadvisor.ui.service import AppData, db_path
 
+    sys.stdout.reconfigure(encoding="utf-8")
+
     cfg = load_config()
     d = AppData.load()
     with sqlite3.connect(db_path()) as conn:
@@ -160,7 +170,13 @@ def main():
                               "beats the baseline and passes the checks" if report["ready"] else
                               "does not beat the baseline on the held-out family" if not beats else
                               "behaviour checks fail")
-    model.info = {k: report[k] for k in ("ready", "ready_reason", "families", "test_family", "l2", "beta")}
+    # what the model was trained on, so a later run can tell whether it would reproduce it
+    report["trained_on"] = {"students_sha256": hashlib.sha256(CLEAN.read_bytes()).hexdigest(),
+                            "kept_by_family": report["kept_by_family"], "train_students": report["train_students"],
+                            "test_kept": report["test_kept"]["model"].get("n", 0),
+                            "untrained_groups": report["untrained_groups"]}
+    model.info = {k: report[k] for k in ("ready", "ready_reason", "families", "test_family", "l2", "beta",
+                                         "trained_on")}
     model.save(OUT)
     text = render(report, cm, cb, top_weights(model, d.catalog.label))
     (OUT / "report.md").write_text(text, encoding="utf-8")

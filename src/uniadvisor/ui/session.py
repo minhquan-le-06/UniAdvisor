@@ -11,7 +11,7 @@ import streamlit as st
 from uniadvisor.ui.discover import answer_widgets, defaults
 from uniadvisor.ui.service import AppData, db_path, ensure_db
 from uniadvisor.ui.state import COMPULSORY, MAX_CLOSE, MAX_ELECTIVES, PlanState, ShortlistEntry
-from uniadvisor.chat.changes import ChangeError, Item, apply, describe
+from uniadvisor.chat.changes import Item
 from uniadvisor.chat.diff import describe_diff
 from uniadvisor.planner.models import ListResult
 
@@ -129,7 +129,7 @@ def apply_state(state: PlanState, d: AppData):
 
 
 def list_for(d: AppData, state: PlanState) -> ListResult | None:
-    return None if state.missing_for_list() else d.build_list(state)
+    return d.list_for(state)
 
 
 def commit(d: AppData, items: list[Item]) -> dict:
@@ -138,30 +138,23 @@ def commit(d: AppData, items: list[Item]) -> dict:
     ss = st.session_state
     done, errors = [], []
     old = current_state(d)
-    old_result = list_for(d, old)
-    if any(i.kind == "undo" for i in items):
+    undo = any(i.kind == "undo" for i in items)
+    if undo:
         if ss["history"]:
             apply_state(ss["history"].pop(), d)
             done.append("Hoàn tác thay đổi gần nhất")
         else:
             errors.append("Chưa có thay đổi nào để hoàn tác.")
     start = current_state(d)
-    ctx = d.chat_context(start, list_for(d, start))
-    new = start
-    applied = 0
-    for item in items:
-        if item.kind == "undo":
-            continue
-        try:
-            new = apply(new, item, ctx)
-            done.append(describe(item, ctx))
-            applied += 1
-        except ChangeError as e:
-            errors.append(f"{describe(item, ctx)}: {e}")
-    if applied:
+    res = d.apply_items(start, items, before=old)
+    done += res.done
+    errors += res.errors
+    diff = res.diff
+    if res.applied:
         ss["history"] = (ss["history"] + [start])[-MAX_HISTORY:]
-        apply_state(new, d)
-    final = current_state(d)
-    diff = describe_diff(old_result, list_for(d, final), old, final) if done else ""
+        apply_state(res.state, d)
+    elif done:                             # an undo alone still changes the list
+        final = current_state(d)
+        diff = describe_diff(list_for(d, old), list_for(d, final), old, final)
     ss["last_change"] = {"done": done, "errors": errors, "diff": diff}
     return ss["last_change"]

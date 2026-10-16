@@ -18,7 +18,7 @@ OUT = ROOT / "pipelines" / "notebooks" / "chat_message_generation.ipynb"
 
 INTRO = r"""# UniAdvisor: chat messages for training the message classifier
 
-Writes Vietnamese messages a grade-12 student (or a parent) might type into UniAdvisor's chat, labelled with one of 19
+Writes Vietnamese messages a grade-12 student (or a parent) might type into UniAdvisor's chat, labelled with one of 28
 request types (`src/uniadvisor/chat/types.py`). The labels are known by construction: each prompt asks for messages of
 one given type.
 
@@ -50,10 +50,11 @@ and `chat_review_sample_<family>.csv` (20 messages per type for people to check)
 """
 
 CONFIG = r"""# ---- settings ----------------------------------------------------------------------------------------------
-# Round 2 (2026-10-08): only the three types added after round 1, for every family (round 1 files are kept).
+# Round 3: only the nine types added in Part 4, for every family (round 1 and 2 files are kept).
 RUN_FAMILIES = ["qwen", "aya", "gemma", "mistral"]
-RUN_TYPES = ["favorite_school", "own_score", "cutoff_shift"]   # None: every type
-ROUND = 2                      # in the output file names, so round 1's files are not overwritten
+RUN_TYPES = ["ask_tuition", "ask_cutoff", "ask_combos", "ask_employment", "ask_extra_policy",
+             "out_procedure", "out_admission_method", "out_forecast", "out_advice"]   # None: every type
+ROUND = 3                      # in the output file names, so earlier files are not overwritten
 PROMPTS_PER_TYPE = 40          # prompts per request type and family
 MESSAGES_PER_PROMPT = 5        # messages asked for in one prompt
 BATCH_SIZE = 8
@@ -114,8 +115,17 @@ TYPES = {
     "ask_compare": ("hỏi hai ngành khác nhau thế nào / nên chọn ngành nào", "two_nganh"),
     "ask_what_is": ("hỏi về một ngành: học gì, có khó không, cần giỏi môn nào, ra trường làm gì, thu nhập", "nganh"),
     "ask_level": ("hỏi một mức trong danh sách (an toàn, vừa sức, thử sức, mơ ước) nghĩa là gì", "level"),
-    "other": ("nói chuyện ngoài lề hoặc nhờ việc ứng dụng không làm (chào hỏi, cảm ơn, hỏi dự đoán điểm chuẩn năm nay, "
-              "xin số điện thoại, nhờ làm bài tập, tâm sự)", "none"),
+    "ask_tuition": ("hỏi học phí công bố của một chương trình theo nguyện vọng, hoặc của một trường và ngành", "school_and_nganh"),
+    "ask_cutoff": ("hỏi điểm chuẩn đã công bố của phương thức điểm thi tốt nghiệp THPT cho một chương trình", "school_and_nganh"),
+    "ask_combos": ("hỏi chương trình xét những tổ hợp và môn thi nào", "school_and_nganh"),
+    "ask_employment": ("hỏi tỷ lệ sinh viên tốt nghiệp có việc làm mà một trường công bố cho một ngành", "school_and_nganh"),
+    "ask_extra_policy": ("hỏi quy định điểm cộng/chứng chỉ của một trường; ứng dụng chưa có dữ liệu quy định này", "school"),
+    "out_procedure": ("hỏi thủ tục, hồ sơ, thời hạn hoặc lịch đăng ký tuyển sinh; ứng dụng không theo dõi việc này", "none"),
+    "out_admission_method": ("hỏi xét học bạ, chứng chỉ, đánh giá năng lực hoặc phương thức ngoài điểm thi THPT", "none"),
+    "out_forecast": ("xin dự báo điểm chuẩn trong tương lai; ứng dụng không dự báo", "none"),
+    "out_advice": ("xin ứng dụng quyết định thay một lựa chọn trường/ngành chung chung; ứng dụng cần hướng câu hỏi cụ thể", "none"),
+    "other": ("nói chuyện ngoài lề hoặc nhờ việc ứng dụng không làm (chào hỏi, cảm ơn, xin số điện thoại, nhờ làm "
+              "bài tập, tâm sự)", "none"),
 }
 
 # Seed examples per type (Sahu et al. 2022 prompt with a few examples). Written for this notebook; they are not in
@@ -141,7 +151,16 @@ SEEDS = {
     "ask_compare": ["Kế toán với Kiểm toán khác gì", "nên học Luật hay Luật kinh tế", "so sánh CNTT và KHMT"],
     "ask_what_is": ["ngành Logistics học gì", "Marketing ra làm gì", "Dược học có khó không"],
     "ask_level": ["thử sức là gì", "mức an toàn nghĩa là chắc đỗ à", "vừa sức là sao"],
-    "other": ["chào bạn", "điểm chuẩn năm nay bao nhiêu", "giúp em làm bài toán này"],
+    "ask_tuition": ["học phí NV3 bao nhiêu", "ngành CNTT ở Bách khoa học phí thế nào", "NV5 có vượt ngân sách không"],
+    "ask_cutoff": ["điểm chuẩn NV2 là bao nhiêu", "Kinh tế Quốc dân ngành Logistics lấy bao nhiêu điểm", "điểm chuẩn NV4 năm 2026"],
+    "ask_combos": ["NV5 xét tổ hợp nào", "CNTT ở Bách khoa thi môn gì", "ngành này có xét A01 không"],
+    "ask_employment": ["tỷ lệ có việc làm của NV3 bao nhiêu", "ngành Logistics ở trường này có bao nhiêu người có việc", "trường có công bố việc làm ngành CNTT không"],
+    "ask_extra_policy": ["Bách khoa cộng IELTS thế nào", "trường này có cộng điểm chứng chỉ không", "NEU cộng giải học sinh giỏi ra sao"],
+    "out_procedure": ["khi nào đăng ký nguyện vọng", "hồ sơ nhập học cần gì", "hạn nộp của trường là hôm nào"],
+    "out_admission_method": ["trường xét học bạ thế nào", "IELTS có xét tuyển sớm không", "điểm đánh giá năng lực vào trường này bao nhiêu"],
+    "out_forecast": ["dự báo điểm chuẩn CNTT năm nay", "điểm chuẩn sẽ tăng không", "năm nay trường lấy bao nhiêu điểm"],
+    "out_advice": ["em nên chọn trường nào", "có nên học ngành này không", "tư vấn giúp em chọn ngành đi"],
+    "other": ["chào bạn", "bạn tên gì", "giúp em làm bài toán này"],
 }
 
 ATTRIBUTES = {
@@ -194,6 +213,9 @@ def slot_hint(kind, rng):
         return rng.choice([f"trường: {rng.choice(SLOTS['schools'])}", f"nguyện vọng số {rng.randint(1, 15)}"])
     if kind == "school_or_removed":
         return rng.choice([f"trường: {rng.choice(SLOTS['schools'])}", "trường / nguyện vọng em vừa bỏ (không nói tên)"])
+    if kind == "school_and_nganh":
+        return rng.choice([f"nguyện vọng số {rng.randint(1, 15)}",
+                           f"trường: {rng.choice(SLOTS['schools'])}; ngành: {rng.choice(SLOTS['nganh'])}"])
     if kind == "two_nganh":
         a, b = rng.sample(SLOTS["nganh"], 2)
         return f"hai ngành: {a}; {b}"

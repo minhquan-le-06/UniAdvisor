@@ -1,0 +1,8 @@
+.reveal { opacity: 0; transform: translateY(32px) scale(0.98); }
+.shown {
+  opacity: 1; transform: none;
+  transition: opacity var(--t-slow) var(--ease-out) var(--delay), transform var(--t-slow) var(--ease-bounce) var(--delay);
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; }
+}

@@ -1,0 +1,2119 @@
+{
+ "meta": {
+  "admission_year": 2027,
+  "subjects": [
+   {
+    "code": "TO",
+    "name": "Toán"
+   },
+   {
+    "code": "VA",
+    "name": "Ngữ văn"
+   },
+   {
+    "code": "N1",
+    "name": "Tiếng Anh"
+   },
+   {
+    "code": "LI",
+    "name": "Vật lí"
+   },
+   {
+    "code": "HO",
+    "name": "Hóa học"
+   },
+   {
+    "code": "SI",
+    "name": "Sinh học"
+   }
+  ],
+  "compulsory": [
+   "TO",
+   "VA"
+  ],
+  "electives": [
+   "N1",
+   "LI",
+   "HO",
+   "SI"
+  ],
+  "max_electives": 2,
+  "provinces": [
+   "Hà Nội",
+   "TP. Hồ Chí Minh",
+   "An Giang",
+   "Bắc Ninh",
+   "Cà Mau",
+   "Cần Thơ",
+   "Cao Bằng",
+   "Đà Nẵng",
+   "Đắk Lắk",
+   "Điện Biên",
+   "Đồng Nai",
+   "Đồng Tháp",
+   "Gia Lai",
+   "Hà Tĩnh",
+   "Hải Phòng",
+   "Huế",
+   "Hưng Yên",
+   "Khánh Hòa",
+   "Lai Châu",
+   "Lâm Đồng",
+   "Lạng Sơn",
+   "Lào Cai",
+   "Nghệ An",
+   "Ninh Bình",
+   "Phú Thọ",
+   "Quảng Ngãi",
+   "Quảng Ninh",
+   "Quảng Trị",
+   "Sơn La",
+   "Tây Ninh",
+   "Thái Nguyên",
+   "Thanh Hóa",
+   "Tuyên Quang",
+   "Vĩnh Long"
+  ],
+  "areas": [
+   {
+    "code": "KV1",
+    "label": "KV1"
+   },
+   {
+    "code": "KV2-NT",
+    "label": "KV2-NT"
+   },
+   {
+    "code": "KV2",
+    "label": "KV2"
+   },
+   {
+    "code": "KV3",
+    "label": "KV3"
+   }
+  ],
+  "categories": [
+   {
+    "code": "none",
+    "label": "Không thuộc đối tượng ưu tiên"
+   },
+   {
+    "code": "UT1",
+    "label": "Ưu tiên 1 (nhóm đối tượng 01-03)"
+   },
+   {
+    "code": "UT2",
+    "label": "Ưu tiên 2 (nhóm đối tượng 04-06)"
+   }
+  ],
+  "score_kinds": [
+   "expected",
+   "real"
+  ],
+  "schools": [
+   {
+    "code": "MIL",
+    "name": "Học viện Giả Quân sự"
+   },
+   {
+    "code": "HNA",
+    "name": "Trường Đại học Giả Hà Nội"
+   },
+   {
+    "code": "HCB",
+    "name": "Trường Đại học Giả TP.HCM"
+   }
+  ],
+  "limits": {
+   "max_picks": 6,
+   "max_items": 2,
+   "max_close": 2,
+   "scales": [
+    30,
+    40,
+    100
+   ],
+   "max_cutoff_shift": 5.0
+  },
+  "number_ranges": {
+   "set_score": [
+    0.0,
+    10.0,
+    0.25
+   ],
+   "set_extra": [
+    0.0,
+    10.0,
+    0.25
+   ],
+   "set_budget": [
+    1.0,
+    1000.0,
+    5.0
+   ],
+   "set_own_score": [
+    0.0,
+    100.0,
+    0.05
+   ],
+   "set_cutoff_shift": [
+    -5.0,
+    5.0,
+    0.25
+   ],
+   "default": [
+    0.0,
+    1000.0,
+    1.0
+   ]
+  },
+  "questions": [
+   {
+    "id": "q1",
+    "number": 1,
+    "text": "Em thích học môn nào?",
+    "kind": "multi",
+    "max": 3,
+    "not_in": null,
+    "hint": "chọn tối đa 3",
+    "options": [
+     {
+      "code": "TO",
+      "label": "Toán"
+     },
+     {
+      "code": "VA",
+      "label": "Ngữ văn"
+     },
+     {
+      "code": "N1",
+      "label": "Tiếng Anh"
+     },
+     {
+      "code": "LI",
+      "label": "Vật lí"
+     },
+     {
+      "code": "HO",
+      "label": "Hóa học"
+     },
+     {
+      "code": "SI",
+      "label": "Sinh học"
+     },
+     {
+      "code": "SU",
+      "label": "Lịch sử"
+     },
+     {
+      "code": "DI",
+      "label": "Địa lí"
+     },
+     {
+      "code": "GDKTPL",
+      "label": "Giáo dục kinh tế và pháp luật"
+     },
+     {
+      "code": "TI",
+      "label": "Tin học"
+     },
+     {
+      "code": "CNCN",
+      "label": "Công nghệ công nghiệp"
+     },
+     {
+      "code": "CNNN",
+      "label": "Công nghệ nông nghiệp"
+     },
+     {
+      "code": "N3",
+      "label": "Tiếng Pháp"
+     },
+     {
+      "code": "N4",
+      "label": "Tiếng Trung"
+     },
+     {
+      "code": "N6",
+      "label": "Tiếng Nhật"
+     },
+     {
+      "code": "N7",
+      "label": "Tiếng Hàn"
+     },
+     {
+      "code": "N5",
+      "label": "Tiếng Đức"
+     },
+     {
+      "code": "N2",
+      "label": "Tiếng Nga"
+     }
+    ]
+   },
+   {
+    "id": "q2",
+    "number": 2,
+    "text": "Môn nào em không thích?",
+    "kind": "multi",
+    "max": 3,
+    "not_in": "q1",
+    "hint": "chọn tối đa 3, khác câu 1",
+    "options": [
+     {
+      "code": "TO",
+      "label": "Toán"
+     },
+     {
+      "code": "VA",
+      "label": "Ngữ văn"
+     },
+     {
+      "code": "N1",
+      "label": "Tiếng Anh"
+     },
+     {
+      "code": "LI",
+      "label": "Vật lí"
+     },
+     {
+      "code": "HO",
+      "label": "Hóa học"
+     },
+     {
+      "code": "SI",
+      "label": "Sinh học"
+     },
+     {
+      "code": "SU",
+      "label": "Lịch sử"
+     },
+     {
+      "code": "DI",
+      "label": "Địa lí"
+     },
+     {
+      "code": "GDKTPL",
+      "label": "Giáo dục kinh tế và pháp luật"
+     },
+     {
+      "code": "TI",
+      "label": "Tin học"
+     },
+     {
+      "code": "CNCN",
+      "label": "Công nghệ công nghiệp"
+     },
+     {
+      "code": "CNNN",
+      "label": "Công nghệ nông nghiệp"
+     },
+     {
+      "code": "N3",
+      "label": "Tiếng Pháp"
+     },
+     {
+      "code": "N4",
+      "label": "Tiếng Trung"
+     },
+     {
+      "code": "N6",
+      "label": "Tiếng Nhật"
+     },
+     {
+      "code": "N7",
+      "label": "Tiếng Hàn"
+     },
+     {
+      "code": "N5",
+      "label": "Tiếng Đức"
+     },
+     {
+      "code": "N2",
+      "label": "Tiếng Nga"
+     }
+    ]
+   },
+   {
+    "id": "q3",
+    "number": 3,
+    "text": "Em thích làm việc với điều gì?",
+    "kind": "multi",
+    "max": 2,
+    "not_in": null,
+    "hint": "chọn tối đa 2",
+    "options": [
+     {
+      "code": "people",
+      "label": "Con người"
+     },
+     {
+      "code": "machines",
+      "label": "Máy móc"
+     },
+     {
+      "code": "data",
+      "label": "Số liệu"
+     },
+     {
+      "code": "ideas",
+      "label": "Ý tưởng"
+     }
+    ]
+   },
+   {
+    "id": "q4",
+    "number": 4,
+    "text": "Em thích làm những việc nào?",
+    "kind": "multi",
+    "max": null,
+    "not_in": null,
+    "hint": "chọn bao nhiêu cũng được",
+    "options": [
+     {
+      "code": "repair",
+      "label": "Sửa chữa đồ đạc"
+     },
+     {
+      "code": "electronics",
+      "label": "Lắp ráp đồ điện tử"
+     },
+     {
+      "code": "code",
+      "label": "Viết code"
+     },
+     {
+      "code": "experiment",
+      "label": "Làm thí nghiệm"
+     },
+     {
+      "code": "hard_problem",
+      "label": "Giải bài toán khó"
+     },
+     {
+      "code": "how_machines_work",
+      "label": "Tìm hiểu máy móc hoạt động ra sao"
+     },
+     {
+      "code": "plants",
+      "label": "Trồng cây"
+     },
+     {
+      "code": "animals",
+      "label": "Chăm sóc con vật"
+     },
+     {
+      "code": "cooking",
+      "label": "Nấu ăn"
+     },
+     {
+      "code": "sport",
+      "label": "Chơi thể thao"
+     },
+     {
+      "code": "drawing",
+      "label": "Vẽ"
+     },
+     {
+      "code": "photo",
+      "label": "Chụp ảnh"
+     },
+     {
+      "code": "video",
+      "label": "Làm video"
+     },
+     {
+      "code": "stories",
+      "label": "Viết truyện"
+     },
+     {
+      "code": "instrument",
+      "label": "Chơi nhạc cụ"
+     }
+    ]
+   },
+   {
+    "id": "q5",
+    "number": 5,
+    "text": "Còn những việc này?",
+    "kind": "multi",
+    "max": null,
+    "not_in": null,
+    "hint": "chọn bao nhiêu cũng được",
+    "options": [
+     {
+      "code": "tutoring",
+      "label": "Giảng bài cho bạn"
+     },
+     {
+      "code": "listening",
+      "label": "Nghe bạn bè tâm sự"
+     },
+     {
+      "code": "caring_sick",
+      "label": "Chăm sóc người ốm"
+     },
+     {
+      "code": "volunteering",
+      "label": "Làm tình nguyện"
+     },
+     {
+      "code": "events",
+      "label": "Tổ chức sự kiện"
+     },
+     {
+      "code": "presenting",
+      "label": "Thuyết trình"
+     },
+     {
+      "code": "debating",
+      "label": "Tranh luận"
+     },
+     {
+      "code": "selling",
+      "label": "Bán hàng"
+     },
+     {
+      "code": "budgeting",
+      "label": "Quản lý chi tiêu"
+     },
+     {
+      "code": "filing",
+      "label": "Sắp xếp tài liệu"
+     },
+     {
+      "code": "novels",
+      "label": "Đọc tiểu thuyết"
+     },
+     {
+      "code": "news",
+      "label": "Theo dõi thời sự"
+     }
+    ]
+   },
+   {
+    "id": "q6",
+    "number": 6,
+    "text": "Em thích tìm hiểu về chủ đề nào?",
+    "kind": "multi",
+    "max": 4,
+    "not_in": null,
+    "hint": "chọn tối đa 4",
+    "options": [
+     {
+      "code": "computers",
+      "label": "Máy tính"
+     },
+     {
+      "code": "electronics_topic",
+      "label": "Điện tử"
+     },
+     {
+      "code": "mechanics",
+      "label": "Cơ khí"
+     },
+     {
+      "code": "construction",
+      "label": "Xây dựng"
+     },
+     {
+      "code": "health",
+      "label": "Sức khỏe"
+     },
+     {
+      "code": "psychology",
+      "label": "Tâm lý"
+     },
+     {
+      "code": "society",
+      "label": "Các vấn đề xã hội"
+     },
+     {
+      "code": "economics",
+      "label": "Kinh tế"
+     },
+     {
+      "code": "marketing",
+      "label": "Marketing"
+     },
+     {
+      "code": "business",
+      "label": "Quản lý doanh nghiệp"
+     },
+     {
+      "code": "law",
+      "label": "Pháp luật"
+     },
+     {
+      "code": "journalism",
+      "label": "Báo chí"
+     },
+     {
+      "code": "literature",
+      "label": "Văn chương"
+     },
+     {
+      "code": "languages",
+      "label": "Ngoại ngữ"
+     },
+     {
+      "code": "history",
+      "label": "Lịch sử"
+     },
+     {
+      "code": "geography",
+      "label": "Địa lý"
+     },
+     {
+      "code": "arts",
+      "label": "Nghệ thuật"
+     },
+     {
+      "code": "agriculture",
+      "label": "Nông nghiệp"
+     },
+     {
+      "code": "cuisine",
+      "label": "Ẩm thực"
+     },
+     {
+      "code": "environment",
+      "label": "Môi trường"
+     },
+     {
+      "code": "transport",
+      "label": "Giao thông vận tải"
+     },
+     {
+      "code": "education",
+      "label": "Giáo dục"
+     },
+     {
+      "code": "philosophy",
+      "label": "Triết học"
+     }
+    ]
+   },
+   {
+    "id": "q7",
+    "number": 7,
+    "text": "Có chủ đề nào em chắc chắn không muốn học?",
+    "kind": "multi",
+    "max": 3,
+    "not_in": "q6",
+    "hint": "chọn tối đa 3, khác câu 6",
+    "options": [
+     {
+      "code": "computers",
+      "label": "Máy tính"
+     },
+     {
+      "code": "electronics_topic",
+      "label": "Điện tử"
+     },
+     {
+      "code": "mechanics",
+      "label": "Cơ khí"
+     },
+     {
+      "code": "construction",
+      "label": "Xây dựng"
+     },
+     {
+      "code": "health",
+      "label": "Sức khỏe"
+     },
+     {
+      "code": "psychology",
+      "label": "Tâm lý"
+     },
+     {
+      "code": "society",
+      "label": "Các vấn đề xã hội"
+     },
+     {
+      "code": "economics",
+      "label": "Kinh tế"
+     },
+     {
+      "code": "marketing",
+      "label": "Marketing"
+     },
+     {
+      "code": "business",
+      "label": "Quản lý doanh nghiệp"
+     },
+     {
+      "code": "law",
+      "label": "Pháp luật"
+     },
+     {
+      "code": "journalism",
+      "label": "Báo chí"
+     },
+     {
+      "code": "literature",
+      "label": "Văn chương"
+     },
+     {
+      "code": "languages",
+      "label": "Ngoại ngữ"
+     },
+     {
+      "code": "history",
+      "label": "Lịch sử"
+     },
+     {
+      "code": "geography",
+      "label": "Địa lý"
+     },
+     {
+      "code": "arts",
+      "label": "Nghệ thuật"
+     },
+     {
+      "code": "agriculture",
+      "label": "Nông nghiệp"
+     },
+     {
+      "code": "cuisine",
+      "label": "Ẩm thực"
+     },
+     {
+      "code": "environment",
+      "label": "Môi trường"
+     },
+     {
+      "code": "transport",
+      "label": "Giao thông vận tải"
+     },
+     {
+      "code": "education",
+      "label": "Giáo dục"
+     },
+     {
+      "code": "philosophy",
+      "label": "Triết học"
+     }
+    ]
+   },
+   {
+    "id": "q8",
+    "number": 8,
+    "text": "Sau này em muốn làm việc chủ yếu ở đâu?",
+    "kind": "multi",
+    "max": 3,
+    "not_in": null,
+    "hint": "chọn tối đa 3",
+    "options": [
+     {
+      "code": "office",
+      "label": "Văn phòng"
+     },
+     {
+      "code": "workshop",
+      "label": "Nhà xưởng"
+     },
+     {
+      "code": "outdoors",
+      "label": "Ngoài trời"
+     },
+     {
+      "code": "vehicle",
+      "label": "Trên phương tiện giao thông"
+     },
+     {
+      "code": "hospital",
+      "label": "Bệnh viện"
+     },
+     {
+      "code": "school",
+      "label": "Trường học"
+     },
+     {
+      "code": "lab",
+      "label": "Phòng thí nghiệm"
+     },
+     {
+      "code": "site",
+      "label": "Công trường"
+     },
+     {
+      "code": "farm",
+      "label": "Trang trại"
+     },
+     {
+      "code": "hotel",
+      "label": "Khách sạn"
+     },
+     {
+      "code": "shop",
+      "label": "Cửa hàng"
+     },
+     {
+      "code": "home",
+      "label": "Tại nhà"
+     }
+    ]
+   },
+   {
+    "id": "q9",
+    "number": 9,
+    "text": "Em thích làm việc thế nào?",
+    "kind": "single",
+    "max": null,
+    "not_in": null,
+    "hint": "chọn 1",
+    "options": [
+     {
+      "code": "alone",
+      "label": "Một mình"
+     },
+     {
+      "code": "team",
+      "label": "Cùng một nhóm"
+     },
+     {
+      "code": "new_people",
+      "label": "Gặp gỡ nhiều người mới"
+     }
+    ]
+   },
+   {
+    "id": "q10",
+    "number": 10,
+    "text": "Em thích công việc như thế nào hơn?",
+    "kind": "single",
+    "max": null,
+    "not_in": null,
+    "hint": "chọn 1",
+    "options": [
+     {
+      "code": "procedure",
+      "label": "Làm theo quy trình rõ ràng"
+     },
+     {
+      "code": "own_way",
+      "label": "Tự nghĩ ra cách làm"
+     }
+    ]
+   },
+   {
+    "id": "q11",
+    "number": 11,
+    "text": "Điều gì quan trọng nhất với em trong công việc sau này?",
+    "kind": "single",
+    "max": null,
+    "not_in": null,
+    "hint": "chọn 1",
+    "options": [
+     {
+      "code": "helping",
+      "label": "Giúp đỡ người khác"
+     },
+     {
+      "code": "making",
+      "label": "Làm ra sản phẩm cầm nắm được"
+     },
+     {
+      "code": "understanding",
+      "label": "Hiểu vì sao mọi thứ xảy ra"
+     },
+     {
+      "code": "expressing",
+      "label": "Thể hiện ý tưởng của mình"
+     },
+     {
+      "code": "leading",
+      "label": "Dẫn dắt người khác"
+     },
+     {
+      "code": "accuracy",
+      "label": "Làm việc chính xác"
+     }
+    ]
+   },
+   {
+    "id": "q12",
+    "number": 12,
+    "text": "Em không muốn công việc có điều nào?",
+    "kind": "multi",
+    "max": null,
+    "not_in": null,
+    "hint": "chọn bao nhiêu cũng được",
+    "options": [
+     {
+      "code": "blood",
+      "label": "Thấy máu"
+     },
+     {
+      "code": "sick_people",
+      "label": "Tiếp xúc với người bệnh"
+     },
+     {
+      "code": "night_shift",
+      "label": "Làm ca đêm"
+     },
+     {
+      "code": "away_from_home",
+      "label": "Thường xuyên đi xa nhà"
+     },
+     {
+      "code": "sitting",
+      "label": "Ngồi một chỗ cả ngày"
+     },
+     {
+      "code": "standing",
+      "label": "Đứng cả ngày"
+     },
+     {
+      "code": "public_speaking",
+      "label": "Nói trước đông người"
+     },
+     {
+      "code": "outdoor_work",
+      "label": "Làm việc ngoài trời"
+     },
+     {
+      "code": "heights",
+      "label": "Làm việc trên cao"
+     },
+     {
+      "code": "chemicals",
+      "label": "Tiếp xúc hóa chất"
+     },
+     {
+      "code": "noise",
+      "label": "Tiếng ồn lớn"
+     },
+     {
+      "code": "time_pressure",
+      "label": "Áp lực thời gian"
+     },
+     {
+      "code": "angry_people",
+      "label": "Đối mặt với người nóng giận"
+     },
+     {
+      "code": "overtime",
+      "label": "Làm thêm giờ thường xuyên"
+     },
+     {
+      "code": "sales_targets",
+      "label": "Chạy doanh số"
+     }
+    ]
+   }
+  ],
+  "has_free_text": true,
+  "texts": {
+   "how_the_list_is_built": "Danh sách gồm tối đa 15 nguyện vọng, xếp theo một thứ tự cố định. Mỗi chương trình được xếp mức (mơ ước, thử sức, vừa sức, an toàn) bằng cách so điểm của em với điểm chuẩn phương thức điểm thi THPT của hai năm gần nhất; ứng dụng không dự đoán điểm chuẩn năm nay. Chương trình có điểm chuẩn cao hơn điểm của em quá 4 điểm bị bỏ, vì quá xa tầm với. Các nguyện vọng chưa an toàn của hướng học 1 đứng đầu, tiếp theo là của hướng học 2, các nguyện vọng an toàn luôn nằm cuối danh sách; trong mỗi phần, chương trình có điểm chuẩn cao hơn điểm của em nhiều hơn đứng trước. Lý do: em chỉ trúng tuyển nguyện vọng cao nhất mà em đạt, nên nguyện vọng an toàn đặt ở cuối để giữ chỗ chắc chắn mà không chặn các nguyện vọng em muốn hơn. Vì vậy, nếu em đạt một nguyện vọng vừa sức của hướng học 2, em sẽ trúng tuyển ở đó dù bên dưới còn nguyện vọng an toàn của hướng học 1. Chương trình xét kết hợp (dấu *) mà em vượt điểm chuẩn từ 2 điểm trở lên vẫn chỉ xếp mức vừa sức, nhưng được đặt cùng phần cuối với các nguyện vọng an toàn, theo độ khó thật. Riêng ngành sư phạm: theo quy chế tuyển sinh 2026, các ngành đào tạo giáo viên chỉ được xét ở 5 nguyện vọng đầu, nên danh sách có tối đa 5 nguyện vọng sư phạm và đặt chúng lên đầu.",
+   "levels": [
+    {
+     "code": "an_toan",
+     "name": "an toàn",
+     "help": "điểm của em cao hơn điểm chuẩn cao nhất của hai năm gần nhất từ 2 điểm trở lên"
+    },
+    {
+     "code": "vua_suc",
+     "name": "vừa sức",
+     "help": "điểm của em đạt điểm chuẩn của cả hai năm, nhưng cao hơn chưa tới 2 điểm"
+    },
+    {
+     "code": "thu_suc",
+     "name": "thử sức",
+     "help": "điểm của em đạt điểm chuẩn của một trong hai năm, hoặc thấp hơn điểm chuẩn thấp hơn chưa tới 1,5 điểm"
+    },
+    {
+     "code": "mo_uoc",
+     "name": "mơ ước",
+     "help": "điểm của em thấp hơn điểm chuẩn thấp hơn của hai năm từ 1,5 đến 4 điểm"
+    }
+   ],
+   "extra_points_reminder": "Ứng dụng không tự tính điểm cộng riêng của từng trường (IELTS, chứng chỉ, học sinh giỏi...). Em hãy xem quy định của từng trường trong danh sách, tự tính điểm cộng của mình và nhập ở phần Điều chỉnh → Các nút điều chỉnh → Theo từng trường (cột Điểm cộng).",
+   "mixed_method_note": "Có dấu * : điểm chuẩn của chương trình này được công bố cho phương thức kết hợp điểm thi với tiêu chí khác (học bạ, chứng chỉ...); điểm chuẩn đã được quy đổi về thang 30 để so sánh. Vì điểm quy đổi không hoàn toàn so được với tổng điểm thi của em, các chương trình này không được xếp mức an toàn, trừ khi em nhập điểm xét tuyển em tự tính theo cách của trường (phần Điều chỉnh, bảng Theo từng trường).",
+   "income_context": "chưa có số liệu theo ngành; để tham khảo, thu nhập bình quân của lao động làm công hưởng lương cả nước năm 2024 là 8,7 triệu đồng/tháng (Tổng cục Thống kê)",
+   "onet_credit": "Việc làm, kiến thức và sở thích nghề nghiệp lấy từ cơ sở dữ liệu O*NET 31.0 của Bộ Lao động Hoa Kỳ (USDOL/ETA, giấy phép CC BY 4.0), đã được UniAdvisor chọn lọc, tổng hợp theo ngành và dịch sang tiếng Việt; USDOL/ETA không kiểm duyệt các thay đổi này. Đây là dữ liệu về nghề nghiệp ở Mỹ, chỉ để tham khảo.",
+   "quiz_method_note": "Gợi ý được tính từ dữ liệu nghề nghiệp O*NET (sở thích nghề nghiệp, kiến thức cần có, điều kiện làm việc) và các tổ hợp xét tuyển của từng nhóm ngành, cộng với trọng số mô hình học từ hồ sơ học sinh giả định do mô hình ngôn ngữ viết, chưa học từ câu trả lời của học sinh thật; em nên xem kỹ từng nhóm ngành trước khi chọn.",
+   "pentagon_note": "Mỗi hình năm góc cho biết điều em có thể chờ đợi ở chương trình em sẽ đỗ (tính trên 20.000 lần giả lập điểm chuẩn năm sau); góc càng xa tâm càng tốt, trừ “Nguyện vọng cao” là nhắm cao hơn chứ không phải an toàn hơn.",
+   "lists": [
+    {
+     "priority": "dung_nganh",
+     "name": "Đúng ngành nhất",
+     "help": "ưu tiên ngành em chọn, rồi đến ngành gần nhất",
+     "slot": 0
+    },
+    {
+     "priority": "nghe_nghiep",
+     "name": "Hợp sở thích nhất",
+     "help": "ưu tiên ngành hợp với sở thích và tính cách em qua 12 câu hỏi, kể cả ngành gần khác (không dựa vào tỷ lệ có việc làm)",
+     "slot": 1
+    },
+    {
+     "priority": "hop_mon",
+     "name": "Hợp môn học nhất",
+     "help": "ưu tiên chương trình xét tổ hợp môn em mạnh nhất",
+     "slot": 1
+    },
+    {
+     "priority": "tiet_kiem",
+     "name": "Tiết kiệm nhất",
+     "help": "ưu tiên chương trình có học phí đã biết, trong ngân sách và rẻ hơn",
+     "slot": 2
+    }
+   ],
+   "corners": [
+    {
+     "code": "hop_mon",
+     "name": "Hợp môn",
+     "help": "chương trình em đỗ có xét tổ hợp môn mạnh nhất của em không"
+    },
+    {
+     "code": "nguyen_vong_cao",
+     "name": "Nguyện vọng cao",
+     "help": "khả năng em đỗ một nguyện vọng mơ ước hoặc thử sức"
+    },
+    {
+     "code": "dung_nganh",
+     "name": "Đúng ngành",
+     "help": "chương trình em đỗ có đúng ngành em chọn không (ngành gần: theo độ gần)"
+    },
+    {
+     "code": "hoc_phi",
+     "name": "Học phí phù hợp",
+     "help": "học phí của chương trình em đỗ có nằm trong ngân sách của em không (chưa nhập ngân sách: chưa tính)"
+    },
+    {
+     "code": "nghe_nghiep",
+     "name": "Nghề nghiệp",
+     "help": "công việc của ngành em đỗ hợp với câu trả lời 12 câu hỏi của em đến đâu"
+    }
+   ]
+  }
+ },
+ "catalog": [
+  {
+   "code": "71402",
+   "label": "Đào tạo giáo viên",
+   "level": "nhom_nganh"
+  },
+  {
+   "code": "7140209",
+   "label": "Sư phạm Toán học",
+   "level": "nganh"
+  },
+  {
+   "code": "72202",
+   "label": "Ngôn ngữ, văn học và văn hóa nước ngoài",
+   "level": "nhom_nganh"
+  },
+  {
+   "code": "7220201",
+   "label": "Ngôn ngữ Anh",
+   "level": "nganh"
+  },
+  {
+   "code": "74801",
+   "label": "Khoa học máy tính, Trí tuệ nhân tạo (AI), Kỹ thuật phần mềm",
+   "level": "nhom_nganh"
+  },
+  {
+   "code": "7480101",
+   "label": "Khoa học máy tính",
+   "level": "nganh"
+  },
+  {
+   "code": "7480103",
+   "label": "Kỹ thuật phần mềm",
+   "level": "nganh"
+  },
+  {
+   "code": "7480107",
+   "label": "Trí tuệ nhân tạo",
+   "level": "nganh"
+  },
+  {
+   "code": "74802",
+   "label": "Công nghệ thông tin, An toàn thông tin",
+   "level": "nhom_nganh"
+  },
+  {
+   "code": "7480201",
+   "label": "Công nghệ thông tin",
+   "level": "nganh"
+  },
+  {
+   "code": "77201",
+   "label": "Y khoa (bác sĩ), Y học cổ truyền",
+   "level": "nhom_nganh"
+  },
+  {
+   "code": "7720101",
+   "label": "Y khoa",
+   "level": "nganh"
+  },
+  {
+   "code": "77203",
+   "label": "Điều dưỡng - hộ sinh",
+   "level": "nhom_nganh"
+  },
+  {
+   "code": "7720301",
+   "label": "Điều dưỡng",
+   "level": "nganh"
+  }
+ ],
+ "plan": {
+  "format": "uniadvisor-plan",
+  "schema_version": 2,
+  "admission_year": 2027,
+  "profile": {
+   "scores": {},
+   "score_kind": "expected",
+   "home_province": null,
+   "area": "KV3",
+   "category": "none",
+   "graduation_year": null,
+   "budget_trieu": null,
+   "near_home": false,
+   "favorite_school": null
+  },
+  "majors": {
+   "picks": [],
+   "shortlist": [],
+   "answers": {}
+  },
+  "lists": {
+   "chosen": null,
+   "recommended": []
+  },
+  "adjustments": {
+   "extra_points": {},
+   "own_scores": {},
+   "cutoff_shifts": {},
+   "removed_schools": [],
+   "removed_programs": []
+  }
+ },
+ "student": {
+  "format": "uniadvisor-plan",
+  "schema_version": 2,
+  "admission_year": 2027,
+  "profile": {
+   "scores": {
+    "TO": 8,
+    "VA": 7,
+    "LI": 7,
+    "N1": 8
+   },
+   "score_kind": "expected",
+   "home_province": "Hà Nội",
+   "area": "KV3",
+   "category": "none",
+   "graduation_year": null,
+   "budget_trieu": null,
+   "near_home": false,
+   "favorite_school": null
+  },
+  "majors": {
+   "picks": [
+    "7480201"
+   ],
+   "shortlist": [
+    {
+     "main": "7480201",
+     "close": []
+    }
+   ],
+   "answers": {}
+  },
+  "lists": {
+   "chosen": null,
+   "recommended": []
+  },
+  "adjustments": {
+   "extra_points": {},
+   "own_scores": {},
+   "cutoff_shifts": {},
+   "removed_schools": [],
+   "removed_programs": []
+  }
+ },
+ "recommend": {
+  "missing": [],
+  "intro": "Ba phương án xếp nguyện vọng theo cùng một luật, chỉ khác nhau ở một điều: khi có nhiều trường để chọn thì **ưu tiên cái gì**.",
+  "safe_line": null,
+  "notes": [
+   "Với điểm và ngành của em, 3 phương án gần như giống nhau; xem từng danh sách để thấy chỗ khác."
+  ],
+  "pick": {
+   "priority": "dung_nganh",
+   "name": "Đúng ngành nhất",
+   "reason": "Các phương án gần như ngang nhau, nên ưu tiên phương án bám sát ngành em chọn nhất."
+  },
+  "cards": [
+   {
+    "priority": "dung_nganh",
+    "slot": 0,
+    "name": "Đúng ngành nhất",
+    "fit": "em muốn học đúng ngành đã chọn, ở các trường mạnh nhất về ngành đó",
+    "good": [],
+    "bad": [],
+    "notes": [
+     "Chỉ có 1/15 nguyện vọng.",
+     "Ít lựa chọn nên danh sách chưa đủ rộng.",
+     "1/1 nguyện vọng chưa rõ học phí nên chưa so được; ứng dụng xếp chúng sau các chương trình đã biết học phí.",
+     "Thiếu chương trình ở mức mơ ước và thử sức và vừa sức nên 21 chỗ được chuyển xuống mức an toàn hơn."
+    ],
+    "warning": "Khả năng đỗ ít nhất 1 nguyện vọng chỉ < 1%, dưới mức an toàn 95%: không còn chương trình an toàn nào để thêm.",
+    "same_as": null,
+    "blocked": null,
+    "recommended": true,
+    "pentagon": {
+     "values": {
+      "hop_mon": null,
+      "nguyen_vong_cao": null,
+      "dung_nganh": null,
+      "hoc_phi": null,
+      "nghe_nghiep": null
+     },
+     "unknown": {
+      "hop_mon": 0.0,
+      "nguyen_vong_cao": 0.0,
+      "dung_nganh": 0.0,
+      "hoc_phi": 0.0,
+      "nghe_nghiep": 0.0
+     },
+     "none": 1.0
+    },
+    "n_wishes": 1,
+    "wishes": [
+     {
+      "NV": 1,
+      "Mức": "thử sức",
+      "Trường": "Trường Đại học Giả Hà Nội",
+      "Chương trình": "Công nghệ thông tin",
+      "Hướng học": "1 · ngành chính",
+      "Điểm của em": "23,0 (D01)",
+      "Điểm chuẩn 2025": "23,5",
+      "Điểm chuẩn 2026": "24,0",
+      "Học phí": "học phí chưa rõ",
+      "Thành phố": "Hà Nội"
+     }
+    ],
+    "wish_items": [
+     {
+      "nv": 1,
+      "program_id": "HNA:IT2",
+      "level": "thu_suc",
+      "level_name": "thử sức",
+      "school": "Trường Đại học Giả Hà Nội",
+      "school_code": "HNA",
+      "program": "Công nghệ thông tin",
+      "mixed": false,
+      "other_codes": [],
+      "item": 1,
+      "relation": "ngành chính",
+      "score": "23,0 (D01)",
+      "score_value": 23.0,
+      "cutoffs": [
+       {
+        "year": 2025,
+        "text": "23,5"
+       },
+       {
+        "year": 2026,
+        "text": "24,0"
+       }
+      ],
+      "tuition": "học phí chưa rõ",
+      "over_budget": false,
+      "city": "Hà Nội",
+      "far": false,
+      "favorite": false
+     }
+    ],
+    "no_admission": 1.0
+   },
+   {
+    "priority": "hop_mon",
+    "slot": 1,
+    "name": "Hợp môn học nhất",
+    "fit": "em học rất mạnh vài môn và muốn tận dụng tổ hợp đó",
+    "good": [
+     "Ưu tiên chương trình xét tổ hợp D01 em mạnh nhất."
+    ],
+    "bad": [],
+    "notes": [
+     "Chỉ có 1/15 nguyện vọng.",
+     "Ít lựa chọn nên danh sách chưa đủ rộng.",
+     "1/1 nguyện vọng chưa rõ học phí nên chưa so được; ứng dụng xếp chúng sau các chương trình đã biết học phí.",
+     "Thiếu chương trình ở mức mơ ước và thử sức và vừa sức nên 21 chỗ được chuyển xuống mức an toàn hơn."
+    ],
+    "warning": "Khả năng đỗ ít nhất 1 nguyện vọng chỉ < 1%, dưới mức an toàn 95%: không còn chương trình an toàn nào để thêm.",
+    "same_as": "Giống “Đúng ngành nhất”: cùng các chương trình.",
+    "blocked": null,
+    "recommended": false,
+    "pentagon": {
+     "values": {
+      "hop_mon": null,
+      "nguyen_vong_cao": null,
+      "dung_nganh": null,
+      "hoc_phi": null,
+      "nghe_nghiep": null
+     },
+     "unknown": {
+      "hop_mon": 0.0,
+      "nguyen_vong_cao": 0.0,
+      "dung_nganh": 0.0,
+      "hoc_phi": 0.0,
+      "nghe_nghiep": 0.0
+     },
+     "none": 1.0
+    },
+    "n_wishes": 1,
+    "wishes": [
+     {
+      "NV": 1,
+      "Mức": "thử sức",
+      "Trường": "Trường Đại học Giả Hà Nội",
+      "Chương trình": "Công nghệ thông tin",
+      "Hướng học": "1 · ngành chính",
+      "Điểm của em": "23,0 (D01)",
+      "Điểm chuẩn 2025": "23,5",
+      "Điểm chuẩn 2026": "24,0",
+      "Học phí": "học phí chưa rõ",
+      "Thành phố": "Hà Nội"
+     }
+    ],
+    "wish_items": [
+     {
+      "nv": 1,
+      "program_id": "HNA:IT2",
+      "level": "thu_suc",
+      "level_name": "thử sức",
+      "school": "Trường Đại học Giả Hà Nội",
+      "school_code": "HNA",
+      "program": "Công nghệ thông tin",
+      "mixed": false,
+      "other_codes": [],
+      "item": 1,
+      "relation": "ngành chính",
+      "score": "23,0 (D01)",
+      "score_value": 23.0,
+      "cutoffs": [
+       {
+        "year": 2025,
+        "text": "23,5"
+       },
+       {
+        "year": 2026,
+        "text": "24,0"
+       }
+      ],
+      "tuition": "học phí chưa rõ",
+      "over_budget": false,
+      "city": "Hà Nội",
+      "far": false,
+      "favorite": false
+     }
+    ],
+    "no_admission": 1.0
+   },
+   {
+    "priority": "tiet_kiem",
+    "slot": 2,
+    "name": "Tiết kiệm nhất",
+    "fit": "học phí là điều quan trọng nhất với em",
+    "good": [],
+    "bad": [],
+    "notes": [
+     "Chỉ có 1/15 nguyện vọng.",
+     "Ít lựa chọn nên danh sách chưa đủ rộng.",
+     "Em chưa đặt ngân sách nên ứng dụng xếp theo học phí thấp nhất trong từng mức. Đặt ngân sách ở phần Về em để loại bớt chương trình vượt mức.",
+     "1/1 nguyện vọng chưa rõ học phí nên chưa so được; ứng dụng xếp chúng sau các chương trình đã biết học phí.",
+     "Thiếu chương trình ở mức mơ ước và thử sức và vừa sức nên 21 chỗ được chuyển xuống mức an toàn hơn."
+    ],
+    "warning": "Khả năng đỗ ít nhất 1 nguyện vọng chỉ < 1%, dưới mức an toàn 95%: không còn chương trình an toàn nào để thêm.",
+    "same_as": "Giống “Đúng ngành nhất”: cùng các chương trình.",
+    "blocked": null,
+    "recommended": false,
+    "pentagon": {
+     "values": {
+      "hop_mon": null,
+      "nguyen_vong_cao": null,
+      "dung_nganh": null,
+      "hoc_phi": null,
+      "nghe_nghiep": null
+     },
+     "unknown": {
+      "hop_mon": 0.0,
+      "nguyen_vong_cao": 0.0,
+      "dung_nganh": 0.0,
+      "hoc_phi": 0.0,
+      "nghe_nghiep": 0.0
+     },
+     "none": 1.0
+    },
+    "n_wishes": 1,
+    "wishes": [
+     {
+      "NV": 1,
+      "Mức": "thử sức",
+      "Trường": "Trường Đại học Giả Hà Nội",
+      "Chương trình": "Công nghệ thông tin",
+      "Hướng học": "1 · ngành chính",
+      "Điểm của em": "23,0 (D01)",
+      "Điểm chuẩn 2025": "23,5",
+      "Điểm chuẩn 2026": "24,0",
+      "Học phí": "học phí chưa rõ",
+      "Thành phố": "Hà Nội"
+     }
+    ],
+    "wish_items": [
+     {
+      "nv": 1,
+      "program_id": "HNA:IT2",
+      "level": "thu_suc",
+      "level_name": "thử sức",
+      "school": "Trường Đại học Giả Hà Nội",
+      "school_code": "HNA",
+      "program": "Công nghệ thông tin",
+      "mixed": false,
+      "other_codes": [],
+      "item": 1,
+      "relation": "ngành chính",
+      "score": "23,0 (D01)",
+      "score_value": 23.0,
+      "cutoffs": [
+       {
+        "year": 2025,
+        "text": "23,5"
+       },
+       {
+        "year": 2026,
+        "text": "24,0"
+       }
+      ],
+      "tuition": "học phí chưa rõ",
+      "over_budget": false,
+      "city": "Hà Nội",
+      "far": false,
+      "favorite": false
+     }
+    ],
+    "no_admission": 1.0
+   }
+  ],
+  "no_answers_note": "Em chưa trả lời 12 câu hỏi (Chọn ngành → Chưa xác định ngành), nên ứng dụng gợi ý phương án “Hợp môn học nhất” thay cho “Hợp sở thích nhất”.",
+  "corner_rows": [
+   {
+    "Góc": "Hợp môn",
+    "Ý nghĩa": "chương trình em đỗ có xét tổ hợp môn mạnh nhất của em không",
+    "Đúng ngành nhất": "chưa có dữ liệu",
+    "Hợp môn học nhất": "chưa có dữ liệu",
+    "Tiết kiệm nhất": "chưa có dữ liệu"
+   },
+   {
+    "Góc": "Nguyện vọng cao",
+    "Ý nghĩa": "khả năng em đỗ một nguyện vọng mơ ước hoặc thử sức",
+    "Đúng ngành nhất": "chưa có dữ liệu",
+    "Hợp môn học nhất": "chưa có dữ liệu",
+    "Tiết kiệm nhất": "chưa có dữ liệu"
+   },
+   {
+    "Góc": "Đúng ngành",
+    "Ý nghĩa": "chương trình em đỗ có đúng ngành em chọn không (ngành gần: theo độ gần)",
+    "Đúng ngành nhất": "chưa có dữ liệu",
+    "Hợp môn học nhất": "chưa có dữ liệu",
+    "Tiết kiệm nhất": "chưa có dữ liệu"
+   },
+   {
+    "Góc": "Học phí phù hợp",
+    "Ý nghĩa": "học phí của chương trình em đỗ có nằm trong ngân sách của em không (chưa nhập ngân sách: chưa tính)",
+    "Đúng ngành nhất": "chưa có dữ liệu",
+    "Hợp môn học nhất": "chưa có dữ liệu",
+    "Tiết kiệm nhất": "chưa có dữ liệu"
+   },
+   {
+    "Góc": "Nghề nghiệp",
+    "Ý nghĩa": "công việc của ngành em đỗ hợp với câu trả lời 12 câu hỏi của em đến đâu",
+    "Đúng ngành nhất": "chưa có dữ liệu",
+    "Hợp môn học nhất": "chưa có dữ liệu",
+    "Tiết kiệm nhất": "chưa có dữ liệu"
+   }
+  ],
+  "at_least_one_text": "“chưa rõ”: phần khả năng em đỗ vào chương trình chưa có số liệu cho góc đó (ví dụ học phí chưa công bố); con số tính trên phần còn lại. Khả năng đỗ ít nhất 1 nguyện vọng của từng phương án: Đúng ngành nhất < 1%; Hợp môn học nhất < 1%; Tiết kiệm nhất < 1%.",
+  "snapshot": [
+   {
+    "priority": "dung_nganh",
+    "programs": [
+     "HNA:IT2"
+    ],
+    "values": {
+     "hop_mon": null,
+     "nguyen_vong_cao": null,
+     "dung_nganh": null,
+     "hoc_phi": null,
+     "nghe_nghiep": null
+    },
+    "no_admission": 1.0
+   },
+   {
+    "priority": "hop_mon",
+    "programs": [
+     "HNA:IT2"
+    ],
+    "values": {
+     "hop_mon": null,
+     "nguyen_vong_cao": null,
+     "dung_nganh": null,
+     "hoc_phi": null,
+     "nghe_nghiep": null
+    },
+    "no_admission": 1.0
+   },
+   {
+    "priority": "tiet_kiem",
+    "programs": [
+     "HNA:IT2"
+    ],
+    "values": {
+     "hop_mon": null,
+     "nguyen_vong_cao": null,
+     "dung_nganh": null,
+     "hoc_phi": null,
+     "nghe_nghiep": null
+    },
+    "no_admission": 1.0
+   }
+  ]
+ },
+ "choose": {
+  "plan": {
+   "format": "uniadvisor-plan",
+   "schema_version": 2,
+   "admission_year": 2027,
+   "profile": {
+    "scores": {
+     "LI": 7.0,
+     "N1": 8.0,
+     "TO": 8.0,
+     "VA": 7.0
+    },
+    "score_kind": "expected",
+    "home_province": "Hà Nội",
+    "area": "KV3",
+    "category": "none",
+    "graduation_year": null,
+    "budget_trieu": null,
+    "near_home": false,
+    "favorite_school": null
+   },
+   "majors": {
+    "picks": [
+     "7480201"
+    ],
+    "shortlist": [
+     {
+      "main": "7480201",
+      "close": []
+     }
+    ],
+    "answers": {}
+   },
+   "lists": {
+    "chosen": "dung_nganh",
+    "recommended": [
+     {
+      "priority": "dung_nganh",
+      "programs": [
+       "HNA:IT2"
+      ],
+      "values": {
+       "hop_mon": null,
+       "nguyen_vong_cao": null,
+       "dung_nganh": null,
+       "hoc_phi": null,
+       "nghe_nghiep": null
+      },
+      "no_admission": 1.0
+     },
+     {
+      "priority": "hop_mon",
+      "programs": [
+       "HNA:IT2"
+      ],
+      "values": {
+       "hop_mon": null,
+       "nguyen_vong_cao": null,
+       "dung_nganh": null,
+       "hoc_phi": null,
+       "nghe_nghiep": null
+      },
+      "no_admission": 1.0
+     },
+     {
+      "priority": "tiet_kiem",
+      "programs": [
+       "HNA:IT2"
+      ],
+      "values": {
+       "hop_mon": null,
+       "nguyen_vong_cao": null,
+       "dung_nganh": null,
+       "hoc_phi": null,
+       "nghe_nghiep": null
+      },
+      "no_admission": 1.0
+     }
+    ]
+   },
+   "adjustments": {
+    "extra_points": {},
+    "own_scores": {},
+    "cutoff_shifts": {},
+    "removed_schools": [],
+    "removed_programs": []
+   }
+  },
+  "words": {
+   "good": [],
+   "bad": []
+  }
+ },
+ "chosen": {
+  "missing": [],
+  "header": {
+   "priority": "dung_nganh",
+   "name": "Đúng ngành nhất",
+   "help": "ưu tiên ngành em chọn, rồi đến ngành gần nhất",
+   "slot": 0,
+   "pentagon": {
+    "values": {
+     "hop_mon": null,
+     "nguyen_vong_cao": null,
+     "dung_nganh": null,
+     "hoc_phi": null,
+     "nghe_nghiep": null
+    },
+    "unknown": {
+     "hop_mon": 0.0,
+     "nguyen_vong_cao": 0.0,
+     "dung_nganh": 0.0,
+     "hoc_phi": 0.0,
+     "nghe_nghiep": 0.0
+    },
+    "none": 1.0
+   },
+   "fallback_note": null,
+   "fees_note": "1/1 nguyện vọng chưa rõ học phí nên chưa so được; ứng dụng xếp chúng sau các chương trình đã biết học phí."
+  },
+  "list_choice": "dung_nganh",
+  "empty": false,
+  "empty_text": "Chưa lập được nguyện vọng nào: không có chương trình nào của ngành em chọn có điểm chuẩn mà em có đủ điểm các môn trong tổ hợp xét tuyển.",
+  "notes": [
+   "Hướng học 1 (Công nghệ thông tin): không đủ chương trình ở mức mơ ước, 3 chỗ còn trống được chuyển xuống mức an toàn hơn.",
+   "Hướng học 1 (Công nghệ thông tin): không đủ chương trình ở mức thử sức, 7 chỗ còn trống được chuyển xuống mức an toàn hơn.",
+   "Hướng học 1 (Công nghệ thông tin): không đủ chương trình ở mức vừa sức, 11 chỗ còn trống được chuyển xuống mức an toàn hơn.",
+   "Hướng học 1 (Công nghệ thông tin): thiếu 14 nguyện vọng vì không còn chương trình phù hợp có điểm chuẩn.",
+   "Danh sách chỉ có 1 nguyện vọng (tối đa 15). Em có thể thêm ngành gần hoặc chọn nhóm ngành rộng hơn để có thêm chương trình."
+  ],
+  "favorite_note": null,
+  "expected_note": true,
+  "mixed_method": false,
+  "wishes": [
+   {
+    "NV": 1,
+    "Mức": "thử sức",
+    "Trường": "Trường Đại học Giả Hà Nội",
+    "Chương trình": "Công nghệ thông tin",
+    "Hướng học": "1 · ngành chính",
+    "Điểm của em": "23,0 (D01)",
+    "Điểm chuẩn 2025": "23,5",
+    "Điểm chuẩn 2026": "24,0",
+    "Học phí": "học phí chưa rõ",
+    "Thành phố": "Hà Nội"
+   }
+  ],
+  "wish_items": [
+   {
+    "nv": 1,
+    "program_id": "HNA:IT2",
+    "level": "thu_suc",
+    "level_name": "thử sức",
+    "school": "Trường Đại học Giả Hà Nội",
+    "school_code": "HNA",
+    "program": "Công nghệ thông tin",
+    "mixed": false,
+    "other_codes": [],
+    "item": 1,
+    "relation": "ngành chính",
+    "score": "23,0 (D01)",
+    "score_value": 23.0,
+    "cutoffs": [
+     {
+      "year": 2025,
+      "text": "23,5"
+     },
+     {
+      "year": 2026,
+      "text": "24,0"
+     }
+    ],
+    "tuition": "học phí chưa rõ",
+    "over_budget": false,
+    "city": "Hà Nội",
+    "far": false,
+    "favorite": false
+   }
+  ],
+  "wish_numbers": [
+   1
+  ],
+  "levels": [
+   "thử sức"
+  ],
+  "score_caption": "Điểm chuẩn là của phương thức xét điểm thi THPT, quy đổi về thang 30. Điểm của em gồm tổng 3 môn của tổ hợp có lợi nhất và điểm ưu tiên (KV3, không thuộc đối tượng ưu tiên).",
+  "controls": {
+   "schools": [
+    {
+     "code": "HNA",
+     "name": "Trường Đại học Giả Hà Nội",
+     "extra": 0.0,
+     "own": null,
+     "scales": [
+      30
+     ],
+     "shift": 0.0
+    }
+   ],
+   "wishes": [
+    {
+     "id": "HNA:IT2",
+     "nv": 1,
+     "label": "NV1 · Trường Đại học Giả Hà Nội · Công nghệ thông tin"
+    }
+   ],
+   "removed_schools": [],
+   "removed_programs": [],
+   "shortlist": [
+    {
+     "main": "7480201",
+     "label": "Công nghệ thông tin",
+     "close": []
+    }
+   ],
+   "scores": {
+    "LI": 7.0,
+    "N1": 8.0,
+    "TO": 8.0,
+    "VA": 7.0
+   },
+   "area": "KV3",
+   "category": "none",
+   "budget_trieu": null,
+   "near_home": false
+  },
+  "no_admission_warning": "Với danh sách này, khả năng em không trúng tuyển nguyện vọng nào là khoảng ≥ 99%, vì danh sách thiếu nguyện vọng chắc chắn. Em có thể thêm ngành gần hoặc hướng học 2 có điểm chuẩn thấp hơn, hoặc bỏ bớt trường đã loại, để có thêm nguyện vọng an toàn.",
+  "chances": {
+   "lines": [
+    "Nếu điểm thật thấp hơn dự kiến 1 điểm, khả năng trúng tuyển một nguyện vọng mơ ước: < 1% · thử sức trở lên: < 1% · vừa sức trở lên: < 1% · một nguyện vọng bất kỳ trong danh sách: < 1%",
+    "Nếu em thi đúng như dự kiến, khả năng trúng tuyển một nguyện vọng mơ ước: < 1% · thử sức trở lên: < 1% · vừa sức trở lên: < 1% · một nguyện vọng bất kỳ trong danh sách: < 1%",
+    "Nếu điểm thật cao hơn dự kiến 1 điểm, khả năng trúng tuyển một nguyện vọng mơ ước: < 1% · thử sức trở lên: 50% · vừa sức trở lên: 50% · một nguyện vọng bất kỳ trong danh sách: 50%"
+   ],
+   "rows": [
+    {
+     "shift": -1.0,
+     "label": "Nếu điểm thật thấp hơn dự kiến 1 điểm",
+     "levels": [
+      {
+       "level": "mo_uoc",
+       "name": "một nguyện vọng mơ ước",
+       "p": 0.0,
+       "text": "< 1%"
+      },
+      {
+       "level": "thu_suc",
+       "name": "thử sức trở lên",
+       "p": 0.0,
+       "text": "< 1%"
+      },
+      {
+       "level": "vua_suc",
+       "name": "vừa sức trở lên",
+       "p": 0.0,
+       "text": "< 1%"
+      },
+      {
+       "level": "an_toan",
+       "name": "một nguyện vọng bất kỳ trong danh sách",
+       "p": 0.0,
+       "text": "< 1%"
+      }
+     ]
+    },
+    {
+     "shift": 0.0,
+     "label": "Nếu em thi đúng như dự kiến",
+     "levels": [
+      {
+       "level": "mo_uoc",
+       "name": "một nguyện vọng mơ ước",
+       "p": 0.0,
+       "text": "< 1%"
+      },
+      {
+       "level": "thu_suc",
+       "name": "thử sức trở lên",
+       "p": 0.0,
+       "text": "< 1%"
+      },
+      {
+       "level": "vua_suc",
+       "name": "vừa sức trở lên",
+       "p": 0.0,
+       "text": "< 1%"
+      },
+      {
+       "level": "an_toan",
+       "name": "một nguyện vọng bất kỳ trong danh sách",
+       "p": 0.0,
+       "text": "< 1%"
+      }
+     ]
+    },
+    {
+     "shift": 1.0,
+     "label": "Nếu điểm thật cao hơn dự kiến 1 điểm",
+     "levels": [
+      {
+       "level": "mo_uoc",
+       "name": "một nguyện vọng mơ ước",
+       "p": 0.0,
+       "text": "< 1%"
+      },
+      {
+       "level": "thu_suc",
+       "name": "thử sức trở lên",
+       "p": 0.5,
+       "text": "50%"
+      },
+      {
+       "level": "vua_suc",
+       "name": "vừa sức trở lên",
+       "p": 0.5,
+       "text": "50%"
+      },
+      {
+       "level": "an_toan",
+       "name": "một nguyện vọng bất kỳ trong danh sách",
+       "p": 0.5,
+       "text": "50%"
+      }
+     ]
+    }
+   ],
+   "note": "Cách tính: điểm chuẩn mỗi năm thay đổi, các chương trình cùng trường thường lên xuống cùng nhau. Ứng dụng mô phỏng nhiều năm, với mức thay đổi giống như giữa 2025 và 2026, và đếm số lần em trúng tuyển ở từng mức. Đây không phải dự báo điểm chuẩn, và không tính trường hợp điểm chuẩn cả nước cùng tăng hay giảm mạnh như năm có thay đổi kỳ thi."
+  }
+ },
+ "explain": {
+  "wish_no": 1,
+  "level": "thử sức",
+  "title": "Trường Đại học Giả Hà Nội · Công nghệ thông tin",
+  "verdict": "Có thể đỗ nhưng chưa chắc: em thiếu 1,0 điểm so với điểm chuẩn 2026.",
+  "numbers": [
+   "Điểm của em: 23,0 (D01)",
+   "Điểm chuẩn 2026: 24,0 · 2025: 23,5",
+   "Thiếu 1,0 điểm so với 2026"
+  ],
+  "why_in_list": "Đây là ngành em chọn: Công nghệ thông tin. Được ưu tiên vì đúng ngành hơn các lựa chọn khác ở cùng mức.",
+  "placement": "Hệ thống xét từ NV1 xuống và em vào nguyện vọng đầu tiên đủ điểm. Đây là nguyện vọng cuối danh sách.",
+  "notices": [
+   "Chưa có học phí đã công bố."
+  ],
+  "markdown": "**NV1 · thử sức** — Trường Đại học Giả Hà Nội · Công nghệ thông tin\n\nCó thể đỗ nhưng chưa chắc: em thiếu 1,0 điểm so với điểm chuẩn 2026.\n\n- Điểm của em: 23,0 (D01)\n- Điểm chuẩn 2026: 24,0 · 2025: 23,5\n- Thiếu 1,0 điểm so với 2026\n\n**Vì sao có trong danh sách:** Đây là ngành em chọn: Công nghệ thông tin. Được ưu tiên vì đúng ngành hơn các lựa chọn khác ở cùng mức.\n\n**Vì sao ở vị trí này:** Hệ thống xét từ NV1 xuống và em vào nguyện vọng đầu tiên đủ điểm. Đây là nguyện vọng cuối danh sách.\n\n**Lưu ý:**\n- Chưa có học phí đã công bố."
+ },
+ "chat": {
+  "answers": [],
+  "help": null,
+  "items": [
+   {
+    "kind": "set_score",
+    "params": {
+     "subject": "TO",
+     "value": 9.0
+    },
+    "text": "Toán em được 9",
+    "open": [],
+    "options": {},
+    "description": "Đổi điểm Toán thành 9,0",
+    "labels": {},
+    "range": [
+     0.0,
+     10.0,
+     0.25
+    ]
+   }
+  ]
+ },
+ "apply": {
+  "plan": {
+   "format": "uniadvisor-plan",
+   "schema_version": 2,
+   "admission_year": 2027,
+   "profile": {
+    "scores": {
+     "LI": 7.0,
+     "N1": 8.0,
+     "TO": 9.0,
+     "VA": 7.0
+    },
+    "score_kind": "expected",
+    "home_province": "Hà Nội",
+    "area": "KV3",
+    "category": "none",
+    "graduation_year": null,
+    "budget_trieu": null,
+    "near_home": false,
+    "favorite_school": null
+   },
+   "majors": {
+    "picks": [
+     "7480201"
+    ],
+    "shortlist": [
+     {
+      "main": "7480201",
+      "close": []
+     }
+    ],
+    "answers": {}
+   },
+   "lists": {
+    "chosen": "dung_nganh",
+    "recommended": [
+     {
+      "priority": "dung_nganh",
+      "programs": [
+       "HNA:IT2"
+      ],
+      "values": {
+       "hop_mon": null,
+       "nguyen_vong_cao": null,
+       "dung_nganh": null,
+       "hoc_phi": null,
+       "nghe_nghiep": null
+      },
+      "no_admission": 1.0
+     },
+     {
+      "priority": "hop_mon",
+      "programs": [
+       "HNA:IT2"
+      ],
+      "values": {
+       "hop_mon": null,
+       "nguyen_vong_cao": null,
+       "dung_nganh": null,
+       "hoc_phi": null,
+       "nghe_nghiep": null
+      },
+      "no_admission": 1.0
+     },
+     {
+      "priority": "tiet_kiem",
+      "programs": [
+       "HNA:IT2"
+      ],
+      "values": {
+       "hop_mon": null,
+       "nguyen_vong_cao": null,
+       "dung_nganh": null,
+       "hoc_phi": null,
+       "nghe_nghiep": null
+      },
+      "no_admission": 1.0
+     }
+    ]
+   },
+   "adjustments": {
+    "extra_points": {},
+    "own_scores": {},
+    "cutoff_shifts": {},
+    "removed_schools": [],
+    "removed_programs": []
+   }
+  },
+  "done": [
+   "Đổi điểm Toán thành 9,0"
+  ],
+  "errors": [],
+  "diff": "NV2 mới vào vì đổi mức từ vừa sức sang an toàn; NV1 đổi mức từ thử sức sang vừa sức.",
+  "changed": true
+ },
+ "search": [
+  {
+   "code": "7480201",
+   "label": "Công nghệ thông tin",
+   "kind": "Ngành",
+   "official": null,
+   "matched": null,
+   "children": [],
+   "more_children": false,
+   "where": "1 chương trình ở Hà Nội, 0 ở TP.HCM"
+  },
+  {
+   "code": "74802",
+   "label": "Công nghệ thông tin, An toàn thông tin",
+   "kind": "Nhóm ngành",
+   "official": "Công nghệ thông tin",
+   "matched": null,
+   "children": [
+    "Công nghệ thông tin"
+   ],
+   "more_children": false,
+   "where": "1 chương trình ở Hà Nội, 0 ở TP.HCM"
+  }
+ ],
+ "major": {
+  "code": "7480201",
+  "label": "Công nghệ thông tin",
+  "kind": "Ngành",
+  "official": null,
+  "where": "1 chương trình ở Hà Nội, 0 ở TP.HCM",
+  "top_combos": [
+   "A00",
+   "D01"
+  ],
+  "interest_names": [
+   "nghiên cứu",
+   "nghiệp vụ (văn phòng)"
+  ],
+  "knowledge": [
+   "Ngôn ngữ và viết",
+   "Toán học",
+   "Máy tính và điện tử"
+  ],
+  "children": [],
+  "combos": [
+   {
+    "label": "A00",
+    "subjects": [
+     "Toán",
+     "Vật lí",
+     "Hóa học"
+    ],
+    "share_pct": 100
+   },
+   {
+    "label": "D01",
+    "subjects": [
+     "Ngữ văn",
+     "Toán",
+     "Tiếng Anh"
+    ],
+    "share_pct": 100
+   }
+  ],
+  "jobs": [
+   "Chuyên viên phân tích hệ thống",
+   "Kỹ sư phát triển phần mềm"
+  ],
+  "income": "chưa có số liệu theo ngành; để tham khảo, thu nhập bình quân của lao động làm công hưởng lương cả nước năm 2024 là 8,7 triệu đồng/tháng (Tổng cục Thống kê)",
+  "interests": [
+   {
+    "name": "Nghiên cứu",
+    "description": "thích tìm hiểu, phân tích"
+   },
+   {
+    "name": "Nghiệp vụ (văn phòng)",
+    "description": "thích quy trình rõ ràng"
+   },
+   {
+    "name": "Kỹ thuật (thực tế)",
+    "description": "thích máy móc, công cụ"
+   }
+  ],
+  "close": [
+   "Khoa học máy tính",
+   "Kỹ thuật phần mềm",
+   "Trí tuệ nhân tạo"
+  ],
+  "sheet": null,
+  "has_facts": true,
+  "draft": true
+ },
+ "questionnaire": {
+  "answers": {
+   "q1": null,
+   "q2": null,
+   "q3": null,
+   "q4": null,
+   "q5": null,
+   "q6": null,
+   "q7": null,
+   "q8": null,
+   "q9": "alone",
+   "q10": "procedure",
+   "q11": "helping",
+   "q12": null
+  },
+  "notes": [],
+  "guesses": [],
+  "suggestions": [
+   {
+    "code": "74801",
+    "label": "Khoa học máy tính, Trí tuệ nhân tạo (AI), Kỹ thuật phần mềm",
+    "reasons": [
+     "không muốn một mình"
+    ],
+    "children": [
+     "Khoa học máy tính",
+     "Kỹ thuật phần mềm",
+     "Trí tuệ nhân tạo"
+    ],
+    "more_children": false
+   },
+   {
+    "code": "71402",
+    "label": "Đào tạo giáo viên",
+    "reasons": [],
+    "children": [
+     "Sư phạm Toán học"
+    ],
+    "more_children": false
+   },
+   {
+    "code": "72202",
+    "label": "Ngôn ngữ, văn học và văn hóa nước ngoài",
+    "reasons": [],
+    "children": [
+     "Ngôn ngữ Anh"
+    ],
+    "more_children": false
+   },
+   {
+    "code": "77203",
+    "label": "Điều dưỡng - hộ sinh",
+    "reasons": [],
+    "children": [
+     "Điều dưỡng"
+    ],
+    "more_children": false
+   },
+   {
+    "code": "74802",
+    "label": "Công nghệ thông tin, An toàn thông tin",
+    "reasons": [
+     "Làm theo quy trình rõ ràng"
+    ],
+    "children": [
+     "Công nghệ thông tin"
+    ],
+    "more_children": false
+   }
+  ],
+  "answered": 3
+ }
+}

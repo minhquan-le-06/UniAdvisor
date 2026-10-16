@@ -8,6 +8,7 @@ import copy
 
 import streamlit as st
 
+from uniadvisor.ui.change_card import DEFAULT_RANGE, NUMBER_RANGES, param_label
 from uniadvisor.ui.service import AppData
 from uniadvisor.ui.session import commit, data
 from uniadvisor.ui.state import AREAS, CATEGORIES, COMPULSORY, MAX_CLOSE, MAX_CUTOFF_SHIFT, MAX_ELECTIVES, PlanState
@@ -17,8 +18,6 @@ from uniadvisor.chat.pipeline import handle
 from uniadvisor.planner.models import ListResult
 
 CHAT_PLACEHOLDER = "Ví dụ: Toán em được 8,5 · bỏ trường Bách khoa Hà Nội · vì sao NV3 ở đó?"
-NUMBER_RANGES = {"set_score": (0.0, 10.0, 0.25), "set_extra": (0.0, 10.0, 0.25), "set_budget": (1.0, 1000.0, 5.0),
-                 "set_own_score": (0.0, 100.0, 0.05), "set_cutoff_shift": (-MAX_CUTOFF_SHIFT, MAX_CUTOFF_SHIFT, 0.25)}
 # Columns of the per-school table (adjust panel).
 COL_SCHOOL, COL_EXTRA, COL_OWN, COL_SCALE, COL_SHIFT = (
     "Trường", "Điểm cộng", "Điểm xét tuyển em tự tính", "Thang điểm của trường", "Điểm chuẩn cao hơn (+) hoặc thấp hơn (-)")
@@ -84,19 +83,19 @@ def change_card(d: AppData, state: PlanState, result: ListResult | None):
                 key = _input_key(cid, i, param)
                 if item.options.get(param):
                     labels = dict(item.options[param])
-                    st.selectbox(_param_label(item, param), list(labels), key=key, index=None,
+                    st.selectbox(param_label(item, param), list(labels), key=key, index=None,
                                  format_func=lambda v, labels=labels: labels[v], placeholder="Chọn")
                 elif param in ("code", "new"):
                     codes = cat.nganh_codes() if param == "new" else sorted(cat.majors)
-                    st.selectbox(_param_label(item, param), codes, key=key, index=None, format_func=cat.label,
+                    st.selectbox(param_label(item, param), codes, key=key, index=None, format_func=cat.label,
                                  placeholder="Chọn ngành")
                 elif param == "value":
-                    lo, hi, step = NUMBER_RANGES.get(item.kind, (0.0, 1000.0, 1.0))
-                    st.number_input(_param_label(item, param), min_value=lo, max_value=hi, step=step, value=None,
+                    lo, hi, step = NUMBER_RANGES.get(item.kind, DEFAULT_RANGE)
+                    st.number_input(param_label(item, param), min_value=lo, max_value=hi, step=step, value=None,
                                     key=key, placeholder="nhập số")
             if card["edit"] and item.complete and isinstance(item.params.get("value"), (int, float)) \
                     and not isinstance(item.params.get("value"), bool):
-                lo, hi, step = NUMBER_RANGES.get(item.kind, (0.0, 1000.0, 1.0))
+                lo, hi, step = NUMBER_RANGES.get(item.kind, DEFAULT_RANGE)
                 st.number_input("Sửa giá trị", min_value=lo, max_value=hi, step=step,
                                 value=float(item.params["value"]), key=_input_key(cid, i, "fix"))
         if ss.get("card_error"):
@@ -105,13 +104,6 @@ def change_card(d: AppData, state: PlanState, result: ListResult | None):
         c1.button("Xác nhận", type="primary", key=f"card{cid}_ok", on_click=_confirm_card, args=(cid,))
         c2.button("Sửa", key=f"card{cid}_edit", on_click=_toggle_edit)
         c3.button("Huỷ", key=f"card{cid}_cancel", on_click=_cancel_card)
-
-
-def _param_label(item: Item, param: str) -> str:
-    if item.kind == "set_cutoff_shift" and param == "value":
-        return "Cao hơn bao nhiêu điểm? (thấp hơn: nhập số âm)"
-    return {"school": "Trường nào?", "subject": "Môn nào?", "value": "Bao nhiêu?", "index": "Hướng học nào?",
-            "code": "Ngành nào?", "new": "Ngành gần nào?", "target": "Đưa lại gì?"}.get(param, param)
 
 
 def _toggle_edit():
@@ -138,7 +130,7 @@ def _confirm_card(cid: int):
         for param in list(item.open):
             value = ss.get(_input_key(cid, i, param))
             if value is None:
-                missing.append(_param_label(item, param).rstrip("?").lower())
+                missing.append(param_label(item, param).rstrip("?").lower())
             else:
                 item.choose(param, value)
         fix = ss.get(_input_key(cid, i, "fix"))
@@ -156,7 +148,7 @@ def _confirm_card(cid: int):
     res = commit(data(), chosen)
     text = ("Đã áp dụng: " + "; ".join(res["done"]) + "." if res["done"] else "") + \
            (f" {res['diff']}" if res["diff"] else "") + \
-           ("".join(f"\n\n{e}" for e in res["errors"]))
+           "".join(f"\n\n{e}" for e in res["errors"])
     _log("assistant", text.strip())
 
 

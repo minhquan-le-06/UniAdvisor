@@ -1,5 +1,9 @@
 # Message classifier report
 
+> Historical report for the 19-type model trained on 2026-10-08. Part 4 adds nine local-rule types after this run;
+> they are not represented by these metrics and must pass the separate human-written evaluation before a round-3 model
+> replaces the rules.
+
 Written 2026-10-08 by `python -m pipelines.chat_model.train`.
 
 ## Rule baseline (runtime fallback)

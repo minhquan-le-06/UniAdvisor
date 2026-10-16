@@ -1,0 +1,18 @@
+.viewport {
+  position: fixed; z-index: 80; left: 50%; bottom: calc(16px + env(safe-area-inset-bottom)); transform: translateX(-50%);
+  width: min(440px, calc(100vw - 32px)); display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none;
+  outline: none;
+}
+.toast {
+  display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: var(--radius);
+  border: var(--border) solid; box-shadow: var(--shadow); font-weight: 600;
+  animation: global(rise-in) var(--t) var(--ease-bounce);
+}
+.toast[data-state="closed"] { animation: none; opacity: 0; transition: opacity var(--t); }
+.toast[data-swipe="move"] { transform: translateY(var(--radix-toast-swipe-move-y)); }
+.text { flex: 1; }
+.close { flex: none; border: 0; background: transparent; color: inherit; cursor: pointer; padding: 4px; border-radius: 8px; }
+.info { background: var(--info-bg); color: var(--info-ink); border-color: var(--info-line); }
+.ok { background: var(--ok-bg); color: var(--ok-ink); border-color: var(--ok-line); }
+.warn { background: var(--warn-bg); color: var(--warn-ink); border-color: var(--warn-line); }
+.err { background: var(--err-bg); color: var(--err-ink); border-color: var(--err-line); }

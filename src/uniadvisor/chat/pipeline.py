@@ -18,7 +18,8 @@ from uniadvisor.chat.types import EXAMPLES_VI, OTHER, QUESTION_TYPES
 
 MAX_MESSAGE_CHARS = 1000
 
-HELP_VI = ("Mình chưa hiểu ý em. Mình có thể đổi thông tin để lập lại danh sách hoặc trả lời câu hỏi về danh sách, "
+HELP_VI = ("Mình chưa hiểu ý em. Mình có thể đổi thông tin để lập lại danh sách, hoặc trả lời về nguyện vọng, học phí, "
+           "điểm chuẩn, tổ hợp xét tuyển và việc làm, "
            "ví dụ:\n" + "\n".join(f"- {e}" for e in EXAMPLES_VI))
 
 

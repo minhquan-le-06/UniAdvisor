@@ -1,6 +1,6 @@
-"""Write pipelines/notebooks/student_generation.ipynb: the Kaggle notebook in which open LLMs write invented students who answer
-the questionnaire, for training the suggestion model. It runs on Kaggle (2x T4); this repository
-never does.
+"""Write pipelines/notebooks/student_generation.ipynb (and the aya + gemma rerun notebook): the Kaggle notebook in which
+open LLMs write invented students who answer the questionnaire, for training the suggestion model. It runs on Kaggle
+(2x T4); this repository never does.
 
 The notebook embeds the questionnaire (config/questionnaire.yaml), the target nhóm ngành with their display names and
 ngành, and the exam subjects, so it needs no other input. No real student's data is involved.
@@ -67,7 +67,9 @@ TRIAL = False                  # True: 3 groups x 2 students, to check the outpu
 RUN_FAMILIES = ["qwen"]        # then aya, gemma; mistral (SeaLLM) is the held-out test family
 STUDENTS_PER_GROUP = {"qwen": 40, "aya": 40, "gemma": 10, "mistral": 15}   # 74 groups: about 3,000 per family
 MAX_HOURS = 11.0               # stop cleanly and save before Kaggle's 12-hour limit
-REQUIRE_PREVIOUS = False       # True: stop at once if no earlier file of the family is attached (a top-up run)
+REQUIRE_PREVIOUS = []          # families that must find an attached earlier file (a top-up run); checked before any GPU use
+FRESH = []                     # families written again from scratch: an attached earlier file of the family is ignored
+FAMILY_HOURS = {}              # hours of generation per family (default: MAX_HOURS); the total stays inside MAX_HOURS
 # Resume: attach an earlier student_generated_<family>.csv (as a Kaggle dataset); its students are kept and skipped.
 MAX_NEW_TOKENS = 700           # answers are option codes (since 2026-10-09), shorter than the copied labels before
 TEMPERATURE, TOP_P = 0.9, 0.95
@@ -85,22 +87,21 @@ MODELS = {
 # over both T4s, up to 128 students at once, the shared questionnaire computed once (prefix caching): about 10x the
 # first runs. It runs in its own process, so a model it cannot load falls through to "transformers" (the first runs'
 # engine: slow, known to work for every family).
-ENGINES = {"qwen": ["vllm", "transformers"], "aya": ["vllm", "transformers"], "gemma": ["vllm", "transformers"],
+ENGINES = {"qwen": ["vllm", "transformers"], "aya": ["vllm", "transformers"], "gemma": ["transformers"],
            "mistral": ["vllm", "transformers"]}
 # max_num_batched_tokens: vLLM 0.28 doubled its default to 16384, more memory than a T4 has to spare
 VLLM = {"tensor_parallel_size": 2, "dtype": "half", "max_model_len": 4096, "gpu_memory_utilization": 0.90,
         "max_num_seqs": 128, "max_num_batched_tokens": 8192, "enable_prefix_caching": True}
-# Gemma 2 cannot run in fp16 (vLLM refuses it: overflow) and T4s have no bf16: 4-bit weights, fp32 compute. Since vLLM
-# 0.28 bitsandbytes is a separate plugin (vllm-bnb-plugin, installed below; without it: "Unknown quantization method:
-# bitsandbytes", gemma run of 2026-10-09). If vLLM cannot load it, the log says so and the transformers engine takes
-# over.
-VLLM_MODEL = {"gemma": {"dtype": "float32", "quantization": "bitsandbytes"}}
+# Gemma 2 stays on the transformers engine (trial of 2026-10-10): it cannot run in fp16 and T4s have no bf16, so it needs
+# 4-bit weights with fp32 compute, and vLLM's only 4-bit route is the vllm-bnb-plugin 0.0.3, whose loader fails on
+# Gemma 2's row-parallel weights with an AssertionError (two GPUs and one GPU alike); vLLM 0.31's built-in int8 online
+# quantization covers only mixture-of-experts layers.
 CHUNK = 256                    # vLLM: students per chunk; the results are saved after every chunk
-BATCH_SIZE = 8                 # transformers engine: 16 runs out of memory on 2x T4 (runs of 2026-10-08)
+BATCH_SIZE = 8                 # transformers engine: 16 runs out of memory on 2x T4 (owner's runs, 2026-10-08)
 SAVE_EVERY = 10                # transformers engine: batches between partial saves
 """
 
-INSTALL = r"""!pip install -q -U vllm vllm-bnb-plugin bitsandbytes accelerate
+INSTALL = r"""!pip install -q -U vllm bitsandbytes accelerate
 # Kaggle's preinstalled torchaudio can be built for another CUDA than the torch vllm brings, and transformers then fails
 # on import; nothing here uses torchaudio
 !pip uninstall -q -y torchaudio
@@ -139,6 +140,7 @@ PERSONAS = [
 
 GENERATE = r"""import glob, json, random, re, subprocess, sys, time
 random.seed(SEED)
+T0 = time.time()               # the total time limit (MAX_HOURS) counts from here
 
 # How many options a student ticks per multi-choice question, by the "picks" attribute (a range; capped by the
 # question's max). Disliked subjects / topics (q2, q7) and "không muốn" (q12) are ticked less.
@@ -181,8 +183,8 @@ def questionnaire_text():
     return "\n".join(lines)
 
 # The part every prompt shares, first, so vLLM computes it once (prefix caching); the student comes after it. The
-# writer answers with option codes, not labels: shorter outputs and fewer copying mistakes
-# (2026-10-09). The example shows the shape only (a trial writer once copied an example score).
+# writer answers with option codes, not labels: shorter outputs and fewer copying mistakes (v1's generator, owner
+# 2026-10-09). The example shows the shape only (a trial writer once copied an example score).
 PREFIX = (
     "Bạn giúp tạo dữ liệu huấn luyện cho một ứng dụng tư vấn chọn ngành đại học ở Việt Nam. Ở cuối có mô tả MỘT học "
     "sinh lớp 12: hãy tưởng tượng học sinh đó và điền bảng câu hỏi như em ấy tự điền.\n\n"
@@ -291,6 +293,9 @@ def save(rows, family, final=False):
 def previous(family):
     # Students of an earlier run of this family: any CSV attached as an input dataset (whatever Kaggle named it) with
     # this notebook's columns and only this family's students.
+    if family in FRESH:
+        print(f"{family}: written again from scratch; an attached earlier {family} file is ignored")
+        return []
     rows = []
     files = sorted(glob.glob("/kaggle/input/**/*.csv", recursive=True))
     for path in files:
@@ -303,7 +308,7 @@ def previous(family):
         if {"student_id", "family", "answers", "raw"} <= set(df.columns) and len(df) and set(df["family"]) == {family}:
             rows += df.to_dict("records")
             print("resuming from", path, len(df), "students")
-    if not rows and REQUIRE_PREVIOUS:
+    if not rows and family in REQUIRE_PREVIOUS:
         print("CSV files under /kaggle/input:", files or "none")
         raise SystemExit(f"No earlier {family} file is attached: add the dataset with student_generated_{family}.csv "
                          "(Add Input), then run again. Stopped before loading the model, so no GPU time is used.")
@@ -344,28 +349,34 @@ if __name__ == "__main__":
 '''
 
 def run_vllm(family, todo, deadline):
-    # {student_id: text} written by vLLM, and the worker's exit code (0: finished or stopped at the time limit).
+    # ({student_id: text} written by vLLM, the worker's exit code; 0: finished or stopped at the time limit). The
+    # worker's whole log is kept in /kaggle/working; after a failure it is printed from its first error.
     work = "/kaggle/working"
     out, job_path, worker = f"{work}/vllm_{family}.jsonl", f"{work}/vllm_job_{family}.json", f"{work}/vllm_worker.py"
     if os.path.exists(out):
         os.remove(out)
     with open(worker, "w", encoding="utf-8") as f:
         f.write(WORKER)
-    job = {"model": MODELS[family][0], "engine": {**VLLM, **VLLM_MODEL.get(family, {})}, "seed": SEED,
+    job = {"model": MODELS[family][0], "engine": VLLM, "seed": SEED,
            "temperature": TEMPERATURE, "top_p": TOP_P, "max_tokens": MAX_NEW_TOKENS, "chunk": CHUNK,
            "deadline": deadline, "out": out, "items": [[j[0], j[2]] for j in todo]}
     with open(job_path, "w", encoding="utf-8") as f:
         json.dump(job, f, ensure_ascii=False)
     proc = subprocess.Popen([sys.executable, worker, job_path], stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                             text=True, env=dict(os.environ))
-    tail = []
-    for line in proc.stdout:              # the worker's log, shown as it runs
-        tail = (tail + [line])[-40:]
-        if line.startswith("vLLM:") or "Error" in line or "error" in line[:80]:
+    lines = []
+    for line in proc.stdout:              # the worker's log; progress lines are shown as it runs
+        lines.append(line)
+        if line.startswith("vLLM:"):
             print(line, end="")
     code = proc.wait()
-    if code:
-        print("".join(tail))
+    with open(f"{work}/vllm_{family}.log", "w", encoding="utf-8") as f:
+        f.write("".join(lines))
+    if code:                              # the cause: from the first error line on (the end of a log only repeats it)
+        first = next((i for i, l in enumerate(lines) if "Traceback" in l or "ERROR" in l or "Error" in l), 0)
+        print(f"----- exit code {code}: the log from its first error (whole log: vllm_{family}.log)")
+        print("".join(lines[max(0, first - 3):first + 70]))
+        print("----- end of the log:\n" + "".join(lines[-12:]))
     texts = {}
     if os.path.exists(out):
         for line in open(out, encoding="utf-8"):
@@ -381,7 +392,7 @@ def run_transformers(family, todo, rows, deadline):
     start = time.time()
     for i, b in enumerate(range(0, len(todo), BATCH_SIZE)):
         if time.time() > deadline:
-            print(f"{family}: stopped after {MAX_HOURS} h to stay inside Kaggle's limit; resume in a new session")
+            print(f"{family}: stopped at its time limit; resume in a new session")
             break
         batch = todo[b:b + BATCH_SIZE]
         enc = tok([chat_text(tok, j[2]) for j in batch], return_tensors="pt", padding=True,
@@ -415,7 +426,7 @@ def run_family(family):
     done = {r["student_id"] for r in rows}
     jobs = [j for j in jobs if j[0] not in done]
     print(f"{family}: {len(rows)} students from an earlier run kept, {len(jobs)} to generate")
-    deadline = time.time() + MAX_HOURS * 3600
+    deadline = min(T0 + MAX_HOURS * 3600, time.time() + FAMILY_HOURS.get(family, MAX_HOURS) * 3600)
     for engine in ENGINES[family]:
         todo = [j for j in jobs if j[0] not in {r["student_id"] for r in rows}]
         if not todo or time.time() > deadline:
@@ -444,7 +455,12 @@ def run_family(family):
             print("\n", r["target_group"], r["attributes"], "\n", r["raw"][:1500])
     return df
 
-results = {f: run_family(f) for f in RUN_FAMILIES}
+def run_all():
+    for f in RUN_FAMILIES:        # a missing earlier file stops the notebook here, before any family uses GPU time
+        previous(f)
+    return {f: run_family(f) for f in RUN_FAMILIES}
+
+results = run_all()
 """
 
 OUTRO = r"""## After the run
@@ -469,79 +485,95 @@ def groups(d: AppData, exclude: tuple[str, ...]) -> list[dict]:
     return out
 
 
-# Top-up runs: a family's first session was cut off; the notebook resumes from the attached file and adds the missing
-# students, stopping cleanly after MAX_HOURS. Gemma (2026-10-08): 728 students (5-18 per group), up to 20 per group,
-# run overnight. Aya (2026-10-09): 2,008 of 2,960 after 10.9 h (about 19.6 s per student), on an account
-# with 5.5 GPU hours left: 4.6 h of generation leaves time for installing and loading the model and a margin (a
-# committed run killed by the quota loses its output).
-TOPUPS = {
-    "gemma": {"model": "Gemma 2 9B", "hf_page": "google/gemma-2-9b-it", "had": 728, "per_group": 20, "hours": 11.0},
-    "aya": {"model": "Aya Expanse 8B", "hf_page": "CohereLabs/aya-expanse-8b", "had": 2008, "per_group": 40,
-            "hours": 4.6},
+# The rerun (2026-10-10, owner: gemma and aya together, one notebook). Aya is written again from scratch on vLLM (the
+# transformers runs: 19.6 s per student, plan followed 7%); its old file is not attached and, if it is, ignored, so the
+# two files can be compared before one replaces the other. Gemma cannot run on vLLM on T4s (trial of 2026-10-10: the
+# vllm-bnb-plugin loader fails on Gemma 2): it resumes on the transformers engine (about 45 s per student) from the
+# attached file (1,600 students) up to 25 per group (owner): 568 more with the 75 groups of 2026-10-13 (524 with the
+# 74 of 2026-10-10), about 7.1 h. Aya runs first (75 x 40 = 3,000), gemma gets the rest of the time.
+# The how-to is in Vietnamese (teammate documents).
+RERUN = {
+    "name": "student_generation_gemma_aya.ipynb",
+    "families": ["aya", "gemma"],
+    "per_group": {"aya": 40, "gemma": 25},
+    "fresh": ["aya"],
+    "require": ["gemma"],
+    "family_hours": {"aya": 3.5, "gemma": 7.5},
+    "max_hours": 10.5,
+    "gemma_had": 1600,
+    "gemma_more": 568,
 }
 
 
-def topup_out(family: str) -> Path:
-    return OUT.parent / f"student_generation_{family}_topup.ipynb"
+def rerun_out() -> Path:
+    return OUT.parent / RERUN["name"]
 
 
-def topup_settings(family: str) -> dict[str, str]:
-    t = TOPUPS[family]
-    per_group = {"qwen": 40, "aya": 40, "gemma": 10, "mistral": 15}
-    per_group[family] = t["per_group"]
+def rerun_settings() -> dict[str, str]:
+    r = RERUN
+    per_group = {"qwen": 40, "aya": 40, "gemma": 10, "mistral": 15, **r["per_group"]}
     return {
         'RUN_FAMILIES = ["qwen"]        # then aya, gemma; mistral (SeaLLM) is the held-out test family':
-            f'RUN_FAMILIES = ["{family}"]  # top-up run: {t["model"]} only',
+            f'RUN_FAMILIES = {json.dumps(r["families"])}   # vLLM rerun: aya from scratch, gemma resumed',
         'STUDENTS_PER_GROUP = {"qwen": 40, "aya": 40, "gemma": 10, "mistral": 15}':
             "STUDENTS_PER_GROUP = {" + ", ".join(f'"{f}": {n}' for f, n in per_group.items()) + "}",
         "MAX_HOURS = 11.0               # stop cleanly and save before Kaggle's 12-hour limit":
-            f"MAX_HOURS = {t['hours']}               # top-up run: stop cleanly and save inside the GPU time left",
-        'REQUIRE_PREVIOUS = False       # True: stop at once if no earlier file of the family is attached (a top-up run)':
-            f'REQUIRE_PREVIOUS = True        # top-up run: stop at once if the earlier {family} file is not attached',
+            f"MAX_HOURS = {r['max_hours']}                # all families together: stop cleanly and save before Kaggle's limit",
+        "REQUIRE_PREVIOUS = []          # families that must find an attached earlier file (a top-up run); checked before any GPU use":
+            f"REQUIRE_PREVIOUS = {json.dumps(r['require'])}      # gemma must find its earlier file; checked before any GPU use",
+        "FRESH = []                     # families written again from scratch: an attached earlier file of the family is ignored":
+            f"FRESH = {json.dumps(r['fresh'])}                # aya is written again from scratch: an attached aya file is ignored",
+        "FAMILY_HOURS = {}              # hours of generation per family (default: MAX_HOURS); the total stays inside MAX_HOURS":
+            f"FAMILY_HOURS = {json.dumps(r['family_hours'])}   # hours of generation per family, inside MAX_HOURS",
     }
 
 
-def topup_howto(family: str) -> str:
-    t = TOPUPS[family]
-    return f"""# Chạy bổ sung dữ liệu {t["model"]}
+def rerun_howto() -> str:
+    r = RERUN
+    return f"""# Chạy lại Aya (vLLM) và bổ sung Gemma trong một notebook
 
-Notebook này tạo thêm học sinh mẫu bằng mô hình {t["model"]}, **nối tiếp** tệp đã có (`student_generated_{family}.csv`,
-{t["had"]:,} học sinh), tới {t["per_group"]} học sinh mỗi nhóm. Máy tự dừng sau khoảng {t["hours"]:g} giờ sinh dữ liệu
-(cộng khoảng 15-20 phút cài đặt và tải mô hình) và lưu kết quả, nên có thể bấm chạy rồi đi ngủ.
+Notebook này tạo học sinh mẫu bằng **hai mô hình, lần lượt**:
+
+1. **Aya Expanse 8B**, viết lại từ đầu, 40 học sinh mỗi nhóm, chạy bằng vLLM (nhanh hơn cách cũ nhiều lần).
+2. **Gemma 2 9B**, **nối tiếp** tệp `student_generated_gemma.csv` đã có ({r["gemma_had"]:,} học sinh) tới {r["per_group"]["gemma"]}
+   học sinh mỗi nhóm (thêm khoảng {r["gemma_more"]}). Gemma **không** chạy được bằng vLLM trên máy T4 (đã thử ngày
+   2026-10-10), nên chạy bằng cách cũ, khoảng 45 giây mỗi học sinh; log sẽ ghi `gemma: ... students, ... parsed`, đó là bình thường.
+
+Máy tự dừng sau tối đa {r["max_hours"]:g} giờ sinh dữ liệu (Aya không quá {r["family_hours"]["aya"]:g} giờ, Gemma không quá
+{r["family_hours"]["gemma"]:g} giờ), lưu kết quả từng mô hình, nên có thể bấm chạy rồi đi ngủ. Cộng thêm khoảng 10-15 phút cài đặt
+và tải mô hình. Nếu Gemma chưa kịp xong, chạy lại notebook với tệp Gemma mới nhất (và đặt `RUN_FAMILIES = ["gemma"]`).
 
 **Chuẩn bị (khoảng 10 phút):**
 
-1. **Tài khoản Hugging Face:** đăng nhập https://huggingface.co, mở trang `{t["hf_page"]}` và bấm đồng ý điều khoản
-   (nếu chưa). Tạo token đọc (Settings → Access Tokens → New token, quyền *Read*).
+1. **Tài khoản Hugging Face:** đăng nhập https://huggingface.co, mở trang `CohereLabs/aya-expanse-8b` **và**
+   `google/gemma-2-9b-it`, bấm đồng ý điều khoản ở cả hai (nếu chưa). Tạo token đọc (Settings → Access Tokens → New
+   token, quyền *Read*).
 2. **Kaggle → Add-ons → Secrets:** thêm secret tên `HF_TOKEN`, giá trị là token ở bước 1, và bật cho notebook này.
-3. **Tải tệp cũ lên làm dataset:** Kaggle → Datasets → New dataset → tải lên `student_generated_{family}.csv` (**giữ
-   nguyên tên tệp**). Trong notebook: Add Input → chọn dataset vừa tạo.
+3. **Dataset tệp Gemma cũ:** Kaggle → Datasets → New dataset → tải lên `student_generated_gemma.csv` (**giữ nguyên tên
+   tệp**). Trong notebook: Add Input → chọn dataset đó. **Không cần** gắn tệp Aya cũ (nếu lỡ gắn, notebook bỏ qua).
 4. **Cài đặt notebook (cột bên phải):** Accelerator = **GPU T4 x2**; Internet = **On**.
 
-**Chạy:** bấm **Save Version** → **Save & Run All (Commit)** → Save. Không cần mở trình duyệt khi máy chạy.
+**Nên chạy thử trước (khoảng 20-30 phút):** đặt `TRIAL = True` trong ô cài đặt đầu tiên, chạy, kiểm tra log, rồi đặt lại
+`TRIAL = False` và chạy thật. Bản thử không đụng tới tệp Gemma đã gắn. Nếu chỉ cần kiểm tra Aya, đặt thêm
+`RUN_FAMILIES = ["aya"]`.
 
-**Sau khi chạy xong:** mở notebook → tab *Output* của phiên bản vừa chạy → tải `student_generated_{family}.csv` (và
-`student_review_sample_{family}.csv` nếu có). Tệp mới đã gồm cả {t["had"]:,} học sinh cũ.
+**Chạy thật:** bấm **Save Version** → **Save & Run All (Commit)** → Save.
 
-**Nếu log báo `No earlier {family} file is attached`:** notebook đã tự dừng (chưa tốn GPU). Gắn lại dataset (Add Input →
-Your Work → Datasets) rồi chạy lại; tên tệp trong dataset có bị Kaggle đổi cũng không sao.
+**Kiểm tra nhanh trong log:**
 
-**Kiểm tra nhanh trong log:** dòng `{family}: N students from an earlier run kept, ... to generate` ở đầu, với N là số
-học sinh trong tệp đã gắn (nếu ghi `0 students from an earlier run` là chưa gắn đúng dataset ở bước 3: dừng lại và gắn
-lại). Sau đó:
+- `aya: written again from scratch ...` và `gemma: N students from an earlier run kept, ... to generate` với N khoảng
+  {r["gemma_had"]:,} (nếu ghi `No earlier gemma file is attached`: notebook đã tự dừng, chưa tốn GPU; gắn lại dataset ở
+  bước 3).
+- **Aya (vLLM):** có dòng `vLLM: ... loaded in ... s`, rồi định kỳ `vLLM: .../... students, ... s`, cuối cùng
+  `aya: vLLM wrote ... students in ... s`. Nếu vLLM lỗi, log ghi `aya: vLLM stopped with exit code ...` kèm đoạn lỗi,
+  rồi notebook tự chuyển sang cách cũ (chậm hơn nhiều). **Hãy gửi lại đoạn log lỗi cho nhóm.**
 
-- **Máy chạy nhanh (vLLM):** có dòng `vLLM: ... loaded in ... s`, rồi định kỳ `vLLM: .../... students, ... s`. Cuối cùng
-  có dòng `vLLM wrote ... students in ... s (... s per student ...)`.
-- **vLLM không chạy được mô hình này:** log ghi `vLLM stopped with exit code ...` kèm lỗi, rồi notebook tự chuyển sang
-  cách chạy cũ (chậm hơn nhiều), với dòng `{family}: .../... students, ... parsed`. Không cần làm gì, nhưng hãy gửi
-  lại đoạn log lỗi đó cho nhóm.
-
-**Nên chạy thử trước (khoảng 15-30 phút):** đặt `TRIAL = True` trong ô cài đặt, chạy, xem log có dòng `vLLM wrote`
-không, rồi đặt lại `TRIAL = False` và chạy thật.
+**Sau khi chạy xong:** mở notebook → tab *Output* của phiên bản vừa chạy → tải `student_generated_aya.csv`,
+`student_generated_gemma.csv` (và hai tệp `student_review_sample_*.csv` nếu có). Tệp Gemma mới đã gồm cả học sinh cũ.
 """
 
 
-def build(topup: str | None = None) -> dict:
+def build(rerun: bool = False) -> dict:
     qn = load_questionnaire()
     d = AppData.load()
     questions = [{"id": q.id, "text": q.text, "kind": q.kind, "max": q.max, "not_in": q.not_in,
@@ -551,16 +583,16 @@ def build(topup: str | None = None) -> dict:
               "ATTRIBUTES": ATTRIBUTES, "PERSONAS": PERSONAS}
     data_cell = "\n\n".join(f"{k} = {pformat(v, width=118, sort_dicts=False)}" for k, v in values.items()) + "\n"
     config = CONFIG
-    if topup:
-        for old, new in topup_settings(topup).items():
+    if rerun:
+        for old, new in rerun_settings().items():
             assert config.count(old) == 1, old
             config = config.replace(old, new)
     cells = [_cell("markdown", INTRO), _cell("code", config), _cell("code", INSTALL), _cell("code", LIBS),
              _cell("markdown", "## Questionnaire, target groups, attributes and personas (from UniAdvisor's data)"),
              _cell("code", data_cell), _cell("markdown", "## Generation"),
              _cell("code", GENERATE.replace("%MODEL_HELPERS%", MODEL_HELPERS)), _cell("markdown", OUTRO)]
-    if topup:
-        cells.insert(0, _cell("markdown", topup_howto(topup)))
+    if rerun:
+        cells.insert(0, _cell("markdown", rerun_howto()))
     return {"cells": cells, "metadata": {"kernelspec": {"display_name": "Python 3", "language": "python",
                                                         "name": "python3"},
                                          "language_info": {"name": "python"}},
@@ -569,8 +601,8 @@ def build(topup: str | None = None) -> dict:
 
 def main():
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    for path, topup in ((OUT, None), *((topup_out(f), f) for f in TOPUPS)):
-        path.write_text(json.dumps(build(topup), ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    for path, rerun in ((OUT, False), (rerun_out(), True)):
+        path.write_text(json.dumps(build(rerun), ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
         print(f"wrote {path}")
 
 

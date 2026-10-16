@@ -7,7 +7,7 @@ import sqlite3
 import pytest
 
 from uniadvisor import db
-from pipelines.database.build import Review
+from pipelines.database.prepare import Review
 from pipelines.facts.build import build_facts, load_config, spread, standardise
 
 OCC = [("15-1252.00", "Software Developers"), ("15-1211.00", "Computer Systems Analysts"),
@@ -24,6 +24,8 @@ KNOW = {"15-1252.00": {"Computers": 4.8, "Mathematics": 3.9, "Economics": 1.5},
 RIASEC = ["Realistic", "Investigative", "Artistic", "Social", "Enterprising", "Conventional"]
 INTEREST = {"15-1252.00": [2, 6, 3, 1, 2, 4], "15-1211.00": [2, 5, 2, 2, 3, 5], "13-2011.00": [1, 3, 1, 2, 4, 7],
             "11-9199.00": [2, 3, 2, 3, 6, 4], "25-1011.00": [1, 4, 2, 6, 4, 3]}
+NGANH_CIP_HEADER = ("nganh_code,rank,cip_code,match,confidence,retrieved,note,status,origin,source_id,reviewed_by,"
+                    "reviewed_on,review_comment\n")
 MAPPING = [("7480101", 1, "11.0701", "exact", "high"), ("7480201", 1, "11.0103", "exact", "high"),
            ("7480201", 2, "11.0701", "close", "high"), ("7340301", 1, "52.0301", "exact", "high"),
            ("7340101", 1, "52.0201", "exact", "high"), ("7340101", 2, "00.0000", "close", "low"),
@@ -65,8 +67,9 @@ def write_inputs(root):
     cur = root / "curated"
     cur.mkdir()
     (cur / "nganh_cip.csv").write_text(
-        "nganh_code,rank,cip_code,match,confidence,retrieved,note,status,origin\n"
-        + "".join(f"{n},{r},{c},{m},{conf},yes,,draft,test\n" for n, r, c, m, conf in MAPPING), encoding="utf-8")
+        NGANH_CIP_HEADER
+        + "".join(f"{n},{r},{c},{m},{conf},yes,,draft,test,curated,,,\n" for n, r, c, m, conf in MAPPING),
+        encoding="utf-8")
     return root / "inputs", cur
 
 
@@ -189,7 +192,7 @@ def test_close_verdicts_and_occupation_floor(tmp_path):
                       ("73403", "nhom_nganh", "Kế toán", "734"), ("7340301", "nganh", "Kế toán", "73403"),
                       ("73401", "nhom_nganh", "Kinh doanh", "734"), ("7340101", "nganh", "QTKD", "73401")])
     with open(curated / "nganh_cip.csv", "a", encoding="utf-8") as fh:
-        fh.write("7480202,1,11.0103,exact,high,yes,,draft,test\n")
+        fh.write("7480202,1,11.0103,exact,high,yes,,draft,test,curated,,,\n")
     (curated / "nganh_close_verdicts.csv").write_text(
         "nganh_code,other_code,verdict,comment\n7480101,7480201,weak,x\n7480101,7480202,wrong,x\n"
         "7340301,7340101,ok,a reviewer accepts it\n", encoding="utf-8")

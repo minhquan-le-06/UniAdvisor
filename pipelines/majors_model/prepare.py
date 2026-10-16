@@ -1,6 +1,6 @@
 """Prepare the generated students for training:
 
-1. clean every student's answers into option codes (suggest.clean);
+1. clean every student's answers into option codes (pipelines.majors_model.clean);
 2. drop students the writer did not give usable answers (not parsed, too few answered questions, nearly every option
    of Q12 ticked, exact duplicates);
 3. consistency filter: keep students whose data scores put their own target group in the top N, so a
@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
+import sys
 from collections import Counter
 from pathlib import Path
 
@@ -160,6 +161,7 @@ def report(df: pd.DataFrame, scorer: DataScorer, label) -> str:
 def main():
     from uniadvisor.ui.service import AppData, db_path
 
+    sys.stdout.reconfigure(encoding="utf-8")
     cfg = load_config()
     d = AppData.load()
     with sqlite3.connect(db_path()) as conn:

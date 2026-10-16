@@ -1,0 +1,7 @@
+.svg { width: 100%; height: auto; overflow: visible; margin: 0 auto; }
+.grid { fill: none; stroke: var(--line-strong); stroke-width: 1; }
+.shape { animation: global(grow-in) var(--t-slow) var(--ease-bounce) both; }
+.label { font-size: 15px; fill: var(--ink-2); }
+.name { font-weight: 600; }
+.value { font-weight: 800; fill: var(--ink); font-size: 17px; }
+.none { fill: var(--muted); font-style: italic; }
