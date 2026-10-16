@@ -1,14 +1,7 @@
 # data/
 
-The app reads one SQLite database, `data/uniadvisor.db` (about 29 MB). It is not part of this repository: it holds
-cutoff scores, tuition and programme data collected from third-party pages and schools' documents.
+Ứng dụng đọc một cơ sở dữ liệu SQLite duy nhất, `data/uniadvisor.db` (khoảng 29 MB). **File này không có trong repo nộp BTC**: nó chứa điểm chuẩn, học phí và thông tin chương trình thu thập từ các trang tin công khai và tài liệu của các trường.
 
-- On the first local app launch, this default database is built here from the final tables in
-  `pipelines/data/tables/`. Or point `UNIADVISOR_DB` at an already built database; a missing explicitly configured
-  path is reported and never created.
-- The hosted web version never builds it: it downloads this file from a private Hugging Face dataset at startup
-  (`tools/upload_db.py` uploads it; `docs/design/web.md`).
-- `python -m pipelines.database.build` writes it here in seconds from those final tables (development repository only;
-  `pipelines/README.md`).
-- `python -m pipelines.database.prepare` is slow and is run by whoever changes the source data; it writes the final
-  tables, `coverage.md` and the review files in `review/`.
+- **Bản web** ([uniadvisor-bkq.vercel.app](https://uniadvisor-bkq.vercel.app/)) không dựng cơ sở dữ liệu: khi khởi động, máy chủ tải file này từ một dataset riêng tư trên Hugging Face.
+- **Chạy cục bộ** cần có sẵn `uniadvisor.db` (đặt ở đây hoặc trỏ biến `UNIADVISOR_DB` tới nó). Trong repo nộp BTC, các bảng đầu vào đã bị lược bỏ nên không thể tự dựng lại; cách dựng được mô tả ở [`pipelines/README.md`](../pipelines/README.md).
+- **Bộ test** không cần dữ liệu thật: chúng chạy trên một cơ sở dữ liệu giả nhỏ dựng ngay trong test (`tests/fakedb.py`).

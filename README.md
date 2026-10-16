@@ -2,9 +2,9 @@
 
 # 🧭 UniAdvisor
 
-**Chọn ngành, xếp 15 nguyện vọng đại học trong 10 phút**
+**Chọn ngành và xếp 15 nguyện vọng đại học trong 10 phút**
 
-*Trợ lý cho học sinh lớp 12 ở Hà Nội và TP.HCM, xét bằng điểm thi tốt nghiệp THPT*
+*Trợ lý dành cho học sinh lớp 12. Phiên bản hiện tại: 159 trường ở Hà Nội và TP.HCM, xét bằng điểm thi tốt nghiệp THPT.*
 
 [![Demo](https://img.shields.io/badge/%F0%9F%9A%80_Demo_tr%E1%BB%B1c_ti%E1%BA%BFp-uniadvisor--bkq.vercel.app-ff6b4a?style=for-the-badge)](https://uniadvisor-bkq.vercel.app/)
 
@@ -18,43 +18,44 @@
 
 > [!IMPORTANT]
 > **Repo này chỉ dùng để nộp cho BTC (MLAI Hackathon 2026), không dùng để chạy demo.**
-> Cơ sở dữ liệu (`uniadvisor.db`) và dữ liệu thô đã được lược bỏ khỏi repo, nên ứng dụng không chạy được từ đây.
-> Hãy dùng bản chạy sẵn: **[uniadvisor-bkq.vercel.app](https://uniadvisor-bkq.vercel.app/)**
+> Cơ sở dữ liệu (`uniadvisor.db`) và dữ liệu thô đã được lược bỏ, nên ứng dụng không chạy được từ repo này.
+> Vui lòng dùng bản đã triển khai: **[uniadvisor-bkq.vercel.app](https://uniadvisor-bkq.vercel.app/)**
 > (lần mở đầu có thể chậm vài giây vì máy chủ phải nạp dữ liệu).
 
 ## ✨ UniAdvisor làm được gì
 
-| Bước | Em làm gì |
+| Bước | Học sinh làm gì |
 |---|---|
-| 1️⃣ **Về em** | Nhập điểm dự kiến hoặc điểm thi thật, tỉnh/thành, khu vực và đối tượng ưu tiên, ngân sách. |
-| 2️⃣ **Chọn ngành** | Đã có ngành thì tìm và so sánh; chưa biết chọn gì thì trả lời 12 câu hỏi để nhận gợi ý nhóm ngành kèm lý do. |
-| 3️⃣ **Xếp hướng học** | Chọn tối đa 2 hướng học, mỗi hướng gồm một ngành chính và các ngành gần. |
-| 🎯 **Ba phương án** | Nhận 3 danh sách 15 nguyện vọng: *Đúng ngành nhất*, *Hợp sở thích nhất*, *Tiết kiệm nhất*, so sánh bằng biểu đồ năm góc. |
-| 💬 **Điều chỉnh** | Chọn một phương án rồi chỉnh bằng nút hoặc chat tiếng Việt; tải kế hoạch về máy để dùng lại sau kỳ thi. |
+| 1️⃣ **Về em** | Nhập điểm dự kiến hoặc điểm thi thật, tỉnh/thành, khu vực và đối tượng ưu tiên, ngân sách, trường yêu thích. |
+| 2️⃣ **Chọn ngành** | Đã có ngành quan tâm thì tìm và so sánh; chưa biết chọn gì thì trả lời 12 câu hỏi (kèm một đoạn tự kể) để nhận gợi ý nhóm ngành cùng lý do. |
+| 3️⃣ **Xếp hướng học** | Chọn tối đa 2 hướng học, mỗi hướng gồm một ngành chính và tối đa 2 ngành gần. |
+| 🎯 **Ba phương án** | Nhận 3 danh sách tối đa 15 nguyện vọng: *Đúng ngành nhất*, *Hợp sở thích nhất*, *Tiết kiệm nhất*, mỗi phương án có biểu đồ ngũ giác riêng; hệ thống gợi ý một phương án để tham khảo. |
+| 💬 **Điều chỉnh** | Chọn một phương án rồi chỉnh bằng nút hoặc chat tiếng Việt (28 loại yêu cầu); tải kế hoạch về máy để dùng lại sau kỳ thi. |
 
-Mỗi nguyện vọng ghi rõ mức (mơ ước, thử sức, vừa sức, an toàn), điểm xét tuyển của em, điểm chuẩn 2025 và 2026, học phí và nơi học.
+Mỗi nguyện vọng ghi rõ mức (mơ ước, thử sức, vừa sức, an toàn), điểm xét tuyển của học sinh, điểm chuẩn 2025 và 2026, học phí, nơi học, kèm lời giải thích.
 
 ## 🧠 Quy tắc quyết định, AI chỉ hỗ trợ
 
-- **Thứ tự nguyện vọng do luật cố định, kiểm thử được:** điểm xét tuyển từng chương trình (kèm điểm ưu tiên theo Thông tư 06/2026/TT-BGDĐT) được so với điểm chuẩn hai năm gần nhất để chia bốn mức mơ ước, thử sức, vừa sức, an toàn; nguyện vọng an toàn xếp cuối. Biểu đồ năm góc của mỗi phương án được ước tính bằng mô phỏng Monte Carlo 20.000 lần.
-- **Hai mô hình nhỏ chạy trên CPU:** một mô hình gợi ý nhóm ngành từ bộ câu hỏi, một bộ phân loại câu chat thành 28 loại yêu cầu.
-- **Không gọi LLM hay dịch vụ ngoài khi chạy.** Mọi câu chữ em đọc đều từ mẫu cố định điền dữ liệu thật.
-- **Riêng tư:** thông tin em nhập nằm ở trình duyệt, máy chủ không lưu và không ghi log; kế hoạch được tải thẳng về máy em.
+- **Thứ tự nguyện vọng do bộ quy tắc cố định quyết định**, nên kết quả nhất quán và kiểm tra được: điểm xét tuyển của từng chương trình (kèm điểm ưu tiên theo Thông tư 06/2026/TT-BGDĐT) được so với điểm chuẩn hai năm gần nhất để chia bốn mức; nguyện vọng an toàn xếp cuối; các chương trình sư phạm tuân theo quy định chỉ được xét trong năm nguyện vọng đầu.
+- **Biểu đồ ngũ giác** của mỗi phương án được ước tính bằng mô phỏng Monte Carlo 20.000 lần. Trục nào thiếu dữ liệu thì ghi rõ, không tự gán giá trị.
+- **Hai mô hình nhỏ chạy trên CPU:** một mô hình gợi ý nhóm ngành từ bộ câu hỏi, và một bộ phân loại tin nhắn (nhận diện 19 trong 28 loại yêu cầu, 9 loại còn lại do bộ luật xử lý).
+- **Không gọi LLM hay dịch vụ ngoài khi chạy.** Mọi câu chữ học sinh đọc đều từ mẫu cố định, điền bằng dữ liệu thật.
+- **Riêng tư:** thông tin học sinh nhập chỉ nằm trong trình duyệt; máy chủ không lưu và không ghi log; kế hoạch được tải thẳng về máy.
 
-Kết quả trên dữ liệu chưa dùng khi huấn luyện (dòng mô hình Mistral):
+Kết quả trên dữ liệu chưa dùng khi huấn luyện (dòng mô hình Mistral, dữ liệu huấn luyện do ba dòng Qwen 2.5, Aya Expanse, Gemma 2 sinh):
 
-| Đánh giá | Cơ sở so sánh | Mô hình | Cỡ tập |
+| Đánh giá | Mức cơ sở | Mô hình | Cỡ tập |
 |---|---|---|---|
 | Gợi ý nhóm ngành, Hit@5 | 51,5% | **64,2%** | 648 |
 | Gợi ý nhóm ngành, Hit@1 | 19,4% | **26,4%** | 648 |
 | 31 tình huống kiểm thử hành vi (viết tay) | 28/31 | **31/31** | 31 |
 | Phân loại tin nhắn, macro-F1 | 0,641 | **0,881** | 1.361 |
-| Phân loại tin nhắn, macro-F1 sau khi loại tin sai nhãn | 0,715 | **0,970** | 847 |
-| Phân loại tin nhắn, độ chính xác (190 tin có người rà soát) | 0,921 | **0,926** | 190 |
+| Phân loại tin nhắn, macro-F1 sau khi loại tin không tự nhiên hoặc sai nhãn | 0,715 | **0,970** | 847 |
+| Phân loại tin nhắn, độ chính xác (tin do người rà soát) | 0,921 | **0,926** | 190 |
 
-Hit@k: nhóm ngành mục tiêu (hoặc nhóm gần) có trong top k gợi ý. Hệ thống chưa được đánh giá trên học sinh thật.
+Hit@k: nhóm ngành mục tiêu **hoặc một nhóm ngành gần của nó** nằm trong k gợi ý đầu. Mức cơ sở của bộ gợi ý là điểm O\*NET, của bộ phân loại là bộ luật từ khóa. Báo cáo sinh tự động trong [`models/`](models) tính chặt hơn, chỉ tính đúng nhóm mục tiêu.
 
-Chi tiết: [báo cáo bộ gợi ý](models/suggester/report.md) · [báo cáo bộ phân loại](models/message_classifier/report.md) · [pipelines](pipelines/README.md)
+**Hạn chế:** chưa đánh giá trên học sinh thật; dữ liệu huấn luyện do LLM sinh; phần giải thích dùng mẫu câu viết sẵn; dữ liệu nghề nghiệp O\*NET mô tả thị trường Hoa Kỳ.
 
 ## 🗂️ Cấu trúc repo
 
@@ -62,13 +63,13 @@ Chi tiết: [báo cáo bộ gợi ý](models/suggester/report.md) · [báo cáo 
 |---|---|
 | [`web/`](web) | Giao diện (Vite, React, TypeScript) |
 | [`src/uniadvisor/api/`](src/uniadvisor/api) | API FastAPI không lưu trạng thái |
-| [`src/uniadvisor/planner/`](src/uniadvisor/planner) | Luật lập danh sách, ba phương án, biểu đồ năm góc |
+| [`src/uniadvisor/planner/`](src/uniadvisor/planner) | Quy tắc lập danh sách, ba phương án, biểu đồ ngũ giác |
 | [`src/uniadvisor/majors/`](src/uniadvisor/majors) | Bộ câu hỏi và gợi ý nhóm ngành |
 | [`src/uniadvisor/chat/`](src/uniadvisor/chat) | Chat: tách câu, phân loại, trích giá trị, trả lời |
-| [`config/`](config) · [`models/`](models) | Luật tuyển sinh theo năm, cấu hình, mô hình đã huấn luyện |
-| [`pipelines/`](pipelines) | Công cụ dựng cơ sở dữ liệu và huấn luyện mô hình (ngoài ứng dụng) |
-| [`tests/`](tests) | 600 test, chạy trên cơ sở dữ liệu giả |
-| [`app.py`](app.py) · [`web_api.py`](web_api.py) · [`vercel.json`](vercel.json) · [`Dockerfile`](Dockerfile) | Bản Streamlit cũ, điểm vào API, cấu hình Vercel và Docker |
+| [`config/`](config) · [`models/`](models) | Quy tắc tuyển sinh theo năm, cấu hình, mô hình đã huấn luyện cùng báo cáo |
+| [`pipelines/`](pipelines) | Công cụ dựng cơ sở dữ liệu và huấn luyện mô hình, chạy ngoài ứng dụng ([hướng dẫn](pipelines/README.md)) |
+| [`tests/`](tests) | Bộ test, chạy trên cơ sở dữ liệu giả |
+| [`app.py`](app.py) · [`web_api.py`](web_api.py) · [`vercel.json`](vercel.json) · [`Dockerfile`](Dockerfile) | Bản Streamlit trước đó, điểm vào API, cấu hình Vercel và Docker |
 
 Chạy bộ test (không cần dữ liệu thật): `pip install -e ".[dev,ui]"` rồi `python -m pytest`; phía giao diện: `npm --prefix web ci && npm --prefix web test`.
 
@@ -86,7 +87,7 @@ Chạy bộ test (không cần dữ liệu thật): `pip install -e ".[dev,ui]"`
 
 > Sản phẩm này có dùng thông tin từ [O\*NET 31.0 Database](https://www.onetcenter.org/database.html) của U.S. Department of Labor, Employment and Training Administration (USDOL/ETA), theo giấy phép [CC BY 4.0](https://www.onetcenter.org/license_db.html). UniAdvisor đã chỉnh sửa thông tin (chọn lọc, dịch sang tiếng Việt, tổng hợp theo ngành). USDOL/ETA không phê duyệt, bảo trợ hay kiểm tra các chỉnh sửa này.
 
-Dữ liệu huấn luyện (học sinh và tin nhắn giả lập) do ba dòng mô hình mở Qwen 2.5, Aya Expanse, Gemma 2 viết (6.689 hồ sơ sau khi làm sạch); dòng thứ tư, Mistral (SeaLLM-7B-v2), chỉ dùng để kiểm thử. Theo giấy phép của từng mô hình.
+Dữ liệu huấn luyện (học sinh và tin nhắn giả lập) do các mô hình mở Qwen 2.5, Aya Expanse và Gemma 2 viết (6.689 hồ sơ học sinh sau khi làm sạch); dòng thứ tư, Mistral (SeaLLM-7B-v2), chỉ dùng để kiểm thử. Mỗi mô hình theo giấy phép riêng của nó.
 
 ---
 
