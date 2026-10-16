@@ -9,7 +9,7 @@ import pytest
 
 from uniadvisor.chat.classify import ModelClassifier, RuleClassifier, RulesFirst, load_classifier
 from pipelines.chat_model.train import _Wrapped, clean, evaluate, load_checks, load_config, make_pipeline, relabel_filter
-from uniadvisor.chat.types import ALL_TYPES, LATE_TYPES
+from uniadvisor.chat.types import ALL_TYPES, LATE_TYPES, PART4_TYPES
 
 TOY = {
     "undo": ["hoàn tác", "hoan tac giup em", "quay lại như cũ", "undo đi", "huỷ thay đổi vừa rồi", "lui lại một bước"],
@@ -69,7 +69,9 @@ def test_model_classifier_loads_a_saved_bundle(tmp_path, fake_db_path):
 
 def test_check_set_and_config():
     checks = load_checks()
-    assert set(checks["type"]) == set(ALL_TYPES)
+    # Part 4's independent human-written set is intentionally separate until people write and review it; the older
+    # checked set remains a regression set for the model currently in production.
+    assert set(checks["type"]) == set(ALL_TYPES) - set(PART4_TYPES)
     assert checks["type"].value_counts().min() >= 10
     assert set(checks["status"]) <= {"draft", "reviewed"}
     assert checks["text"].str.len().max() <= 300 and not checks["text"].duplicated().any()
@@ -84,8 +86,10 @@ def test_rules_on_the_check_set(fake_db_path):
     d = AppData.load(fake_db_path)
     rules = RuleClassifier(d.indexes.schools, d.indexes.nganh, set(d.subjects))
     checks = load_checks()
+    # Part 4 deliberately splits several formerly-`other` messages (forecasts, procedure, other admission methods)
+    # into explicit scope-boundary replies, so the old `other` labels are not a stable regression target.
     no_names = checks[checks["type"].isin(["change_score", "change_priority", "change_budget", "change_near_home",
-                                           "rerank", "undo", "ask_level", "other"])]
+                                           "rerank", "undo", "ask_level"])]
     assert evaluate(rules, no_names)["accuracy"] >= 0.85
 
 

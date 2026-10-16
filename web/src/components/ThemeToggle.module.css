@@ -1,0 +1,9 @@
+.toggle {
+  position: relative; width: 54px; height: 30px; padding: 3px; border-radius: 99px; cursor: pointer;
+  border: var(--border) solid var(--line-strong); background: var(--surface-2);
+}
+.knob {
+  display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%;
+  background: var(--sun); color: #3d2a00; transition: transform var(--t) var(--ease-bounce), background var(--t);
+}
+.dark { transform: translateX(24px); background: var(--grape); color: #fff; }

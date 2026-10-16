@@ -1,0 +1,24 @@
+.nav { display: flex; gap: 4px; align-items: center; min-width: 0; }
+.fill {
+  position: absolute; left: 0; bottom: -1px; height: 3px; background: var(--primary); border-radius: 0 3px 3px 0;
+  transition: width var(--t-slow) var(--ease-bounce);
+}
+.part {
+  display: flex; align-items: center; gap: 6px; padding: 4px 10px 4px 4px; border-radius: var(--radius-pill);
+  color: var(--muted); text-decoration: none; font-weight: 600; font-size: var(--fs-sm); white-space: nowrap;
+  transition: background var(--t);
+}
+.dot {
+  width: 24px; height: 24px; flex: none; display: grid; place-items: center; border-radius: 50%;
+  border: var(--border) solid var(--line-strong); background: var(--surface); font-weight: 800; font-size: 12px; color: var(--ink-2);
+}
+.active { background: var(--primary-soft); color: var(--primary-soft-ink); }
+.active .dot { border-color: var(--primary); }
+.done .dot { background: var(--mint); border-color: var(--mint); color: #fff; animation: global(pop) var(--t) var(--ease-bounce); }
+/* phones: dots only, the current part keeps its name */
+@media (max-width: 560px) {
+  .part { padding: 2px; }
+  .label { display: none; }
+  .active { padding-right: 10px; }
+  .active .label { display: inline; font-size: var(--fs-xs); }
+}

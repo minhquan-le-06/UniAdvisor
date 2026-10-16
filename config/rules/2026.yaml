@@ -37,3 +37,9 @@ floors:
 application:
   max_wishes: 15            # at most 15 nguyện vọng
   # Admitted to the highest-ranked wish whose cutoff the student passes.
+  # Teacher training (sư phạm) programs are considered only at the first wishes (2026 regulation). Owner to check the
+  # exact wording in Thông tư 06/2026 before relying on it; the list places at most max_position sư phạm wishes, first
+  # (owner, 2026-10-14).
+  teacher_training:
+    prefixes: ["71402"]
+    max_position: 5

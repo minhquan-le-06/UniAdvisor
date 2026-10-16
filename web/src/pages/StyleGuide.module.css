@@ -1,0 +1,60 @@
+.wrap { max-width: var(--content); margin: 0 auto; padding: 0 var(--gutter) 120px; display: flex; flex-direction: column; gap: var(--space-4); }
+.top { display: flex; justify-content: space-between; align-items: center; padding: var(--space-3) 0; }
+.logo { font-size: 1.375rem; font-weight: 800; letter-spacing: -0.02em; }
+.dot { color: var(--coral); }
+
+.hero {
+  position: relative; overflow: hidden; border-radius: var(--radius-lg); padding: var(--space-6) var(--space-4);
+  background: var(--bg-tint); border: var(--border) solid var(--line);
+}
+.heroText { position: relative; z-index: 1; display: flex; flex-direction: column; gap: var(--space-3); max-width: 620px; }
+.hl {
+  background: linear-gradient(transparent 58%, color-mix(in srgb, var(--sun) 80%, transparent) 58%);
+  padding: 0 4px; border-radius: 4px;
+}
+.lead { font-size: 1.125rem; color: var(--ink-2); }
+@media (max-width: 480px) { .hero { padding: var(--space-5) var(--space-3); } }
+
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-3); }
+@media (max-width: 640px) { .steps { grid-template-columns: 1fr; } }
+.step { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+.stepIcon { width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; box-shadow: 0 4px 0 rgb(0 0 0 / 0.15); }
+.stepNo { font-size: var(--fs-xs); font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+
+.h { margin-top: var(--space-4); }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
+@media (max-width: 420px) { .grid2 { grid-template-columns: 1fr; } }
+
+.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-3); }
+@media (max-width: 900px) { .cards { grid-template-columns: 1fr; } }
+.listCard { display: flex; flex-direction: column; gap: var(--space-2); align-items: stretch; }
+.listCard svg { margin: 0 auto; }
+.pros { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
+.yes { color: var(--ok-ink); font-weight: 800; margin-right: 6px; }
+.no { color: var(--err-ink); font-weight: 800; margin-right: 6px; }
+.center { display: flex; justify-content: center; }
+
+.wish { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; gap: var(--space-3); align-items: start; }
+.nv {
+  flex: none; width: 56px; height: 56px; border-radius: 16px; display: grid; place-items: center;
+  background: var(--primary-soft); color: var(--primary-soft-ink); font-weight: 800; font-size: 1.05rem;
+}
+.wishBody { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.nums { display: flex; gap: var(--space-4); margin-top: 6px; flex-wrap: wrap; }
+.nums span { display: flex; flex-direction: column; }
+.nums b { font-size: 1.125rem; font-variant-numeric: tabular-nums; }
+.nums small { color: var(--muted); font-size: var(--fs-xs); }
+@media (max-width: 520px) { .wish { grid-template-columns: 56px minmax(0, 1fr); } .wish > button { grid-column: 2; justify-self: start; margin-left: -12px; } }
+
+.bar { display: flex; flex-direction: column; gap: 6px; }
+
+.fab {
+  position: fixed; right: 20px; bottom: calc(20px + env(safe-area-inset-bottom)); z-index: 40;
+  width: 64px; height: 64px; border-radius: 22px; border: 0; cursor: pointer; display: grid; place-items: center;
+  background: var(--primary); color: var(--primary-ink); box-shadow: 0 5px 0 var(--primary-base), var(--shadow);
+  animation: global(grow-in) var(--t-slow) var(--ease-bounce);
+  transition: transform var(--t-fast);
+}
+.fab:hover { transform: rotate(-6deg) scale(1.05); }
+.fab:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--primary-base); }
+@media (max-width: 480px) { .hero > svg { width: 150px; height: 150px; opacity: 0.55; } }

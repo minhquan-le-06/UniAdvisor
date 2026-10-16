@@ -5,6 +5,7 @@
 levels:
   safe_margin: 2.0          # an toàn: at least this far above the higher of the two cutoffs
   dream_gap: 1.5            # mơ ước: at least this far below the lower cutoff
+  dream_max_gap: 4.0        # ... and at most this far; further below the lower cutoff the program is left out (too_hard)
   # A mixed-method cutoff (the exam score combined with học bạ, V-ACT, certificates..., converted to 30 points) is
   # not the student's exam total: such a program is never an toàn, at most this level.
   mixed_method_max_level: vua_suc
@@ -49,4 +50,5 @@ chances:
 # Three recommended lists.
 three_lists:
   max_no_admission: 0.05     # every list keeps the chance of no admission at or below this (score entered)
-  similar_overlap: 0.8       # two lists sharing this share of programs are called "gần giống nhau" (default)
+  similar_overlap: 0.7       # two lists sharing this share of programs are called "gần giống nhau" (owner, 2026-10-15)
+  pick_tie_margin: 0.02      # lists whose weighted pentagon score is this close to the best are tied (the first in a fixed order wins)

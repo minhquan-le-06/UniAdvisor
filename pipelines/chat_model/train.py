@@ -12,7 +12,8 @@ pipelines/data/chat/generated/*.csv with columns text, type, family, model. Meth
   dropped.
 - model: TF-IDF of character n-grams (2-5, within words) and word n-grams (1-2) on accent-free text, multinomial
   logistic regression. A few MB, milliseconds per message on CPU.
-- tests: the held-out LLM family (config/chat.yaml test_family) and pipelines/data/chat/checks.csv (rows people judged).
+- tests: the held-out LLM family, the older reviewed check set, and the separate human-written Part 4 holdout when it
+  has been supplied outside Git (see pipelines/data/chat/part4_human/README.md).
 
 Run:
     python -m pipelines.chat_model.train            # train if generated data exists; always score the rule baseline
@@ -31,12 +32,14 @@ import pandas as pd
 import yaml
 
 from uniadvisor.chat.classify import MODEL_DIR, Classifier, RuleClassifier, prepare
-from uniadvisor.chat.types import ALL_TYPES
+from uniadvisor.chat.types import ALL_TYPES, PART4_TYPES
 from uniadvisor.data.scope import strip_accents
 from uniadvisor.paths import CONFIG_DIR, ROOT
 
 CHAT_DATA = ROOT / "pipelines" / "data" / "chat"
 MAX_CHARS = 300
+HUMAN_COLUMNS = ["id", "text", "type", "expected_requests", "expected_values", "needs_clarification", "writer",
+                 "reviewer", "status", "note"]
 
 
 def load_config() -> dict:
@@ -92,6 +95,51 @@ def load_checks(path: Path = CHAT_DATA / "checks.csv", reviewed_only: bool = Fal
     df, _ = apply_judgements(df)
     df["reviewed"] = df["reviewed"] | (df["status"] == "reviewed")
     return df[df["reviewed"]] if reviewed_only else df
+
+
+def load_human_checks(path: Path = CHAT_DATA / "part4_human" / "part4_human.csv") -> pd.DataFrame:
+    """Load the separately managed T5 holdout without ever treating it as training data.
+
+    The file is ignored by Git.  Only reviewed, single-request rows can score a classifier; multi-request rows are
+    retained with their expected request sequence for the end-to-end test runner, but do not distort a single-label
+    accuracy metric.
+    """
+    if not path.exists():
+        return pd.DataFrame(columns=HUMAN_COLUMNS + ["single_request"])
+    df = pd.read_csv(path, dtype=str, keep_default_na=False, encoding="utf-8-sig")
+    missing = set(HUMAN_COLUMNS) - set(df.columns)
+    if missing:
+        raise ValueError("Part 4 human check file is missing columns: " + ", ".join(sorted(missing)))
+    df = df[HUMAN_COLUMNS].copy()
+    invalid_types = sorted(set(df["type"]) - set(ALL_TYPES))
+    if invalid_types:
+        raise ValueError("Part 4 human check file has unknown types: " + ", ".join(invalid_types))
+    invalid_status = sorted(set(df["status"]) - {"draft", "reviewed", "rejected"})
+    if invalid_status:
+        raise ValueError("Part 4 human check file has invalid status: " + ", ".join(invalid_status))
+    if df["id"].str.strip().eq("").any() or df["id"].duplicated().any():
+        raise ValueError("Part 4 human check file needs unique, non-empty ids.")
+    if df["text"].str.strip().str.len().between(2, MAX_CHARS).eq(False).any():
+        raise ValueError(f"Part 4 human check text must contain 2-{MAX_CHARS} characters.")
+    if set(df["needs_clarification"]) - {"yes", "no"}:
+        raise ValueError("Part 4 human check needs_clarification must be yes or no.")
+    sequences = []
+    for requests, values in zip(df["expected_requests"], df["expected_values"]):
+        try:
+            sequence = json.loads(requests)
+        except json.JSONDecodeError as e:
+            raise ValueError("Part 4 human check expected_requests must be JSON lists.") from e
+        if not isinstance(sequence, list) or not sequence or any(t not in ALL_TYPES for t in sequence):
+            raise ValueError("Part 4 human check expected_requests must be a non-empty list of known types.")
+        try:
+            expected_values = json.loads(values)
+        except json.JSONDecodeError as e:
+            raise ValueError("Part 4 human check expected_values must be JSON objects.") from e
+        if not isinstance(expected_values, dict):
+            raise ValueError("Part 4 human check expected_values must be JSON objects.")
+        sequences.append(sequence)
+    df["single_request"] = [len(s) == 1 and s[0] == t for s, t in zip(sequences, df["type"])]
+    return df[df["status"] == "reviewed"].reset_index(drop=True)
 
 
 def load_reviews(folder: Path = CHAT_DATA / "review") -> pd.DataFrame:
@@ -251,8 +299,11 @@ def run(out_dir: Path = MODEL_DIR) -> dict:
     cfg = load_config()
     checks_all = load_checks()
     checks_reviewed = checks_all[checks_all["reviewed"]]
+    human_checks = load_human_checks()
+    human_single = human_checks[human_checks["single_request"]]
     rules = rule_classifier()
-    report = {"rules": {"checks_all": evaluate(rules, checks_all), "checks_reviewed": evaluate(rules, checks_reviewed)}}
+    report = {"rules": {"checks_all": evaluate(rules, checks_all), "checks_reviewed": evaluate(rules, checks_reviewed),
+                        "human": evaluate(rules, human_single)}}
     generated, stats = clean(load_generated())
     reviews, agent = load_reviews(), load_agent_reviews()
     # The held-out family is scored twice: "raw", as its model wrote it (only people's
@@ -275,7 +326,8 @@ def run(out_dir: Path = MODEL_DIR) -> dict:
         pipeline = make_pipeline(cfg["seed"]).fit(train["text"].map(prepare).tolist(), train["type"].tolist())
         model = _Wrapped(pipeline, cfg["other_threshold"])
         report["model"] = {"test_family": evaluate(model, test), "test_family_raw": evaluate(model, test_raw),
-                           "checks_all": evaluate(model, checks_all), "checks_reviewed": evaluate(model, checks_reviewed)}
+                           "checks_all": evaluate(model, checks_all), "checks_reviewed": evaluate(model, checks_reviewed),
+                           "human": evaluate(model, human_single)}
         report["rules"]["test_family"] = evaluate(rules, test)
         report["rules"]["test_family_raw"] = evaluate(rules, test_raw)
         targets = cfg["targets"]
@@ -283,6 +335,9 @@ def run(out_dir: Path = MODEL_DIR) -> dict:
         reached = (m["test_family"].get("macro_f1", 0) >= targets["test_family_macro_f1"]
                    and m["checks_reviewed"].get("n", 0) > 0
                    and m["checks_reviewed"]["accuracy"] >= targets["checks_accuracy"]
+                   and m["human"].get("n", 0) >= targets["human_checks_min_rows"]
+                   and m["human"].get("accuracy", 0) >= targets["human_checks_accuracy"]
+                   and set(PART4_TYPES) <= set(human_checks["type"])
                    and m["test_family"].get("macro_f1", 0) > report["rules"]["test_family"].get("macro_f1", 0))
         report["model"]["targets_reached"] = reached
         out_dir.mkdir(parents=True, exist_ok=True)
@@ -303,6 +358,7 @@ def write_report(report: dict, out_dir: Path):
              "`python -m pipelines.chat_model.train`.", "", "## Rule baseline (runtime fallback)", ""]
     lines += _section("Check set, all rows (LLM-drafted, not yet judged by people)", report["rules"]["checks_all"])
     lines += _section("Check set, rows people judged", report["rules"]["checks_reviewed"])
+    lines += _section("Independent human-written Part 4 holdout (single requests)", report["rules"]["human"])
     if "test_family" in report["rules"]:
         lines += _section("Held-out LLM family, after the LLM review", report["rules"]["test_family"])
         lines += _section("Held-out LLM family, raw (as generated)", report["rules"]["test_family_raw"])
@@ -322,6 +378,7 @@ def write_report(report: dict, out_dir: Path):
         lines += _section("Held-out LLM family, raw (as generated)", m["test_family_raw"])
         lines += _section("Check set, all rows", m["checks_all"])
         lines += _section("Check set, rows people judged", m["checks_reviewed"])
+        lines += _section("Independent human-written Part 4 holdout (single requests)", m["human"])
         lines += [f"Targets reached (and beats the rules): **{m['targets_reached']}**. Saved as `{m['saved_as']}` "
                   "(the app loads only `model.joblib`).", ""]
     else:

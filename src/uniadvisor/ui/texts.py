@@ -10,6 +10,7 @@ from uniadvisor.ui.catalog import Catalog
 from uniadvisor.data.school_docs import combo_label
 from uniadvisor.planner.chances import Chances
 from uniadvisor.planner.models import Candidate, Level, ListResult
+from uniadvisor.planner.strategy import in_safe_part
 
 LEVEL_VI = {Level.MO_UOC: "mơ ước", Level.THU_SUC: "thử sức", Level.VUA_SUC: "vừa sức", Level.AN_TOAN: "an toàn"}
 CITY_VI = {"HN": "Hà Nội", "HCM": "TP.HCM"}
@@ -22,18 +23,22 @@ LEVEL_HELP = {
     Level.VUA_SUC: "điểm của em đạt điểm chuẩn của cả hai năm, nhưng cao hơn chưa tới 2 điểm",
     Level.THU_SUC: "điểm của em đạt điểm chuẩn của một trong hai năm, hoặc thấp hơn điểm chuẩn thấp hơn chưa tới "
                    "1,5 điểm",
-    Level.MO_UOC: "điểm của em thấp hơn điểm chuẩn thấp hơn của hai năm từ 1,5 điểm trở lên",
+    Level.MO_UOC: "điểm của em thấp hơn điểm chuẩn thấp hơn của hai năm từ 1,5 đến 4 điểm",
 }
 
 HOW_THE_LIST_IS_BUILT = (
     "Danh sách gồm tối đa 15 nguyện vọng, xếp theo một thứ tự cố định. Mỗi chương trình được xếp mức "
     "(mơ ước, thử sức, vừa sức, an toàn) bằng cách so điểm của em với điểm chuẩn phương thức điểm thi THPT của hai "
-    "năm gần nhất; ứng dụng không dự đoán điểm chuẩn năm nay. Các nguyện vọng chưa an toàn của hướng học 1 đứng "
+    "năm gần nhất; ứng dụng không dự đoán điểm chuẩn năm nay. Chương trình có điểm chuẩn cao hơn điểm của em quá 4 điểm bị bỏ, "
+    "vì quá xa tầm với. Các nguyện vọng chưa an toàn của hướng học 1 đứng "
     "đầu, tiếp theo là của hướng học 2, các nguyện vọng an toàn luôn nằm cuối danh sách; trong mỗi phần, chương trình có điểm chuẩn cao hơn điểm "
     "của em nhiều hơn đứng trước. Lý do: em chỉ trúng tuyển "
     "nguyện vọng cao nhất mà em đạt, nên nguyện vọng an toàn đặt ở cuối để giữ chỗ chắc chắn mà không chặn các "
     "nguyện vọng em muốn hơn. Vì vậy, nếu em đạt một nguyện vọng vừa sức của hướng học 2, em sẽ trúng tuyển ở đó dù "
-    "bên dưới còn nguyện vọng an toàn của hướng học 1."
+    "bên dưới còn nguyện vọng an toàn của hướng học 1. Chương trình xét kết hợp (dấu *) mà em vượt điểm chuẩn từ 2 "
+    "điểm trở lên vẫn chỉ xếp mức vừa sức, nhưng được đặt cùng phần cuối với các nguyện vọng an toàn, theo độ khó thật. "
+    "Riêng ngành sư phạm: theo quy chế tuyển sinh 2026, các ngành đào tạo giáo viên chỉ được xét ở 5 nguyện vọng đầu, "
+    "nên danh sách có tối đa 5 nguyện vọng sư phạm và đặt chúng lên đầu."
 )
 
 EXTRA_POINTS_REMINDER = (
@@ -128,6 +133,9 @@ TUITION_BASIS_VI = {
     "semesters_per_year_stated": "quy đổi từ học phí mỗi học kỳ",
     "semesters_per_year_owner_rule": "ước tính từ học phí mỗi học kỳ, 2 học kỳ/năm",
     "course_years_stated": "quy đổi từ học phí toàn khóa",
+    "months_per_year_stated": "quy đổi từ học phí mỗi tháng, 10 tháng/năm",
+    "months_per_year_assumed": "ước tính từ học phí mỗi tháng, 10 tháng/năm",
+    "credits_per_year_owner_rule": "ước tính từ học phí mỗi tín chỉ, 35 tín chỉ/năm",
 }
 
 
@@ -175,6 +183,8 @@ def relation_text(c: Candidate, item_codes: list[str], catalog: Catalog) -> str:
         same_group = (c.program.moet_code or "")[:5] == item_codes[c.item_index][:5]
         return (f"cùng {'nhóm ngành' if same_group else 'lĩnh vực'} với {main} "
                 "(bổ sung để danh sách đủ an toàn)")
+    if not in_safe_part(c):                   # a further close ngành at another level (sư phạm limit, career list)
+        return f"ngành gần của {main}"
     return f"ngành gần của {main} (bổ sung cho đủ nguyện vọng an toàn)"
 
 
@@ -189,7 +199,9 @@ def wish_rows(result: ListResult, item_codes: list[str], catalog: Catalog) -> li
             "NV": w.nv,
             "Mức": LEVEL_VI[c.level],
             "Trường": c.program.school_name,
-            "Chương trình": c.program.name + (" *" if c.is_mixed_method else ""),
+            "Chương trình": c.program.name + (" *" if c.is_mixed_method else "") + (
+                " (cùng chương trình: mã " + ", ".join(pid.split(":", 1)[-1] for pid in c.other_codes) + ")"
+                if c.other_codes else ""),
             "Hướng học": f"{c.item_index + 1} · {relation_text(c, item_codes, catalog)}",
             "Điểm của em": student_score_text(c),
             **{f"Điểm chuẩn {year}": cutoff_text(c, year, with_year=False) or "chưa có" for year in years},
@@ -216,6 +228,10 @@ def note_texts(result: ListResult, item_codes: list[str], catalog: Catalog) -> l
             item, n = int(rest[0]), int(rest[1])
             out.append(f"Hướng học {item} ({catalog.label(item_codes[item - 1])}): thiếu {n} nguyện vọng vì không "
                        "còn chương trình phù hợp có điểm chuẩn.")
+        elif kind == "teacher_training_first":
+            out.append(f"Theo quy chế tuyển sinh 2026, ngành sư phạm chỉ được xét ở 5 nguyện vọng đầu, nên {rest[0]} "
+                       "nguyện vọng sư phạm được đặt lên đầu danh sách. Các nguyện vọng sau chỉ được xét khi em không "
+                       "đỗ các nguyện vọng sư phạm này.")
         elif kind == "short_list":
             out.append(f"Danh sách chỉ có {rest[0]} nguyện vọng (tối đa 15). Em có thể thêm ngành gần hoặc chọn "
                        "nhóm ngành rộng hơn để có thêm chương trình.")
@@ -233,6 +249,11 @@ EXCLUDED_VI = {
     "taken_by_item1": "đã có trong hướng học 1",
     "taken_by_item2": "đã có trong hướng học 2",
     "not_in_hn_hcm": "không học ở Hà Nội hoặc TP.HCM",
+    "too_hard": "điểm của em thấp hơn điểm chuẩn thấp hơn của hai năm quá 4 điểm, nên không xếp vào danh sách",
+    "over_budget": "học phí công bố cao hơn ngân sách em đặt (phương án Tiết kiệm nhất không chọn)",
+    "same_program_other_code": "cùng chương trình với một mã khác đã có trong danh sách",
+    "teacher_training_limit": "quy chế chỉ cho xét ngành sư phạm ở 5 nguyện vọng đầu, và danh sách đã đủ 5 nguyện vọng "
+                              "sư phạm",
 }
 
 

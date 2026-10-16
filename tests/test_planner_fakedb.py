@@ -34,8 +34,10 @@ def test_loader_keeps_only_in_scope_programs_with_city(data):
 def test_group_item_with_close_nganh(data):
     r = build(data, [ShortlistItem("74801", close_codes=("7480201",))])
     by_id = {w.candidate.program.id: w.candidate for w in r.wishes}
-    assert set(by_id) == {"HNA:CS1", "HNA:SE", "HCB:KTPM", "MIL:CS", "HNA:IT2"}
-    assert ("HNA:AI", "no_cutoff") in {(e.program_id, e.reason) for e in r.excluded}
+    assert set(by_id) == {"HNA:CS1", "HNA:SE", "HCB:KTPM", "HNA:IT2"}
+    reasons = {(e.program_id, e.reason) for e in r.excluded}
+    assert ("HNA:AI", "no_cutoff") in reasons
+    assert ("MIL:CS", "too_hard") in reasons                  # 27.5 / 27.9 against 22.0: over 4 points below the lower
     # IT2 accepts A00 and D01. D01 = 23.0 vs 2025 single cutoff 23.5 and 2026 D01 cutoff 24.0 (margin -1.0 to the
     # higher) beats A00 = 22.0 vs 23.5 / 23.0 (margin -1.5)
     it2 = by_id["HNA:IT2"].student
@@ -44,13 +46,14 @@ def test_group_item_with_close_nganh(data):
     assert by_id["HCB:KTPM"].is_mixed_method and by_id["HCB:KTPM"].relation == "group"
     assert by_id["HNA:SE"].student.level == Level.VUA_SUC                     # one year: 22.0 used as both
     assert by_id["HNA:IT2"].relation == "close"
-    assert "short_list:5" in r.notes
+    assert "short_list:4" in r.notes
 
 
 def test_health_floors(data):
     r = build(data, [ShortlistItem("7720101", close_codes=("7720301",))])
     levels = {w.candidate.program.id: w.candidate.level for w in r.wishes}
-    assert levels == {"HCB:YK": Level.MO_UOC, "HCB:DD": Level.AN_TOAN}       # B00 = 21.0 vs 27/26.5 and 19/18
+    assert levels == {"HCB:DD": Level.AN_TOAN}                # B00 = 21.0 vs 19/18; Y khoa 27/26.5 is 5.5 above: too_hard
+    assert ("HCB:YK", "too_hard") in {(e.program_id, e.reason) for e in r.excluded}
     weak = Profile(scores={"TO": 6.5, "HO": 6.5, "SI": 6.0}, home_province="Nghệ An")
     r = build(data, [ShortlistItem("7720101", close_codes=("7720301",))], weak)
     assert [w.candidate.program.id for w in r.wishes] == ["HCB:DD"]          # 19.0 >= 17.0 (other health)
@@ -62,11 +65,13 @@ def test_teacher_training_floor(data):
     r = build(data, [ShortlistItem("7140209")], weak)
     assert r.wishes == [] and r.excluded[0].reason == "below_floor"
     kv1 = Profile(scores=weak.scores, home_province="Nghệ An", area="KV1")                  # 18.5 + 0.75 >= 19.0
-    assert [w.candidate.program.id for w in build(data, [ShortlistItem("7140209")], kv1).wishes] == ["HCB:SPT"]
+    r = build(data, [ShortlistItem("7140209")], kv1)
+    assert r.wishes == [] and r.excluded[0].reason == "too_hard"       # past the floor, but 26 / 25 against 19.25
 
 
 def test_budget_and_home_city(data):
-    student = Profile(scores=STUDENT.scores, home_province="Nghệ An", budget_trieu=30, near_home=True)
+    strong = {"TO": 9.5, "LI": 9.0, "HO": 9.0, "N1": 8.0, "VA": 7.0, "SI": 6.0}          # 27.5: the military course is in reach
+    student = Profile(scores=strong, home_province="Nghệ An", budget_trieu=30, near_home=True)
     r = build(data, [ShortlistItem("7480101")], student)
     by_id = {w.candidate.program.id: w.candidate for w in r.wishes}
     assert by_id["HNA:CS1"].over_budget and by_id["HNA:CS1"].school_score == 90        # 35 > 30, within 20%

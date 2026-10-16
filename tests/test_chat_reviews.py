@@ -3,7 +3,7 @@
 import pandas as pd
 import pytest
 
-from pipelines.chat_model.train import apply_judgements, apply_reviews, judgement, load_checks, review_rates
+from pipelines.chat_model.train import apply_judgements, apply_reviews, judgement, load_checks, load_human_checks, review_rates
 
 
 @pytest.mark.parametrize("value, expected", [
@@ -73,3 +73,26 @@ def test_check_file_has_the_judgement_columns():
     checks = load_checks()
     assert {"danh_gia", "loai_dung", "ghi_chu", "reviewed"} <= set(checks.columns)
     assert len(checks) == 190 and "text" in checks.columns               # the UTF-8 marker is not part of a name
+
+
+def test_part4_human_holdout_loader_keeps_reviewed_rows_and_marks_multi_requests(tmp_path):
+    path = tmp_path / "part4_human.csv"
+    pd.DataFrame([
+        ("a1", "học phí NV3 bao nhiêu", "ask_tuition", '["ask_tuition"]', "{}", "no", "w1", "r1", "reviewed", ""),
+        ("a2", "toán 8 rồi học phí NV3", "ask_tuition", '["change_score", "ask_tuition"]', "{}", "no", "w2", "r1", "reviewed", ""),
+        ("a3", "dự báo điểm chuẩn", "out_forecast", '["out_forecast"]', "{}", "no", "w1", "r1", "draft", ""),
+    ], columns=["id", "text", "type", "expected_requests", "expected_values", "needs_clarification", "writer",
+                "reviewer", "status", "note"]).to_csv(path, index=False, encoding="utf-8-sig")
+    loaded = load_human_checks(path)
+    assert list(loaded["id"]) == ["a1", "a2"] and list(loaded["single_request"]) == [True, False]
+    assert load_human_checks(tmp_path / "missing.csv").empty
+
+
+def test_part4_human_holdout_loader_rejects_unknown_labels(tmp_path):
+    path = tmp_path / "part4_human.csv"
+    pd.DataFrame([
+        ("a1", "x", "not_a_type", '["not_a_type"]', "{}", "no", "w1", "r1", "reviewed", ""),
+    ], columns=["id", "text", "type", "expected_requests", "expected_values", "needs_clarification", "writer",
+                "reviewer", "status", "note"]).to_csv(path, index=False, encoding="utf-8-sig")
+    with pytest.raises(ValueError, match="unknown types"):
+        load_human_checks(path)

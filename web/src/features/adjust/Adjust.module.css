@@ -1,0 +1,20 @@
+.sections { display: flex; flex-direction: column; gap: var(--space-4); }
+.section { display: flex; flex-direction: column; gap: var(--space-3); padding-bottom: var(--space-4); border-bottom: var(--border) dashed var(--line); }
+.section:last-child { border-bottom: 0; }
+.h { font-size: 1.0625rem; }
+.school { border: var(--border) solid var(--line); border-radius: var(--radius); background: var(--surface-2); }
+.school summary {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px 14px; cursor: pointer; font-weight: 600;
+  list-style: none;
+}
+.school summary::-webkit-details-marker { display: none; }
+.school[open] summary { border-bottom: 1px solid var(--line); }
+.dot { width: 10px; height: 10px; border-radius: 50%; background: var(--primary); flex: none; }
+.schoolBody { display: flex; flex-direction: column; gap: var(--space-3); padding: 14px; }
+.removed { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+.closeBox { display: flex; flex-direction: column; gap: var(--space-2); padding: 12px; border-radius: var(--radius); background: var(--surface-2); }
+.chip {
+  display: inline-flex; align-items: center; gap: 6px; padding: 4px 4px 4px 12px; border-radius: var(--radius-pill);
+  background: var(--primary-soft); color: var(--primary-soft-ink); font-weight: 600; font-size: var(--fs-sm);
+}
+.chip button { width: 24px; height: 24px; display: grid; place-items: center; border-radius: 50%; border: 0; cursor: pointer; background: transparent; color: inherit; }

@@ -7,17 +7,21 @@ to data/uniadvisor.db.
 from __future__ import annotations
 
 import os
+import warnings
 from dataclasses import dataclass
 from functools import cached_property
 from pathlib import Path
+from threading import Lock
 
 from uniadvisor import db
 from uniadvisor.ui.catalog import Catalog
 from uniadvisor.ui.facts import FactsIndex
 from uniadvisor.ui.plan_file import Known
 from uniadvisor.ui.state import PlanState
+from uniadvisor.chat.changes import ChangeError, Item, apply, describe
 from uniadvisor.chat.classify import Classifier, load_classifier
 from uniadvisor.chat.context import ChatContext, Indexes
+from uniadvisor.chat.diff import describe_diff
 from uniadvisor.config import (
     load_data_config, load_list_config, load_provinces, load_rules, province_canonical, province_names,
 )
@@ -33,6 +37,7 @@ from uniadvisor.majors.score import DataScorer
 
 ENV_DB = "UNIADVISOR_DB"
 MODEL_DIR = ROOT / "models" / "suggester"   # learned major suggester (when ready)
+_DEFAULT_DB_BUILD_LOCK = Lock()
 FURTHER_CLOSE = 5          # next closest ngành used for the an toàn top-up (config/facts.yaml closeness.further)
 
 
@@ -40,12 +45,37 @@ def db_path() -> Path:
     return Path(os.environ.get(ENV_DB) or DB_PATH)
 
 
+def _build_default_db(path: Path) -> None:
+    """Build the checkout's default database from the local pipeline inputs, only when it is absent."""
+    # Kept lazy: starting the app with an existing DB never imports the offline builder.
+    from pipelines.database.build import build
+
+    build(out_db=path)
+
+
 def ensure_db() -> Path:
-    """The database path; a clear error when it is missing (it is built offline by pipelines.database.build)."""
+    """Return a usable database, building the checkout default from local inputs once when needed.
+
+    A caller that explicitly sets ``UNIADVISOR_DB`` owns that path. We therefore never create a database there:
+    a typo or an unavailable mounted file should remain an actionable error instead of silently producing new data.
+    """
     path = db_path()
-    if not path.exists():
-        raise FileNotFoundError(f"The database {path} is missing: put a built database there or set {ENV_DB} "
-                                "(README, \"Run locally\").")
+    if path.is_file():
+        return path
+    if path.exists():
+        raise FileNotFoundError(f"The database path {path} exists but is not a file.")
+    if os.environ.get(ENV_DB):
+        raise FileNotFoundError(f"The database {path} set by {ENV_DB} is missing. Set {ENV_DB} to a built database "
+                                "or remove it to build the local default database.")
+
+    # Streamlit can initialise more than one session concurrently. The in-process lock prevents one session from
+    # replacing a database that another session is currently building.
+    with _DEFAULT_DB_BUILD_LOCK:
+        if path.is_file():
+            return path
+        _build_default_db(path)
+        if not path.is_file():
+            raise RuntimeError(f"The local database build completed without creating {path}.")
     return path
 
 
@@ -98,6 +128,9 @@ class AppData:
                 change_model = None
             suggester = DataScorer.load(conn, catalog) if "nganh_interest" in tables else None
             learned = LearnedScorer.load(MODEL_DIR, suggester) if suggester is not None else None
+            why = LearnedScorer.mismatch(MODEL_DIR, suggester) if suggester is not None else None
+            if why:                     # not silent: the app would quietly fall back to the data scores
+                warnings.warn(f"major suggester: the learned model is not used, {why}", stacklevel=2)
             if learned is not None and learned.info.get("ready"):     # pipelines/majors_model/train.py decides (held-out family)
                 suggester = learned
             career_scorer = DataScorer.load(conn, catalog, level="nganh") if "nganh_interest" in tables else None
@@ -188,6 +221,41 @@ class AppData:
         return build_list(state.to_profile(), self.shortlist_items(state), self.programs,
                           self.catalog.nganh_parents(), self.rules, self.list_cfg, self.province_city,
                           self.admission_year)
+
+    def list_for(self, state: PlanState) -> ListResult | None:
+        """The list of a state, or None while the state still lacks what the list needs."""
+        return None if state.missing_for_list() else self.build_list(state)
+
+    def apply_items(self, start: PlanState, items: list[Item], before: PlanState | None = None) -> "ChangeResult":
+        """Apply confirmed changes in order to `start` (the state after any undo). `before` is the state the student
+        saw before the whole step (default `start`); the 'what changed' text compares it with the result. `undo` items
+        are the caller's business: the caller keeps the history. A change that does not make sense is reported in
+        `errors` and the others still apply."""
+        before = start if before is None else before
+        ctx = self.chat_context(start, self.list_for(start))
+        new, done, errors = start, [], []
+        for item in items:
+            if item.kind == "undo":
+                continue
+            try:
+                new = apply(new, item, ctx)
+                done.append(describe(item, ctx))
+            except ChangeError as e:
+                errors.append(f"{describe(item, ctx)}: {e}")
+        applied = len(done) > 0
+        diff = describe_diff(self.list_for(before), self.list_for(new), before, new) if applied else ""
+        return ChangeResult(new, done, errors, diff, applied)
+
+
+@dataclass
+class ChangeResult:
+    """What one step of changes did: the new state, the descriptions of the changes done, the errors, and the
+    sentence saying how the list changed."""
+    state: PlanState
+    done: list[str]
+    errors: list[str]
+    diff: str
+    applied: bool
 
 
 # Compulsory subjects first, then the usual elective subjects, then foreign languages; the rest by name.

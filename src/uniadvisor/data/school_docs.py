@@ -98,6 +98,8 @@ ANY_TWO_SUBJECTS = {"TO": "Toán", "VA": "Văn", "LI": "Lí", "HO": "Hóa", "SI"
                     "GDKTPL": "KTPL", "TI": "Tin", "CNCN": "CN công nghiệp", "CNNN": "CN nông nghiệp", "N1": "Anh",
                     "N2": "Nga", "N3": "Pháp", "N4": "Trung", "N5": "Đức", "N6": "Nhật", "N7": "Hàn"}
 ANY_TWO = re.compile(r"^(TO|VA)\+2$")          # "TO+2": Toán and any two other subjects of the exam
+# "VA+N1+1": Văn, Tiếng Anh and any one other subject ("Văn, Anh, 1 môn bất kì")
+ANY_ONE = re.compile(r"^(TO|VA)\+(%s)\+1$" % "|".join(sorted(ANY_TWO_SUBJECTS, key=len, reverse=True)))
 
 
 def any_two(anchor: str, known: set[str] | None = None) -> dict[str, list[str]]:
@@ -108,10 +110,18 @@ def any_two(anchor: str, known: set[str] | None = None) -> dict[str, list[str]]:
             for i, a in enumerate(others) for b in others[i + 1:]}
 
 
+def any_one(anchor: str, fixed: str, known: set[str] | None = None) -> dict[str, list[str]]:
+    """'VA', 'N1' -> the sets of `any_two('VA')` that contain 'N1': the anchor, the fixed subject and one other exam
+    subject, with the same codes `any_two` gives them (so a set named by both rules is one combination)."""
+    if fixed == anchor:
+        return {}
+    return {c: s for c, s in any_two(anchor, known).items() if fixed in s}
+
+
 def load_program_combos(curated: Path) -> dict[tuple[str, str], tuple[list[str], str]]:
     """(school, program code) -> (combination tokens, source_file) from program_combos.csv: the combinations a
     reviewed list gives for a program whose combinations the sites do not give (2026-10-09). A token is a
-    combination code or an "anchor + any 2" rule (`TO+2`, `VA+2`)."""
+    combination code or a rule: "anchor + any 2" (`TO+2`, `VA+2`) or "anchor + a subject + any 1" (`VA+N1+1`)."""
     out = {}
     for r in _read(curated, "program_combos.csv").itertuples():
         tokens = [t.strip().upper() for t in r.combos.split(";") if t.strip()]
@@ -127,13 +137,16 @@ def _year(school_year: str) -> int | None:
     return int(m.group(1)) if m else None
 
 
-UNIT_VI = {"per_year": "năm", "per_semester": "học kỳ", "per_course": "khóa", "per_credit": "tín chỉ"}
+UNIT_VI = {"per_year": "năm", "per_semester": "học kỳ", "per_course": "khóa", "per_credit": "tín chỉ", "per_month": "tháng"}
 # How a per-year amount was obtained from another unit; NULL in the database when
 # the document states the amount per year.
 FACTOR_BASES = {
     "semesters_per_year_stated",       # per semester x the semesters per year the document states
     "semesters_per_year_owner_rule",   # per semester x 2 (the document does not say)
     "course_years_stated",             # whole course / the course years the document states
+    "months_per_year_stated",          # per month x 10, the document states the months per year (two semesters of 5 months)
+    "months_per_year_assumed",         # per month x 10, the document does not say (the stated cases of other schools: 10 months a year)
+    "credits_per_year_owner_rule",     # per credit x 35 (owner 2026-10-16: the document gives no credits per year or course years)
     "free",                            # the document says the program is free (miễn học phí): 0 per year
 }
 
@@ -207,7 +220,9 @@ def load_tuition(curated: Path, programs: dict[str, dict], review) -> dict[str, 
             lo, hi = round(lo * f, -3), round(hi * f, -3)
             raw += f" x {r.per_year_factor.strip()} ({basis})"
         raw += f" ({r.school_year}, {r.source_file})"
-        matched = [pid for pid in by_school.get(school, []) if re.fullmatch(pattern, programs[pid]["program_code"])]
+        # a code that two programs share is told apart by the id suffix (QSB:108 and QSB:108~2)
+        matched = [pid for pid in by_school.get(school, [])
+                   if re.fullmatch(pattern, programs[pid]["program_code"]) or re.fullmatch(pattern, pid.split(":", 1)[1])]
         if not matched:
             review.add("school_tuition_unmatched", school_code=school, programs=r.program_pattern,
                        source_file=r.source_file, note=r.note)
@@ -227,33 +242,35 @@ def _file_part(source_file: str) -> str:
     return re.sub(r"\s+(p|tr|trang|bang)\.?\s*\S+$", "", source_file.strip(), flags=re.IGNORECASE)
 
 
-def load_employment(curated: Path, programs: dict[str, dict], review, manual: Path | None = None) -> list[tuple]:
-    """Rows (school_code, moet_code, graduation_year, rate, source_file, reviewed_by, reviewed_on, note) for
-    school_employment. A row is kept when its rate is 0-1, its year and source file are given and the school offers
+def load_employment(curated: Path, programs: dict[str, dict], review, columns: list[str],
+                    manual: Path | None = None) -> list[dict]:
+    """Rows of table school_employment (`columns`, as the table has them) read from school_employment.csv, whose header
+    must be those columns. A row is kept when its rate is 0-1, its year and source file are given and the school offers
     a program of that ngành; the others go to review. A source file not found under `manual` is listed for review
     but kept (tests use invented paths)."""
+    from uniadvisor.data import tables
     offered = {(p["school_code"], p["moet"]) for p in programs.values() if p.get("moet")}
-    df = _read(curated, "school_employment.csv")
+    rows = tables.read_table_csv(curated / tables.CURATED_TABLES["school_employment"], "school_employment", columns)
     out, seen = [], set()
-    for r in df.itertuples():
-        school, moet, year = r.school_code.strip().upper(), r.moet_code.strip(), r.graduation_year.strip()
+    for r in rows:
+        school, moet, year = r["school_code"].strip().upper(), r["moet_code"].strip(), r["graduation_year"].strip()
         try:
-            rate = float(r.rate)
+            rate = float(r["rate"])
         except ValueError:
             rate = None
         issue = ("rate is not a number from 0 to 1" if rate is None or not 0 <= rate <= 1 else
                  "graduation_year missing" if not re.fullmatch(r"\d{4}", year) else
-                 "source_file missing" if not r.source_file.strip() else
+                 "source_file missing" if not r["source_file"].strip() else
                  "the school offers no program of this ngành" if (school, moet) not in offered else
                  "same school, ngành and year as an earlier row" if (school, moet, year) in seen else None)
         if issue:
-            review.add("school_employment_rows", school_code=school, moet_code=moet, rate=r.rate,
-                       graduation_year=year, source_file=r.source_file, issue=issue)
+            review.add("school_employment_rows", school_code=school, moet_code=moet, rate=r["rate"],
+                       graduation_year=year, source_file=r["source_file"], issue=issue)
             continue
         seen.add((school, moet, year))
-        if manual is not None and not (manual / _file_part(r.source_file)).exists():
-            review.add("school_employment_rows", school_code=school, moet_code=moet, rate=r.rate,
-                       graduation_year=year, source_file=r.source_file, issue="source file not found (row kept)")
-        out.append((school, moet, int(year), rate, r.source_file.strip(), r.reviewed_by.strip() or None,
-                    r.reviewed_on.strip() or None, r.note.strip() or None))
+        if manual is not None and not (manual / _file_part(r["source_file"])).exists():
+            review.add("school_employment_rows", school_code=school, moet_code=moet, rate=r["rate"],
+                       graduation_year=year, source_file=r["source_file"], issue="source file not found (row kept)")
+        out.append({**r, "school_code": school, "moet_code": moet, "graduation_year": int(year), "rate": rate,
+                    "source_file": r["source_file"].strip(), "source_id": r["source_id"].strip() or SOURCE_ID})
     return out

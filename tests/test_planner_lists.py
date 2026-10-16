@@ -53,6 +53,18 @@ def test_cost_list_prefers_known_cheaper_programs(data):
     assert known(cost) <= known(nganh) or len(known(cost)) > len(known(nganh))
 
 
+def test_cost_list_never_picks_a_program_over_the_budget(data):
+    """Tiết kiệm nhất drops programs whose fee is above the budget (2026-10-15); the other lists only rank them."""
+    budget = 30.0                                              # the shortlist's programs cost 28 and 35 triệu
+    recs = {r.priority: r for r in run(data, profile=replace(STUDENT, budget_trieu=budget))}
+    over = lambda r: [w for w in r.result.wishes if (w.candidate.program.tuition_max_vnd or 0) > budget * 1_000_000]
+    assert not over(recs[Priority.COST])
+    assert any(e.reason == "over_budget" for e in recs[Priority.COST].result.excluded)
+    assert over(recs[Priority.NGANH])                          # the other lists still show them, flagged
+    no_budget = {r.priority: r for r in run(data)}
+    assert not any(e.reason == "over_budget" for e in no_budget[Priority.COST].result.excluded)
+
+
 def test_nganh_list_takes_the_main_nganh_first(data):
     facts = ListFacts(closeness={("7480101", "7480201"): 0.8}, children={"74801": ("7480101", "7480103")})
     rec = next(r for r in run(data, facts) if r.priority is Priority.NGANH)
@@ -157,14 +169,27 @@ def test_career_list_needs_answers():
     assert usable(Priority.MON, answered) is Priority.MON                # a chosen Hợp môn list stays
 
 
-def test_career_list_breaks_ties_by_employment_rate(data):
-    """Career fit first; among programs of one ngành, the school's employment rate, unknown last (2026-10-09)."""
+def test_career_list_ignores_employment_rate(data):
+    """Career fit only (2026-10-15): few schools have a rate, so it must not order programs of one ngành."""
     facts = ListFacts(career={"7480201": 1.0, "7480101": 0.2, "7480103": 0.1})
     rec = run(data, facts)[1]
     key = pick_key(Priority.CAREER, SHORTLIST, facts, STUDENT)
     rated = lambda c, job: replace(c, program=replace(c.program, employment=job))
     c = next(c for c in rec.result.candidates if c.program.moet_code == "7480101")
     low, high, unknown = rated(c, (0.80, 2024)), rated(c, (0.95, 2024)), rated(c, None)
-    assert sorted([unknown, low, high], key=key) == [high, low, unknown]
+    assert key(low) == key(high) == key(unknown)
     better_fit = next(c for c in rec.result.candidates if c.program.moet_code == "7480201" and not c.favorite)
-    assert key(rated(better_fit, None)) < key(high)            # a rate never outranks a better career fit
+    assert key(better_fit) < key(high)                         # the better career fit still comes first
+
+
+def test_the_fee_corner_is_affordability_and_needs_a_budget(data):
+    """1 within the budget, budget / fee above it; without a budget there is nothing to be affordable against."""
+    rec = run(data)[0]
+    sure = type(rec.chances)(rec.chances.score_shift, rec.chances.at_least, 0.0,
+                             tuple(1.0 if i == 0 else 0.0 for i in range(len(rec.chances.admitted))))
+    fee = rec.result.wishes[0].candidate.program.tuition_max_vnd
+    assert pentagon(rec.result, sure, STUDENT, SHORTLIST, ListFacts()).values["hoc_phi"] is None
+    tight = replace(STUDENT, budget_trieu=fee / 2_000_000)                    # half the fee
+    assert pentagon(rec.result, sure, tight, SHORTLIST, ListFacts()).values["hoc_phi"] == pytest.approx(0.5)
+    roomy = replace(STUDENT, budget_trieu=fee / 1_000_000 + 10)
+    assert pentagon(rec.result, sure, roomy, SHORTLIST, ListFacts()).values["hoc_phi"] == 1.0

@@ -6,22 +6,22 @@ Hand-written checks: 8/8.
 
 | Family | texts | precision | texts with a guess | guesses per text |
 |---|---|---|---|---|
-| aya, all | 1712 | 68.7% | 98% | 3.90 |
-| aya, subjects, topics, activities (q1-q7) | 1712 | 70.1% | 95% | 2.94 |
-| aya, place and way of working (q8-q11) | 1712 | 72.5% | 53% | 0.71 |
-| aya, conditions not wanted (q12) | 1712 | 40.5% | 16% | 0.25 |
-| gemma, all | 518 | 54.1% | 78% | 1.86 |
-| gemma, subjects, topics, activities (q1-q7) | 518 | 59.3% | 66% | 1.31 |
-| gemma, place and way of working (q8-q11) | 518 | 71.6% | 25% | 0.30 |
-| gemma, conditions not wanted (q12) | 518 | 7.5% | 21% | 0.26 |
-| mistral, all | 496 | 37.7% | 97% | 6.30 |
-| mistral, subjects, topics, activities (q1-q7) | 496 | 42.7% | 78% | 3.20 |
-| mistral, place and way of working (q8-q11) | 496 | 49.7% | 53% | 1.46 |
-| mistral, conditions not wanted (q12) | 496 | 17.1% | 78% | 1.63 |
-| qwen, all | 1879 | 60.6% | 94% | 3.34 |
-| qwen, subjects, topics, activities (q1-q7) | 1879 | 68.2% | 83% | 2.19 |
-| qwen, place and way of working (q8-q11) | 1879 | 72.0% | 39% | 0.60 |
-| qwen, conditions not wanted (q12) | 1879 | 17.3% | 33% | 0.54 |
+| aya, all | 1688 | 68.5% | 99% | 3.90 |
+| aya, subjects, topics, activities (q1-q7) | 1688 | 69.9% | 95% | 2.94 |
+| aya, place and way of working (q8-q11) | 1688 | 72.3% | 52% | 0.71 |
+| aya, conditions not wanted (q12) | 1688 | 40.5% | 16% | 0.25 |
+| gemma, all | 1469 | 57.2% | 75% | 1.90 |
+| gemma, subjects, topics, activities (q1-q7) | 1469 | 61.2% | 63% | 1.34 |
+| gemma, place and way of working (q8-q11) | 1469 | 70.5% | 27% | 0.33 |
+| gemma, conditions not wanted (q12) | 1469 | 15.6% | 20% | 0.24 |
+| mistral, all | 484 | 37.7% | 97% | 6.26 |
+| mistral, subjects, topics, activities (q1-q7) | 484 | 42.8% | 79% | 3.18 |
+| mistral, place and way of working (q8-q11) | 484 | 49.6% | 53% | 1.46 |
+| mistral, conditions not wanted (q12) | 484 | 17.2% | 78% | 1.62 |
+| qwen, all | 1840 | 60.7% | 94% | 3.34 |
+| qwen, subjects, topics, activities (q1-q7) | 1840 | 68.5% | 83% | 2.19 |
+| qwen, place and way of working (q8-q11) | 1840 | 71.9% | 39% | 0.61 |
+| qwen, conditions not wanted (q12) | 1840 | 17.3% | 33% | 0.55 |
 
 Hand-written texts (drafted checks): expected options, and what the reader found.
 

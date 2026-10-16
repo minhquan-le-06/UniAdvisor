@@ -79,6 +79,8 @@ def test_tuition_text_marks_converted_and_free():
     assert tuition_text(c) == "27 triệu/năm (năm 2026)"
     c.program = replace(p, tuition_basis="semesters_per_year_owner_rule")
     assert tuition_text(c) == "khoảng 27 triệu/năm (năm 2026, ước tính từ học phí mỗi học kỳ, 2 học kỳ/năm)"
+    c.program = replace(p, tuition_basis="credits_per_year_owner_rule")
+    assert tuition_text(c) == "khoảng 27 triệu/năm (năm 2026, ước tính từ học phí mỗi tín chỉ, 35 tín chỉ/năm)"
     c.program = replace(p, tuition_min_vnd=0, tuition_max_vnd=0, tuition_year=None, tuition_basis="free")
     assert tuition_text(c) == "miễn học phí"
 
@@ -119,7 +121,7 @@ def test_employment_text(setting):
 
 
 def test_disliked_answers_read_as_dislikes_in_reasons():
-    from uniadvisor.ui.discover import _reason_label
+    from uniadvisor.ui.quiz import reason_label as _reason_label
     from uniadvisor.majors.questions import load_questionnaire
     qn = load_questionnaire()
     label = {(q.id, o.code): _reason_label(q, o) for q in qn.questions for o in q.options}

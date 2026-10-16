@@ -61,6 +61,14 @@ CUTOFF_COMPARED = _rx(r"\d+ (diem )?(cua )?(truong )?.+ khong (cao )?(bang|nhu) 
 ADDED = _rx(r"\bcong (diem|cho|them|e|em|\d)")            # "trường cộng điểm cho em": extra points, not own score
 UNDO_LIKE = _rx(r"\b(lam lai|chon lai|tro lai)\b")
 LEVEL_Q = _rx(r"\b(la gi|nghia la|nghia gi|la sao|hieu the nao|nghia la sao|y nghia|la the nao)\b")
+COMBOS = _rx(r"\b(to hop|mon xet tuyen|xet to hop|xet mon nao|thi mon nao)\b")
+EMPLOYMENT = _rx(r"\b(ty le .*viec lam|co viec lam.*bao nhieu|viec lam.*bao nhieu|ty le co viec)\b")
+PROCEDURE = _rx(r"\b(thu tuc|ho so|dang ky|dang ki|khi nao .*nop|han nop|lich tuyen sinh|ngay .*tuyen sinh|"
+                r"xac nhan nhap hoc|nhap hoc.*khi nao)\b")
+OTHER_METHOD = _rx(r"\b(xet hoc ba|hoc ba|danh gia nang luc|dgnl|danh gia tu duy|chung chi.*xet|xet.*chung chi|"
+                   r"xet tuyen som|tuyen thang|thi nang khieu|phuong thuc xet)\b")
+FORECAST = _rx(r"\b(du bao|doan|nam nay.*(diem|chuan)|diem chuan.*nam nay|se (tang|giam|len|xuong))\b")
+ADVICE = _rx(r"\b(nen chon|chon truong nao|chon nganh nao|tu van .*chon|co nen hoc|nen hoc gi)\b")
 
 
 class RuleClassifier:
@@ -85,12 +93,34 @@ class RuleClassifier:
             return "rerank", 0.9
         if find_levels(text) and (question or LEVEL_Q.search(key)):
             return "ask_level", 0.9
-        if question and has_nv:
-            return "ask_why_nv", 0.8
         if question and (has_school or "truong" in key) and WHY_NOT.search(key):
             return "ask_why_not", 0.8
         if len(nganh) >= 2 and COMPARE.search(key):
             return "ask_compare", 0.8
+        # Questions that the app deliberately does not answer from memory or a general web search.  They must win
+        # over overlapping words such as "điểm chuẩn", "IELTS" and "chọn" below.
+        if question and PROCEDURE.search(key):
+            return "out_procedure", 0.9
+        if question and OTHER_METHOD.search(key):
+            return "out_admission_method", 0.9
+        if question and FORECAST.search(key):
+            return "out_forecast", 0.9
+        if question and ADVICE.search(key):
+            return "out_advice", 0.8
+        # Read-only data questions must be recognised before change requests: “Học phí NV3 bao nhiêu?” is not a
+        # budget update and “Điểm chuẩn NV3?” is not a personal cutoff correction.
+        if question and EXTRA.search(key):
+            return "ask_extra_policy", 0.8
+        if question and BUDGET.search(key):
+            return "ask_tuition", 0.8
+        if question and EMPLOYMENT.search(key):
+            return "ask_employment", 0.8
+        if question and COMBOS.search(key):
+            return "ask_combos", 0.8
+        if question and CUTOFF.search(key):
+            return "ask_cutoff", 0.8
+        if question and has_nv:
+            return "ask_why_nv", 0.8
         if nganh and WHAT_IS.search(key) and not REPLACE.search(key.split("hoc gi")[0]):
             return "ask_what_is", 0.7
         if RESTORE.search(key) and (has_school or "nguyen vong" in key or re.search(r"\bnv\b", key)):

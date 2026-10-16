@@ -5,7 +5,7 @@ useless wishes (as in the list bench).
 
     python -m pipelines.benchmarks.bench_lists        # -> data/bench_lists.md
 
-The bench students did not answer the 12 questions, so their second list is Hợp môn học nhất (Nghề nghiệp hứa hẹn needs the
+The bench students did not answer the 12 questions, so their second list is Hợp môn học nhất (Hợp sở thích nhất needs the
 answers) and the Nghề nghiệp corner has no data; `run` takes career scores for tests.
 """
 
@@ -14,7 +14,7 @@ from __future__ import annotations
 from collections import defaultdict
 from dataclasses import dataclass
 
-from pipelines.benchmarks.bench import CASES, TOTALS, USELESS_MARGIN, shortlist, student
+from pipelines.benchmarks.bench import CASES, TOTALS, shortlist, student, useless_counts
 from uniadvisor.planner.lists import ListFacts, Priority, overlap, recommend
 from uniadvisor.planner.models import Level
 
@@ -54,8 +54,7 @@ def run(programs, nganh_parent, close, rules, list_cfg, provinces, year, model, 
                     mine = r.pentagon.values.get(corner) if r.pentagon else None
                     best = None if mine is None else mine >= max(v for v in vals if v is not None) - 1e-9
                     ws = [w.candidate for w in r.result.wishes]
-                    useless = sum(any(later.gap > earlier.gap + USELESS_MARGIN for earlier in ws[:j])
-                                  for j, later in enumerate(ws))
+                    useless = useless_counts(ws)[0]
                     base_safe = sum(q[Level.AN_TOAN.value] for q in
                                     list_cfg["quotas"]["one_item" if len(items) == 1 else "two_items"].values())
                     moved = sum(q[Level.AN_TOAN] for q in r.quotas) - base_safe
@@ -74,7 +73,7 @@ def render(rows: list[Row], floor: float) -> str:
              f"Floor: chance of no admission at most {floor:.0%} at the score entered. The bench students did not "
              "answer the 12 questions: their second list is Hợp môn học nhất and the Nghề nghiệp corner has no data.", "",
              "| total | list | meets floor | floor moved slots (mean) | wider wishes (mean) | no admission: mean / worst"
-             " | best on its own corner | useless (mean) | overlap with the others (mean) |",
+             " | best on its own corner | useless, same item (mean) | overlap with the others (mean) |",
              "|---|---|---|---|---|---|---|---|---|"]
     groups = defaultdict(list)
     for r in rows:
@@ -92,12 +91,15 @@ def render(rows: list[Row], floor: float) -> str:
 
 
 def main():
+    import sys
+
     from uniadvisor import db
     from uniadvisor.ui.service import AppData
     from uniadvisor.config import load_data_config, load_list_config, load_provinces, load_rules
     from uniadvisor.paths import BUILD_DIR
     from uniadvisor.planner.chances import ChangeModel
     from uniadvisor.planner.repository import load_nganh_parents, load_programs
+    sys.stdout.reconfigure(encoding="utf-8")
 
     d = AppData.load()
     conn = db.connect()

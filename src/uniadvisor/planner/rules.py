@@ -79,6 +79,11 @@ def level_for(score: float, cutoffs: list[float], safe_margin: float, dream_gap:
     return Level.MO_UOC
 
 
+def too_far_above(score: float, cutoffs: list[float], dream_max_gap: float) -> bool:
+    """True when the student is more than `dream_max_gap` below the lower of the cutoffs: out of reach, not a dream."""
+    return _r(min(cutoffs) - score) > _r(dream_max_gap)
+
+
 def cutoffs_for_combo(cutoffs: tuple[Cutoff, ...], combo: str) -> dict[int, Cutoff]:
     """For each year, the cutoff that applies to `combo`: its per-combination cutoff, else the year's single one."""
     out: dict[int, Cutoff] = {}
