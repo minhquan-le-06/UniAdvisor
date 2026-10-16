@@ -1,115 +1,97 @@
-# UniAdvisor
+<div align="center">
 
-**Trợ lý lập kế hoạch nguyện vọng đại học.** UniAdvisor helps Vietnamese grade-12 students choose what to study and
-build their list of 15 nguyện vọng (ordered university wishes), for programs in Hà Nội and TP.HCM admitted by the
-national THPT exam score.
+# 🧭 UniAdvisor
 
-**Live demo:** https://uniadvisor-demo-v2.streamlit.app/
+**Chọn ngành, xếp 15 nguyện vọng đại học trong 10 phút**
 
-## Features
+*Trợ lý cho học sinh lớp 12 ở Hà Nội và TP.HCM, xét bằng điểm thi tốt nghiệp THPT*
 
-| Page | What the student does |
+[![Demo](https://img.shields.io/badge/%F0%9F%9A%80_Demo_tr%E1%BB%B1c_ti%E1%BA%BFp-uniadvisor--bkq.vercel.app-ff6b4a?style=for-the-badge)](https://uniadvisor-bkq.vercel.app/)
+
+![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-ffc83d)
+
+</div>
+
+> [!IMPORTANT]
+> **Repo này chỉ dùng để nộp cho BTC (MLAI Hackathon 2026), không dùng để chạy demo.**
+> Cơ sở dữ liệu (`uniadvisor.db`) và dữ liệu thô đã được lược bỏ khỏi repo, nên ứng dụng không chạy được từ đây.
+> Hãy dùng bản chạy sẵn: **[uniadvisor-bkq.vercel.app](https://uniadvisor-bkq.vercel.app/)**
+> (lần mở đầu có thể chậm vài giây vì máy chủ phải nạp dữ liệu).
+
+## ✨ UniAdvisor làm được gì
+
+| Bước | Em làm gì |
 |---|---|
-| **Về em** | Enters exam scores (expected or real) for Toán, Ngữ văn and the two electives they chose, province, khu vực and đối tượng ưu tiên, budget, whether to study near home, a favourite school. |
-| **Chọn ngành** | *Đã có ngành quan tâm*: searches ngành by name, nickname or abbreviation (CNTT, KHMT, accents optional) and compares up to six, one row each with details on demand. *Chưa xác định ngành*: answers 12 questions plus free text and gets five nhóm ngành, each explained with "Vì em chọn ...". Then picks up to two hướng học, each a main ngành with up to two close ngành. |
-| **Danh sách nguyện vọng** | Gets three phương án of 15 wishes, **Đúng ngành nhất**, **Hợp sở thích nhất** (or **Hợp môn học nhất** without the questionnaire) and **Tiết kiệm nhất**, compared on a five-axis pentagon; chooses one and adjusts it with controls or a Vietnamese chat. Every wish shows its level (mơ ước, thử sức, vừa sức, an toàn), the student's score and the 2025 and 2026 cutoffs, tuition and city. |
-| **Lưu kế hoạch** | Downloads the plan as a JSON file and opens it again later, for example after the exam with real scores. |
+| 1️⃣ **Về em** | Nhập điểm dự kiến hoặc điểm thi thật, tỉnh/thành, khu vực và đối tượng ưu tiên, ngân sách. |
+| 2️⃣ **Chọn ngành** | Đã có ngành thì tìm và so sánh; chưa biết chọn gì thì trả lời 12 câu hỏi để nhận gợi ý nhóm ngành kèm lý do. |
+| 3️⃣ **Xếp hướng học** | Chọn tối đa 2 hướng học, mỗi hướng gồm một ngành chính và các ngành gần. |
+| 🎯 **Ba phương án** | Nhận 3 danh sách 15 nguyện vọng: *Đúng ngành nhất*, *Hợp sở thích nhất*, *Tiết kiệm nhất*, so sánh bằng biểu đồ năm góc. |
+| 💬 **Điều chỉnh** | Chọn một phương án rồi chỉnh bằng nút hoặc chat tiếng Việt; tải kế hoạch về máy để dùng lại sau kỳ thi. |
 
-**Rules decide the list, AI helps the student.** The order of the wishes comes from fixed, testable rules: the
-student's score per program (best exam combination plus priority points per Thông tư 06/2026/TT-BGDĐT), a level
-against the two latest cutoffs, quotas per level, safe wishes at the bottom, and a chance of no admission kept at or
-below 5% over 20,000 simulated cutoff years. Two small models run on the CPU inside the app: a suggester that maps
-the questionnaire to nhóm ngành, and a classifier that turns a chat message into one of 28 request types. The saved
-model covers the original 19 types; fixed local rules cover the nine new Part 4 data/scope questions until retraining.
-Every text the student reads comes from fixed templates filled with real data; nothing is generated at run time.
+Mỗi nguyện vọng ghi rõ mức (mơ ước, thử sức, vừa sức, an toàn), điểm xét tuyển của em, điểm chuẩn 2025 và 2026, học phí và nơi học.
 
-**Privacy.** What the student enters stays in the browser session: it is not logged, stored or sent to any outside
-service. The chat does not call an LLM or cloud API. The plan file goes straight to the student's device.
-The web version (`docs/design/web.md`, not in the public repository) sends the plan to its own server with each call,
-stores nothing there and logs no request.
+## 🧠 Quy tắc quyết định, AI chỉ hỗ trợ
 
-## Run locally (Python 3.12)
+- **Thứ tự nguyện vọng do luật cố định, kiểm thử được:** điểm xét tuyển từng chương trình (kèm điểm ưu tiên theo Thông tư 06/2026/TT-BGDĐT) được so với điểm chuẩn hai năm gần nhất để chia bốn mức mơ ước, thử sức, vừa sức, an toàn; nguyện vọng an toàn xếp cuối. Biểu đồ năm góc của mỗi phương án được ước tính bằng mô phỏng Monte Carlo 20.000 lần.
+- **Hai mô hình nhỏ chạy trên CPU:** một mô hình gợi ý nhóm ngành từ bộ câu hỏi, một bộ phân loại câu chat thành 28 loại yêu cầu.
+- **Không gọi LLM hay dịch vụ ngoài khi chạy.** Mọi câu chữ em đọc đều từ mẫu cố định điền dữ liệu thật.
+- **Riêng tư:** thông tin em nhập nằm ở trình duyệt, máy chủ không lưu và không ghi log; kế hoạch được tải thẳng về máy em.
 
-```bash
-python3.12 -m venv .venv
-.venv/bin/python -m pip install -r requirements.txt pytest httpx      # Windows: .venv\Scripts\python
-.venv/bin/python -m pytest                                       # runs on a small fake database
-```
+Kết quả trên dữ liệu chưa dùng khi huấn luyện (dòng mô hình Mistral):
 
-The app reads a SQLite database, `data/uniadvisor.db` (about 29 MB), which is not in this repository (`data/README.md`).
-On the first local launch, the app builds that default file from the checked-in pipeline inputs; this can take a little
-longer than subsequent launches. With an already built database at another location:
+| Đánh giá | Cơ sở so sánh | Mô hình | Cỡ tập |
+|---|---|---|---|
+| Gợi ý nhóm ngành, Hit@5 | 51,5% | **64,2%** | 648 |
+| Gợi ý nhóm ngành, Hit@1 | 19,4% | **26,4%** | 648 |
+| 31 tình huống kiểm thử hành vi (viết tay) | 28/31 | **31/31** | 31 |
+| Phân loại tin nhắn, macro-F1 | 0,641 | **0,881** | 1.361 |
+| Phân loại tin nhắn, macro-F1 sau khi loại tin sai nhãn | 0,715 | **0,970** | 847 |
+| Phân loại tin nhắn, độ chính xác (190 tin có người rà soát) | 0,921 | **0,926** | 190 |
 
-```bash
-UNIADVISOR_DB=/path/to/uniadvisor.db .venv/bin/python -m streamlit run app.py     # or put it at data/uniadvisor.db
-```
+Hit@k: nhóm ngành mục tiêu (hoặc nhóm gần) có trong top k gợi ý. Hệ thống chưa được đánh giá trên học sinh thật.
 
-## Repository layout
+Chi tiết: [báo cáo bộ gợi ý](models/suggester/report.md) · [báo cáo bộ phân loại](models/message_classifier/report.md) · [pipelines](pipelines/README.md)
 
-| Path | Contents |
+## 🗂️ Cấu trúc repo
+
+| Đường dẫn | Nội dung |
 |---|---|
-| `app.py` | Streamlit entry point |
-| `src/uniadvisor/api/` | The web API (FastAPI): stateless, the same planner and texts as JSON |
-| `web/` | The web frontend (Vite, React, TypeScript) |
-| `web_api.py`, `vercel.json` | The API's entry point and the configuration for Vercel (`docs/design/web.md`, Hosting) |
-| `Dockerfile` | One container (frontend and API) for any Docker host |
-| `src/uniadvisor/ui/` | The pages, session, plan file and every text the student reads |
-| `src/uniadvisor/planner/` | List rules: scores, levels, the 15-wish strategy, chances, the three phương án and their pentagons |
-| `src/uniadvisor/majors/` | The questionnaire, the nhóm ngành suggester and the free-text reader |
-| `src/uniadvisor/chat/` | The chat: splitting a message, classifying it, extracting values, answers |
-| `src/uniadvisor/data/` | Database schema and readers |
-| `config/` | Admission rules per year (`config/rules/`), list settings, provinces, questionnaire, model settings |
-| `models/` | The trained suggester and chat classifier, with their evaluation reports |
-| `pipelines/` | Offline tools that build the database and train the models (`pipelines/README.md`); not used by the running app |
-| `tests/` | The test suite (fake database; no real data needed) |
+| [`web/`](web) | Giao diện (Vite, React, TypeScript) |
+| [`src/uniadvisor/api/`](src/uniadvisor/api) | API FastAPI không lưu trạng thái |
+| [`src/uniadvisor/planner/`](src/uniadvisor/planner) | Luật lập danh sách, ba phương án, biểu đồ năm góc |
+| [`src/uniadvisor/majors/`](src/uniadvisor/majors) | Bộ câu hỏi và gợi ý nhóm ngành |
+| [`src/uniadvisor/chat/`](src/uniadvisor/chat) | Chat: tách câu, phân loại, trích giá trị, trả lời |
+| [`config/`](config) · [`models/`](models) | Luật tuyển sinh theo năm, cấu hình, mô hình đã huấn luyện |
+| [`pipelines/`](pipelines) | Công cụ dựng cơ sở dữ liệu và huấn luyện mô hình (ngoài ứng dụng) |
+| [`tests/`](tests) | 600 test, chạy trên cơ sở dữ liệu giả |
+| [`app.py`](app.py) · [`web_api.py`](web_api.py) · [`vercel.json`](vercel.json) · [`Dockerfile`](Dockerfile) | Bản Streamlit cũ, điểm vào API, cấu hình Vercel và Docker |
 
-## Data and models
+Chạy bộ test (không cần dữ liệu thật): `pip install -e ".[dev,ui]"` rồi `python -m pytest`; phía giao diện: `npm --prefix web ci && npm --prefix web test`.
 
-The database covers 159 universities (98 in Hà Nội, 61 in TP.HCM) and 3,880 programs, of which 3,829 (364 ngành)
-have a ngành code, a cutoff and a known exam combination and can be placed in a list; tuition is known for about half
-of them. Cutoffs come from public news sites and the universities' own documents, which take priority when they
-differ. The models are trained on invented students and messages written by three open LLM families and tested on a
-fourth family they never saw:
+## 📚 Nguồn dữ liệu và ghi nhận
 
-| Evaluation | Baseline | Model |
-|---|---|---|
-| Suggester, target nhóm ngành in the top 5 (held-out LLM family, 656 students) | 26.5% (data scores) | 43.4% |
-| Suggester, hand-written behaviour cases | 28 / 31 | 31 / 31 |
-| Chat classifier, macro-F1 (held-out LLM family, 1,361 messages) | 0.641 (keyword rules) | 0.881 |
-| Chat classifier, accuracy on 190 messages judged by people | 0.921 | 0.926 |
-| List rules, three phương án for 272 invented students | | every list keeps the chance of no admission at or below 5% from a total of 19 points |
+| Chỉ số (tính đến 16/10/2026) | Giá trị |
+|---|---|
+| Trường trong phạm vi | **159** (98 Hà Nội, 61 TP.HCM) |
+| Chương trình | **3.874** thuộc 374 ngành; 3.843 đủ dữ liệu để lập danh sách |
+| Có điểm chuẩn cả 2025 và 2026 | 2.500 chương trình |
+| Có dữ liệu học phí | 87% |
+| Tỷ lệ sinh viên có việc làm | 529 dòng của 26 trường |
 
-Details: `models/suggester/report.md`, `models/message_classifier/report.md`, `pipelines/README.md`.
+Điểm chuẩn lấy từ các trang tin công khai ([VnExpress](https://vnexpress.net), [Tuyensinh247](https://tuyensinh247.com), [VietNamNet](https://vietnamnet.vn)) và tài liệu của chính các trường (ưu tiên khi hai nguồn khác nhau); danh mục ngành theo Thông tư 09/2022/TT-BGDĐT.
 
-## Data sources and attribution
+> Sản phẩm này có dùng thông tin từ [O\*NET 31.0 Database](https://www.onetcenter.org/database.html) của U.S. Department of Labor, Employment and Training Administration (USDOL/ETA), theo giấy phép [CC BY 4.0](https://www.onetcenter.org/license_db.html). UniAdvisor đã chỉnh sửa thông tin (chọn lọc, dịch sang tiếng Việt, tổng hợp theo ngành). USDOL/ETA không phê duyệt, bảo trợ hay kiểm tra các chỉnh sửa này.
 
-| Source | Used for | Terms |
-|---|---|---|
-| O*NET 31.0 Database, U.S. Department of Labor, Employment and Training Administration | Occupations, knowledge, interests, work context per ngành | CC BY 4.0. "This product includes information from the O*NET 31.0 Database by the U.S. Department of Labor, Employment and Training Administration (USDOL/ETA), used under the CC BY 4.0 license (https://www.onetcenter.org/license_db.html). UniAdvisor has modified the information (selection, translation to Vietnamese, aggregation per ngành). USDOL/ETA has not approved, endorsed, or tested these modifications." |
-| O*NET Resource Center crosswalk, CIP 2020 to O*NET-SOC 2019 | ngành -> occupations | O*NET Resource Center |
-| MOET catalog of ngành (Thông tư 09/2022/TT-BGDĐT) | ngành codes and names | Government document |
-| Admission regulation (Thông tư 06/2026/TT-BGDĐT) | Priority points, minimum scores, 15 wishes | Government document |
-| Programme list compiled by the team (schools, programmes, admission methods, exam combinations) | Programs in scope | Not redistributed |
-| VnExpress, Tuyensinh247, VietNamNet | Published cutoffs (điểm chuẩn) 2025-2026 | Public pages; not redistributed |
-| Universities' own documents (admission and tuition notices) | Cutoffs, ngành codes, tuition | Not redistributed |
-| GSO (General Statistics Office) labour-force survey | National average income, shown as context only | Public statistics |
-| Open LLMs (Qwen2.5-7B-Instruct, Aya Expanse 8B, Gemma 2 9B, SeaLLM-7B-v2) | Writing invented students and chat messages for training | Each model's own licence; the generated data is not redistributed |
-
-## Roadmap
-
-Testing with real students; tuition and graduate employment rates for every university; a retrain of the suggester
-with more invented students; more nhóm ngành fact sheets; universities outside Hà Nội and TP.HCM.
-
-## Tóm tắt (tiếng Việt)
-
-UniAdvisor giúp học sinh lớp 12 chọn ngành và lập danh sách 15 nguyện vọng cho các chương trình đại học ở Hà Nội và
-TP.HCM, xét bằng điểm thi tốt nghiệp THPT. Em đã có ngành quan tâm thì tìm và so sánh; chưa xác định ngành thì trả
-lời 12 câu hỏi và nhận năm nhóm ngành gợi ý kèm lý do. Ứng dụng tính điểm xét tuyển của em cho từng chương trình, xếp
-mức (mơ ước, thử sức, vừa sức, an toàn) theo điểm chuẩn 2025 và 2026, và đề xuất **ba phương án**: Đúng ngành nhất,
-Hợp sở thích nhất (hoặc Hợp môn học nhất) và Tiết kiệm nhất, kèm biểu đồ ngũ giác để so sánh. Em chọn một phương án
-rồi điều chỉnh bằng các nút hoặc khung chat, và tải kế hoạch về máy. Mọi câu chữ đều từ mẫu cố định với dữ liệu thật;
-ứng dụng không lưu thông tin em nhập.
+Dữ liệu huấn luyện (học sinh và tin nhắn giả lập) do ba dòng mô hình mở Qwen 2.5, Aya Expanse, Gemma 2 viết (6.689 hồ sơ sau khi làm sạch); dòng thứ tư, Mistral (SeaLLM-7B-v2), chỉ dùng để kiểm thử. Theo giấy phép của từng mô hình.
 
 ---
 
-Built for the MLAI Hackathon 2026 (TMA track, Decision Intelligence Challenge). Code licence: MIT (`LICENSE`).
+<div align="center">
+
+Làm cho **MLAI Hackathon 2026** (TMA, Decision Intelligence Challenge) · Giấy phép mã nguồn: [MIT](LICENSE)
+
+</div>
