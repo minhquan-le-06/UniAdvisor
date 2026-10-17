@@ -71,7 +71,7 @@ questions:
 
   - id: q4
     text: Em thích làm những việc nào?
-    answer: {kind: multi}
+    answer: {kind: multi, max: 4}
     options:
       - {code: repair, label: Sửa chữa đồ đạc, holland: R}
       - {code: electronics, label: Lắp ráp đồ điện tử, holland: R}
@@ -91,7 +91,7 @@ questions:
 
   - id: q5
     text: Còn những việc này?
-    answer: {kind: multi}
+    answer: {kind: multi, max: 4}
     options:
       - {code: tutoring, label: Giảng bài cho bạn, holland: S}
       - {code: listening, label: Nghe bạn bè tâm sự, holland: S}
@@ -185,7 +185,7 @@ questions:
 
   - id: q12
     text: Em không muốn công việc có điều nào?
-    answer: {kind: multi}
+    answer: {kind: multi, max: 4}
     options:
       - {code: blood, label: Thấy máu}
       - {code: sick_people, label: Tiếp xúc với người bệnh, work_context: 4.C.2.c.1.b, against: true}

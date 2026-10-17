@@ -2,15 +2,18 @@
 import { useState } from "react";
 import { Button } from "../../components/Button";
 import { Combobox } from "../../components/Combobox";
+import { HelpTip } from "../../components/HelpTip";
 import { NumberField } from "../../components/NumberField";
 import { PillGroup } from "../../components/Pill";
 import { goNext, QCard } from "../../components/QCard";
 import { useData } from "../../state/boot";
 import { usePlan } from "../../state/plan";
 import { electivesOf, setProfile, setScore } from "../../state/planOps";
+import { HELP } from "./helpTexts";
+import { useSchools } from "./useSchools";
 import s from "../../pages/Input.module.css";
 
-const SCORE = { min: 0, max: 10, step: 0.25 };
+const SCORE = { min: 0, max: 10, strictStep: true };      // the step is the subject's (meta.score_steps); an odd one is refused
 const COMMON_ELECTIVES = 8;
 
 export function ProfileSection() {
@@ -20,11 +23,29 @@ export function ProfileSection() {
   const name = Object.fromEntries(meta.subjects.map((x) => [x.code, x.name]));
   const electives = electivesOf(plan, meta.compulsory).filter(Boolean) as string[];
   const has = (c: string) => Number.isFinite(p.scores[c]);
+  const stepOf = (code: string) => meta.score_steps[code] ?? meta.score_steps.default;
+  const scoreProps = (code: string) => ({ ...SCORE, step: stepOf(code), jump: Math.max(stepOf(code), meta.score_steps.default) });
   const n = (i: number) => `Câu ${i} · Về em`;
   // The usual electives first; the rarer ones (other languages, technology) behind "Môn khác" unless already chosen.
   const [allElectives, setAllElectives] = useState(false);
   const shown = allElectives ? meta.electives
     : meta.electives.filter((c, i) => i < COMMON_ELECTIVES || electives.includes(c));
+
+  // The school only helps fill khu vực: it is not kept in the plan, so it starts empty when a plan is opened again.
+  const [school, setSchool] = useState<string | null>(null);
+  const { schools, loading, error } = useSchools(p.home_province);
+  const schoolOptions = [...new Map(schools.map((x) => [`${x.name}|${x.area}`, x])).values()]
+    .map((x) => ({ value: `${x.name}|${x.area}`, label: x.name, hint: x.area }));
+  const chosen = school ? schools.find((x) => `${x.name}|${x.area}` === school) ?? null : null;
+
+  function pickSchool(v: string | null) {
+    setSchool(v);
+    const found = v ? schools.find((x) => `${x.name}|${x.area}` === v) : null;
+    if (found) {
+      edit((pl) => setProfile(pl, { area: found.area }));
+      goNext("q-priority");
+    }
+  }
 
   function pickElectives(next: string[]) {
     edit((pl) => {
@@ -45,11 +66,11 @@ export function ProfileSection() {
                    options={[{ value: "expected", label: "Điểm dự kiến (trước kỳ thi)" }, { value: "real", label: "Điểm thi thật (sau kỳ thi)" }]} />
       </QCard>
 
-      <QCard id="q-core" eyebrow={n(2)} title="Điểm hai môn bắt buộc" hint="Thang 10, bước 0,25." eager
+      <QCard id="q-core" eyebrow={n(2)} title="Điểm hai môn bắt buộc" hint="Thang 10. Toán chia nhỏ nhất 0,05; các môn khác 0,25." eager
              done={meta.compulsory.every(has)}>
         <div className={s.grid2}>
           {meta.compulsory.map((c) => (
-            <NumberField key={c} label={name[c]} {...SCORE} placeholder="chưa nhập"
+            <NumberField key={c} label={name[c]} {...scoreProps(c)} placeholder="chưa nhập"
                          value={has(c) ? p.scores[c] : null} onChange={(v) => edit((pl) => setScore(pl, c, v))} />
           ))}
         </div>
@@ -66,7 +87,7 @@ export function ProfileSection() {
         {electives.length > 0 && (
           <div className={s.grid2}>
             {electives.map((c) => (
-              <NumberField key={c} label={`Điểm ${name[c]}`} {...SCORE} placeholder="chưa nhập"
+              <NumberField key={c} label={`Điểm ${name[c]}`} {...scoreProps(c)} placeholder="chưa nhập"
                            value={has(c) ? p.scores[c] : null} onChange={(v) => edit((pl) => setScore(pl, c, v ?? NaN))} />
             ))}
           </div>
@@ -76,18 +97,34 @@ export function ProfileSection() {
       <QCard id="q-province" eyebrow={n(4)} title="Em đang ở tỉnh/thành nào?" done={!!p.home_province}
              hint="Dùng để xếp chương trình gần nhà nếu em muốn, và để tính khu vực ưu tiên.">
         <Combobox label="Tỉnh/thành" options={meta.provinces.map((x) => ({ value: x, label: x }))} value={p.home_province}
-                  onChange={(v) => { edit((pl) => setProfile(pl, { home_province: v })); goNext("q-priority"); }}
+                  onChange={(v) => { edit((pl) => setProfile(pl, { home_province: v })); setSchool(null); if (!v) goNext("q-priority"); }}
                   placeholder="Chọn tỉnh/thành" />
+        {p.home_province && (
+          <>
+            <Combobox label="Trường THPT em học (không bắt buộc)" options={schoolOptions} value={school}
+                      onChange={pickSchool} placeholder={loading ? "Đang tải danh sách trường..." : "Chọn trường"}
+                      searchPlaceholder="Gõ tên trường để tìm..." clearable
+                      hint="Chọn trường để ứng dụng điền khu vực ưu tiên giúp em. Không thấy trường của em thì chọn “Trường THPT - Khu vực ...” hoặc tự chọn khu vực ở câu sau." />
+            {error && <p className="small" role="alert">Chưa tải được danh sách trường. Em chọn khu vực ở câu sau nhé.</p>}
+            {chosen && <p className="small" role="status">Trường này thuộc {chosen.area}, nên khu vực ưu tiên ở câu sau đã được chọn là {chosen.area}.</p>}
+          </>
+        )}
       </QCard>
 
       <QCard id="q-priority" eyebrow={n(5)} title="Khu vực và đối tượng ưu tiên" done
              hint="Không chắc thì giữ KV3 và không thuộc đối tượng ưu tiên; em sửa lại sau cũng được.">
-        <PillGroup mode="single" label="Khu vực ưu tiên" allowClear={false} value={p.area}
-                   onChange={(v) => v && edit((pl) => setProfile(pl, { area: v }))}
-                   options={meta.areas.map((a) => ({ value: a.code, label: a.label }))} />
-        <PillGroup mode="single" label="Đối tượng ưu tiên" allowClear={false} value={p.category}
-                   onChange={(v) => v && edit((pl) => setProfile(pl, { category: v }))}
-                   options={meta.categories.map((c) => ({ value: c.code, label: c.label }))} />
+        <div className={s.helpRow}>
+          <PillGroup mode="single" label="Khu vực ưu tiên" allowClear={false} value={p.area}
+                     onChange={(v) => v && edit((pl) => setProfile(pl, { area: v }))}
+                     options={meta.areas.map((a) => ({ value: a.code, label: a.label }))} />
+          <HelpTip label="Giải thích khu vực ưu tiên" title={HELP.area.title}>{HELP.area.body}</HelpTip>
+        </div>
+        <div className={s.helpRow}>
+          <PillGroup mode="single" label="Đối tượng ưu tiên" allowClear={false} value={p.category}
+                     onChange={(v) => v && edit((pl) => setProfile(pl, { category: v }))}
+                     options={meta.categories.map((c) => ({ value: c.code, label: c.label }))} />
+          <HelpTip label="Giải thích đối tượng ưu tiên" title={HELP.category.title}>{HELP.category.body}</HelpTip>
+        </div>
       </QCard>
 
       <QCard id="q-year" eyebrow={n(6)} title="Năm em tốt nghiệp THPT" done>

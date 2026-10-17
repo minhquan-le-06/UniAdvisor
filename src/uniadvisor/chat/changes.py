@@ -11,7 +11,7 @@ import copy
 from dataclasses import dataclass, field
 
 from uniadvisor.ui.state import (AREAS, CATEGORIES, COMPULSORY, MAX_CLOSE, MAX_CUTOFF_SHIFT, MAX_ELECTIVES, SCALES,
-                                  PlanState, ShortlistEntry)
+                                  PlanState, ShortlistEntry, on_step, score_step)
 from uniadvisor.ui.texts import CATEGORY_VI, num
 from uniadvisor.chat.context import ChatContext
 
@@ -57,6 +57,10 @@ def apply(state: PlanState, item: Item, ctx: ChatContext) -> PlanState:
     if k == "set_score":
         if p["subject"] not in ctx.subjects or not 0 <= p["value"] <= 10:
             raise ChangeError("Điểm môn phải từ 0 đến 10.")
+        step = score_step(p["subject"])
+        if not on_step(p["value"], step):
+            raise ChangeError(f"Điểm {ctx.subjects.get(p['subject'], p['subject'])} chỉ nhận bước {num(step)} điểm "
+                              f"(ví dụ {num(8 + step * 3)}); em nhập lại giúp mình.")
         electives = [c for c in s.scores if c not in COMPULSORY]
         if p["subject"] not in COMPULSORY and p["subject"] not in electives and len(electives) >= MAX_ELECTIVES:
             raise ChangeError(f"Em đã có {MAX_ELECTIVES} môn tự chọn ("

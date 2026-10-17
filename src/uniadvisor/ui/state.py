@@ -12,6 +12,20 @@ CATEGORIES = ["none", "UT1", "UT2"]
 SCORE_KINDS = ["expected", "real"]          # before the exam: expected scores; after: real ones
 MAX_CLOSE = 2                               # 1-2 close ngành per hướng học
 MAX_ITEMS = 2
+SCORE_STEP = 0.25                           # the finest division of an exam score; Toán is graded finer
+SCORE_STEPS = {"TO": 0.05}
+
+
+def score_step(subject: str | None) -> float:
+    return SCORE_STEPS.get(subject, SCORE_STEP)
+
+
+def on_step(value: float, step: float) -> bool:
+    """Whether `value` is a whole number of `step`s (8.35 is for 0.05, not for 0.25)."""
+    k = value / step
+    return abs(k - round(k)) < 1e-6
+
+
 COMPULSORY = ("TO", "VA")                 # the THPT exam: Toán and Ngữ văn, plus two subjects the student chose
 MAX_ELECTIVES = 2
 SCALES = (30, 40, 100)                      # cutoff scales schools publish (data/build: cutoff.scale)

@@ -135,6 +135,10 @@
    ],
    "max_cutoff_shift": 5.0
   },
+  "score_steps": {
+   "default": 0.25,
+   "TO": 0.05
+  },
   "number_ranges": {
    "set_score": [
     0.0,
@@ -2061,6 +2065,7 @@
   },
   "notes": [],
   "guesses": [],
+  "maybe": [],
   "suggestions": [
    {
     "code": "74801",

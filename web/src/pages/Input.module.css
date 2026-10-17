@@ -17,6 +17,8 @@
 }
 .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
 @media (max-width: 420px) { .grid2 { grid-template-columns: 1fr; } }
+.helpRow { position: relative; }
+.helpRow > button { position: absolute; top: -6px; right: 0; }
 
 /* two ways in */
 .paths { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }

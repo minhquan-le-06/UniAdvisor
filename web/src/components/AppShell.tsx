@@ -1,5 +1,5 @@
 import * as Popover from "@radix-ui/react-popover";
-import { Download, FolderOpen, Menu, RotateCcw } from "lucide-react";
+import { Download, FolderOpen, Menu, Printer, RotateCcw } from "lucide-react";
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router";
 import { api } from "../api/client";
@@ -10,6 +10,7 @@ import { PartsNav } from "../features/profile/PartsNav";
 import { ThemeToggle } from "./ThemeToggle";
 import { useHideOnScroll } from "./useScroll";
 import { useToast } from "./Toast";
+import { usePrintPlan } from "../features/print/usePrintPlan";
 import s from "./AppShell.module.css";
 
 const MAX_FILE = 1_000_000;
@@ -85,6 +86,7 @@ export function PlanMenu() {
   const navigate = useNavigate();
   const file = useRef<HTMLInputElement>(null);
   const [open, setOpen] = useState(false);
+  const { printPlan, printing } = usePrintPlan();
 
   function save() {
     const blob = new Blob([JSON.stringify(forServer(plan), null, 2) + "\n"], { type: "application/json" });
@@ -125,6 +127,9 @@ export function PlanMenu() {
         <Popover.Portal>
           <Popover.Content className={s.menu} align="end" sideOffset={8}>
             <button type="button" className={s.item} onClick={save}><Download size={18} /> Lưu kế hoạch về máy</button>
+            <button type="button" className={s.item} onClick={() => { setOpen(false); void printPlan(); }} disabled={printing}>
+              <Printer size={18} /> {printing ? "Đang chuẩn bị bản in..." : "Lưu bản in (PDF)"}
+            </button>
             <button type="button" className={s.item} onClick={() => file.current?.click()}><FolderOpen size={18} /> Mở kế hoạch đã lưu</button>
             <p className={s.note}>Kế hoạch năm {meta.admission_year}. Ứng dụng không lưu bản nào trên máy chủ.</p>
           </Popover.Content>

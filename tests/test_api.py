@@ -150,7 +150,7 @@ def test_apply_rejects_unknown_kinds_and_reports_errors(client):
 
 def test_questionnaire_endpoint_returns_clean_answers(client, data):
     out = client.post("/api/questionnaire", json={"picked": {}, "text": ""}).json()
-    assert set(out) == {"answers", "notes", "guesses", "suggestions", "answered"} and out["answered"] == 0
+    assert set(out) == {"answers", "notes", "guesses", "maybe", "suggestions", "answered"} and out["answered"] == 0
     meta = client.get("/api/meta").json()
     if meta["questions"]:
         q = next(q for q in meta["questions"] if q["kind"] == "single")
@@ -159,6 +159,22 @@ def test_questionnaire_endpoint_returns_clean_answers(client, data):
         assert got["answers"][q["id"]] == q["options"][0]["code"] and got["answered"] == 1
         junk = client.post("/api/questionnaire", json={"picked": {q["id"]: "not-an-option"}}).json()
         assert junk["answers"][q["id"]] is None
+
+
+def test_questionnaire_endpoint_adds_what_the_semantic_layer_reads(client, data):
+    from uniadvisor.majors.reader import Guess
+
+    class Stub:
+        def read(self, text, have):
+            return [Guess("q3", "machines", "em thích máy móc")]
+
+    if data.reader is None:
+        return
+    data.semantic = Stub()
+    out = client.post("/api/questionnaire", json={"picked": {}, "text": "Em thích máy móc"}).json()
+    assert [(g["question"], g["option"]) for g in out["maybe"]] == [("q3", "machines")]
+    assert "Máy móc" in out["maybe"][0]["text"] and "em thích máy móc" in out["maybe"][0]["text"]
+    assert client.post("/api/questionnaire", json={"picked": {}, "text": ""}).json()["maybe"] == []
 
 
 # ---------------------------------------------------------------- guards

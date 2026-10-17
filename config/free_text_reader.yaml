@@ -139,3 +139,33 @@ negative:                    # work conditions the student does not want -> q12
     angry_people: [nóng giận, khó tính]
     overtime: [tăng ca, làm thêm giờ]
     sales_targets: [doanh số, chỉ tiêu bán hàng]
+
+# The semantic layer (majors/semantic.py): what the rules miss, read by meaning. The model is downloaded the first time a
+# text needs it. `min_score`, `min_z`, `within_best` and `top_per_clause` come from pipelines/majors_model/semantic_eval.py.
+semantic:
+  repo: Xenova/multilingual-e5-small
+  model_file: onnx/model_quantized.onnx       # int8, runs on any CPU (the intfloat avx512_vnni file does not)
+  tokenizer_file: tokenizer.json
+  max_tokens: 48
+  threads: 1
+  min_score: 0.86                             # cosine; a clause below it guesses nothing
+  min_z: 3.0                                  # and the option must stand out from the clause's other options by this many standard deviations
+  within_best: 0.03                           # also guess the options scoring this close to the best one of the clause
+  top_per_clause: 2
+  min_words: 3                                # shorter clauses ("hay khó hiểu") say too little and guess wrongly
+  retry_seconds: 60                           # after a failed download or load, wait this long before trying again
+  positive_questions: [q1, q3, q4, q5, q6, q8, q9, q10, q11]
+  negative_questions: [q2, q7, q12]
+  templates:                                  # how an option is said as a sentence ({label} = the option's label)
+    q1: "Em thích học môn {label}"
+    q2: "Em không thích môn {label}"
+    q3: "Em thích làm việc với {label}"
+    q4: "Em thích {label}"
+    q5: "Em thích {label}"
+    q6: "Em thích tìm hiểu về {label}"
+    q7: "Em không muốn học về {label}"
+    q8: "Em muốn làm việc ở {label}"
+    q9: "Em thích làm việc: {label}"
+    q10: "Em thích công việc: {label}"
+    q11: "Điều quan trọng nhất với em là {label}"
+    q12: "Em không muốn công việc: {label}"

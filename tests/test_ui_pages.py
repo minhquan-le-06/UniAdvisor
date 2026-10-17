@@ -133,7 +133,7 @@ def test_two_paths_only(at):
 def test_questionnaire_path_suggests_groups(at):
     go(at, "2. Chọn ngành")
     at.radio(key="path").set_value("Chưa xác định ngành").run()
-    assert not at.exception and len([w for w in at.multiselect if w.key.startswith("quiz_")]) == 5
+    assert not at.exception and len([w for w in at.multiselect if w.key.startswith("quiz_")]) == 8      # the capped questions with long lists are dropdowns
     at.multiselect(key="quiz_q1").set_value(["Toán", "Tin học"])
     at.multiselect(key="quiz_q2").set_value(["Toán"])                         # also liked: not counted
     at.multiselect(key="quiz_q6").set_value(["Máy tính"])
@@ -280,4 +280,4 @@ def test_free_text_guesses_are_confirmed_first(at):
     keep.set_value([o for o in keep.options if "Vẽ" in o])                 # the student drops one guess
     at.button(key="quiz_guess_apply").click().run()
     assert at.session_state["quiz_answers"]["q4"] == ["drawing"] and at.session_state["quiz_answers"]["q12"] is None
-    assert at.pills(key="quiz_q4").value == ["Vẽ"]
+    assert at.multiselect(key="quiz_q4").value == ["Vẽ"]

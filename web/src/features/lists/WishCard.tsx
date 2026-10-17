@@ -5,7 +5,7 @@ import { LevelChip, Tag } from "../../components/Chips";
 import s from "./WishCard.module.css";
 
 /** One nguyện vọng: its number, level, program, the student's score against the two cutoffs, fee and city.
- * `compact` (inside a phương án card) leaves out the fee and the button. */
+ * `compact` (inside a phương án card) leaves out the relation line and the button. */
 export function WishCard({ w, compact, onExplain }: { w: WishItem; compact?: boolean; onExplain?: (nv: number) => void }) {
   return (
     <article className={[s.wish, compact ? s.compact : ""].join(" ")} aria-label={`Nguyện vọng ${w.nv}: ${w.program}, ${w.school}`}>
@@ -25,7 +25,7 @@ export function WishCard({ w, compact, onExplain }: { w: WishItem; compact?: boo
         <dl className={s.nums}>
           <div><dt>Điểm của em</dt><dd>{w.score}</dd></div>
           {w.cutoffs.map((c) => <div key={c.year}><dt>Điểm chuẩn {c.year}</dt><dd>{c.text}</dd></div>)}
-          {!compact && <div><dt>Học phí</dt><dd className={w.over_budget ? s.over : undefined}>{w.tuition}</dd></div>}
+          <div><dt>Học phí</dt><dd className={w.over_budget ? s.over : undefined}>{w.tuition}</dd></div>
         </dl>
       </div>
       {onExplain && (

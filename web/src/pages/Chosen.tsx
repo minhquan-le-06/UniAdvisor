@@ -1,6 +1,6 @@
 // /danh-sach: the list the student chose, rebuilt from the plan on every change: its pentagon, the 15 wishes with
 // "Vì sao ở đây?", the chances, the notes; the chat button and the "Điều chỉnh" drawer change it, "Hoàn tác" undoes.
-import { ArrowLeft, Download, SlidersHorizontal, Undo2 } from "lucide-react";
+import { ArrowLeft, Download, Printer, SlidersHorizontal, Undo2 } from "lucide-react";
 import { useState } from "react";
 import { Navigate, useNavigate } from "react-router";
 import { api } from "../api/client";
@@ -8,6 +8,7 @@ import type { Chosen as ChosenData, Missing } from "../api/types";
 import { Disclosure } from "../components/Accordion";
 import { Button } from "../components/Button";
 import { Callout } from "../components/Callout";
+import { NoticeBox, type Notice } from "../components/NoticeBox";
 import { ErrorRetry } from "../components/ErrorRetry";
 import { Card } from "../components/Card";
 import { LevelChip, ListBadge } from "../components/Chips";
@@ -19,6 +20,7 @@ import { Chat, type ChatMsg } from "../features/chat/Chat";
 import { ChanceBars } from "../features/chosen/ChanceBars";
 import { ExplainSheet } from "../features/chosen/ExplainSheet";
 import { useServer } from "../features/lists/useServer";
+import { usePrintPlan } from "../features/print/usePrintPlan";
 import { WishCard } from "../features/lists/WishCard";
 import { useData } from "../state/boot";
 import { usePlan } from "../state/plan";
@@ -48,7 +50,9 @@ function ChosenView({ d, busy }: { d: ChosenData; busy: boolean }) {
   const navigate = useNavigate();
   const [explain, setExplain] = useState<number | null>(null);
   const [adjust, setAdjust] = useState(false);
+  const { printPlan, printing } = usePrintPlan();
   const h = d.header;
+  const notices = noticesOf(d, meta.texts.extra_points_reminder);
 
   function download() {
     const blob = new Blob([JSON.stringify(forServer(plan), null, 2) + "\n"], { type: "application/json" });
@@ -93,11 +97,8 @@ function ChosenView({ d, busy }: { d: ChosenData; busy: boolean }) {
         </Reveal>
       )}
 
-      <Callout tone="info">{meta.texts.extra_points_reminder}</Callout>
-      {d.no_admission_warning && <Callout tone="warn" title="Chưa đủ an toàn">{d.no_admission_warning}</Callout>}
-      {d.notes.map((n) => <Callout key={n} tone="warn"><RichText text={n} /></Callout>)}
-      {d.favorite_note && <Callout tone="info">{d.favorite_note}</Callout>}
-      {d.expected_note && <Callout tone="info">Em đang dùng điểm dự kiến. Sau kỳ thi, em mở lại kế hoạch và thay bằng điểm thật.</Callout>}
+      <NoticeBox tone="warn" items={notices.warn} />
+      <NoticeBox tone="info" items={notices.info} />
 
       <section className="stack" aria-labelledby="nv-title">
         <div className={s.sectionHead}>
@@ -135,7 +136,12 @@ function ChosenView({ d, busy }: { d: ChosenData; busy: boolean }) {
               {meta.texts.levels.map((lv) => <li key={lv.code}><LevelChip level={lv.code as "mo_uoc"} /> {lv.help}.</li>)}
             </ul>
           </Disclosure>
-          <Button variant="secondary" icon={<Download size={18} />} onClick={download}>Lưu kế hoạch về máy</Button>
+          <div className="row">
+            <Button variant="secondary" icon={<Download size={18} />} onClick={download}>Lưu kế hoạch về máy</Button>
+            <Button variant="secondary" icon={<Printer size={18} />} disabled={printing} onClick={() => void printPlan()}>
+              {printing ? "Đang chuẩn bị bản in..." : "Lưu bản in (PDF)"}
+            </Button>
+          </div>
         </div>
       </Reveal>
 
@@ -143,6 +149,22 @@ function ChosenView({ d, busy }: { d: ChosenData; busy: boolean }) {
       <AdjustSheet open={adjust} onOpenChange={setAdjust} c={d.controls} />
     </div>
   );
+}
+
+/** Two boxes, never mixed: warnings (yellow) and notes (blue). The notes about the wishes in general (shifted down,
+ * topped up, short list ...) are small points under one warning bullet, a plain bullet when there is only one. */
+function noticesOf(d: ChosenData, extraPoints: string): { warn: Notice[]; info: Notice[] } {
+  const warn: Notice[] = [];
+  if (d.no_admission_warning) warn.push({ key: "none", lead: "Chưa đủ an toàn", body: d.no_admission_warning });
+  if (d.notes.length === 1) warn.push({ key: "notes", body: <RichText text={d.notes[0]} /> });
+  else if (d.notes.length > 1) {
+    warn.push({ key: "notes", body: "Về cách xếp các nguyện vọng:", details: d.notes.map((n) => <RichText key={n} text={n} />) });
+  }
+  const info: Notice[] = [];
+  if (d.expected_note) info.push({ key: "expected", body: "Em đang dùng điểm dự kiến. Sau kỳ thi, em mở lại kế hoạch và thay bằng điểm thật." });
+  if (d.favorite_note) info.push({ key: "favorite", body: d.favorite_note });
+  info.push({ key: "extra", body: extraPoints });
+  return { warn, info };
 }
 
 const cap = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);

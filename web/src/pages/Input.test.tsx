@@ -1,7 +1,7 @@
 import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Route } from "react-router";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fixtures, mockApi, renderApp } from "../test-utils";
 import Input from "./Input";
 
@@ -26,6 +26,46 @@ describe("input page", () => {
     await user.type(await screen.findByLabelText("Điểm Vật lí"), "7,25");
     await waitFor(() => expect(savedPlan().profile.scores).toEqual({ TO: 8.5, VA: 7, LI: 7.25 }));
     expect(screen.getByText(/Còn thiếu:/)).toHaveTextContent("tỉnh/thành");
+  });
+
+  it("takes Toán to 0,05 and the other subjects to 0,25, and refuses anything else with a warning", async () => {
+    const user = userEvent.setup();
+    renderApp("/bat-dau", <Route path="/bat-dau" element={<Input />} />);
+    const math = await screen.findByLabelText("Toán");
+    await user.type(math, "8,35");
+    await user.tab();
+    await waitFor(() => expect(savedPlan().profile.scores).toEqual({ TO: 8.35 }));
+    const lit = screen.getByLabelText("Ngữ văn");
+    await user.type(lit, "7,3");
+    await user.tab();
+    expect(await screen.findByText(/Chỉ nhận bước 0,25/)).toBeInTheDocument();
+    expect(savedPlan().profile.scores).toEqual({ TO: 8.35 });                 // the odd one was not taken
+    await user.clear(lit);
+    await user.type(lit, "7,25");
+    await user.tab();
+    await waitFor(() => expect(savedPlan().profile.scores).toEqual({ TO: 8.35, VA: 7.25 }));
+    expect(screen.queryByText(/Chỉ nhận bước/)).not.toBeInTheDocument();
+  });
+
+  it("fills the khu vực from the school the student picks, and explains it behind a ?", async () => {
+    const province = fixtures.meta.provinces[0] as string;
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify({
+      [province]: [["THPT Mẫu A", "KV1"], ["THPT Mẫu B", "KV2-NT"]],
+    }))));
+    const user = userEvent.setup();
+    renderApp("/bat-dau", <Route path="/bat-dau" element={<Input />} />);
+    expect(screen.queryByText(/Trường THPT em học/)).not.toBeInTheDocument();
+    await user.click(await screen.findByRole("button", { name: /Tỉnh\/thành Chọn tỉnh\/thành/ }));
+    await user.click(await screen.findByRole("option", { name: province }));
+    await user.click(await screen.findByRole("button", { name: /Trường THPT em học/ }));
+    await user.type(screen.getByPlaceholderText("Gõ tên trường để tìm..."), "mau b");
+    await user.click(await screen.findByRole("option", { name: /THPT Mẫu B/ }));
+    await waitFor(() => expect(savedPlan().profile.area).toBe("KV2-NT"));
+    expect(screen.getByRole("status")).toHaveTextContent("KV2-NT");
+
+    await user.click(screen.getByRole("button", { name: "Giải thích khu vực ưu tiên" }));
+    expect(await screen.findByText("Khu vực ưu tiên là gì?")).toBeInTheDocument();
+    vi.unstubAllGlobals();
   });
 
   it("searches a ngành and picks it in step 2", async () => {

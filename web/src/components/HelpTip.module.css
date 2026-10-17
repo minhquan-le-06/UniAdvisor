@@ -1,0 +1,15 @@
+.trigger {
+  flex: none; width: 32px; height: 32px; display: inline-grid; place-items: center; padding: 0; border: 0; border-radius: 50%;
+  background: transparent; color: var(--accent-text); cursor: pointer;
+}
+.trigger:hover, .trigger[data-state="open"] { background: var(--primary-soft); color: var(--primary-soft-ink); }
+.content {
+  z-index: 70; width: min(340px, calc(100vw - 32px)); display: flex; flex-direction: column; gap: 6px; padding: 14px 16px;
+  background: var(--surface); color: var(--ink); border: var(--border) solid var(--line-strong); border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  max-height: var(--radix-popover-content-available-height); overflow-y: auto; overscroll-behavior: contain;
+}
+.content ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
+.content p { margin: 0; }
+.title { font-weight: 800; }
+.arrow { fill: var(--surface); stroke: var(--line-strong); }

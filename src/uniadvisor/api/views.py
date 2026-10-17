@@ -16,7 +16,7 @@ from uniadvisor.ui.change_card import DEFAULT_RANGE, NUMBER_RANGES, param_label
 from uniadvisor.ui.facts import ONET_CREDIT
 from uniadvisor.ui.list_summary import LIST_VI, unknown_fees_text
 from uniadvisor.ui.service import AppData
-from uniadvisor.ui.state import (AREAS, CATEGORIES, COMPULSORY, MAX_CLOSE, MAX_CUTOFF_SHIFT, MAX_ELECTIVES, MAX_ITEMS,
+from uniadvisor.ui.state import (AREAS, CATEGORIES, COMPULSORY, MAX_CLOSE, MAX_CUTOFF_SHIFT, MAX_ELECTIVES, MAX_ITEMS, SCORE_STEP, SCORE_STEPS,
                                  SCALES, SCORE_KINDS, PlanState)
 from uniadvisor.config import load_data_config
 from uniadvisor.planner.chances import Chances
@@ -53,6 +53,7 @@ def meta(d: AppData) -> dict:
         "schools": sorted(({"code": c, "name": n} for c, n in d.school_names.items()), key=lambda s: s["name"]),
         "limits": {"max_picks": MAX_PICKS, "max_items": MAX_ITEMS, "max_close": MAX_CLOSE, "scales": list(SCALES),
                    "max_cutoff_shift": MAX_CUTOFF_SHIFT},
+        "score_steps": {"default": SCORE_STEP} | SCORE_STEPS,
         "number_ranges": {k: list(v) for k, v in NUMBER_RANGES.items()} | {"default": list(DEFAULT_RANGE)},
         "questions": quiz.definitions(d),
         "has_free_text": d.reader is not None,
@@ -88,12 +89,14 @@ def proposed_close(d: AppData, code: str, exclude: set[str]) -> list[dict]:
 def questionnaire(d: AppData, picked: dict, text: str) -> dict:
     """Clean the answers, read the free text into guesses the student may keep, and suggest nhóm ngành."""
     if d.suggester is None:
-        return {"answers": {}, "notes": [], "guesses": [], "suggestions": [], "answered": 0}
+        return {"answers": {}, "notes": [], "guesses": [], "maybe": [], "suggestions": [], "answered": 0}
     answers, notes = quiz.normalize_answers(d.suggester.qn, picked)
     number = quiz.numbering(d.suggester.qn)
-    guesses = [{"question": q, "option": o, "words": w, "text": quiz.guess_text(d, number, (q, o, w))}
-               for q, o, w in quiz.guesses(d, text or "", answers)]
-    return {"answers": answers, "notes": notes, "guesses": guesses, "suggestions": quiz.suggestions(d, answers),
+    by_rules = quiz.guesses(d, text or "", answers)
+    as_json = lambda found: [{"question": q, "option": o, "words": w, "text": quiz.guess_text(d, number, (q, o, w))}
+                             for q, o, w in found]
+    return {"answers": answers, "notes": notes, "guesses": as_json(by_rules),
+            "maybe": as_json(quiz.maybe_guesses(d, text or "", answers, by_rules)), "suggestions": quiz.suggestions(d, answers),
             "answered": sum(v is not None for v in answers.values())}
 
 

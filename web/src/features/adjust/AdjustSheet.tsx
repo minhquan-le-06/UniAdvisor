@@ -40,6 +40,7 @@ function ScoreAndPriority({ c }: { c: Controls }) {
   const subjects = meta.subjects.map((x) => x.code)
     .filter((x) => meta.compulsory.includes(x) || electives.includes(x) || electives.length < meta.max_electives);
   const [subject, setSubject] = useState<string | null>(null);
+  const step = (subject && meta.score_steps[subject]) || meta.score_steps.default;
   const [score, setScore] = useState<number | null>(null);
   const [area, setArea] = useState(c.area);
   const [category, setCategory] = useState(c.category);
@@ -47,7 +48,8 @@ function ScoreAndPriority({ c }: { c: Controls }) {
     <Section title="Điểm và ưu tiên">
       <Combobox label="Môn" options={subjects.map((x) => ({ value: x, label: name[x], hint: c.scores[x] != null ? `hiện tại ${String(c.scores[x]).replace(".", ",")}` : undefined }))}
                 value={subject} onChange={setSubject} placeholder="Chọn môn" />
-      <NumberField label="Điểm mới" min={0} max={10} step={0.25} value={score} onChange={setScore} placeholder="chưa nhập" />
+      <NumberField label="Điểm mới" min={0} max={10} step={step} jump={meta.score_steps.default} strictStep value={score} onChange={setScore}
+                   placeholder="chưa nhập" hint={subject ? `${name[subject]}: chia nhỏ nhất ${String(step).replace(".", ",")} điểm.` : undefined} />
       <Button disabled={!subject || score == null || busy}
               onClick={() => apply([{ kind: "set_score", params: { subject, value: score } }]).then(() => setScore(null))}>Đổi điểm</Button>
       <PillGroup mode="single" label="Khu vực" allowClear={false} value={area} onChange={(v) => v && setArea(v)}

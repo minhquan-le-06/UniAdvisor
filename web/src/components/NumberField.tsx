@@ -14,10 +14,14 @@ type Props = {
   suffix?: string;
   /** The - and + buttons (on by default; off for amounts like a budget, which are typed). */
   stepper?: boolean;
+  /** Only whole numbers of `step` are taken ("8,35" is refused for 0,25): the box warns and holds no value. */
+  strictStep?: boolean;
+  /** How far - and + move the value (default `step`); a multiple of `step`. */
+  jump?: number;
 };
 
 /** Vietnamese decimals ("8,5"), a stepper for thumbs, and a value kept inside [min, max]. An empty box is null. */
-export function NumberField({ label, value, onChange, min, max, step, placeholder, hint, suffix, stepper = true }: Props) {
+export function NumberField({ label, value, onChange, min, max, step, placeholder, hint, suffix, stepper = true, strictStep, jump = step }: Props) {
   const id = useId();
   const [text, setText] = useState(format(value));
   const [error, setError] = useState<string | null>(null);
@@ -35,13 +39,18 @@ export function NumberField({ label, value, onChange, min, max, step, placeholde
       setError(`Nhập số từ ${format(min)} đến ${format(max)}.`);
       return;
     }
+    if (strictStep && !onStep(n, step)) {
+      setError(`Chỉ nhận bước ${format(step)} điểm (ví dụ ${format(Math.floor(n / step) * step)} hoặc ${format(Math.ceil(n / step) * step)}). Em nhập lại nhé.`);
+      onChange(null);
+      return;
+    }
     setError(null);
     onChange(round(n, step));
   }
 
   function bump(dir: 1 | -1) {
-    const base = value ?? (dir > 0 ? min - step : max + step);
-    onChange(Math.min(max, Math.max(min, round(base + dir * step, step))));
+    const base = value ?? (dir > 0 ? min - jump : max + jump);
+    onChange(Math.min(max, Math.max(min, round(base + dir * jump, step))));
     setError(null);
   }
 
@@ -67,7 +76,11 @@ export function NumberField({ label, value, onChange, min, max, step, placeholde
             setText(e.target.value);
             // A valid number counts at once (the bottom bar updates while typing); errors wait for the blur.
             const n = Number(e.target.value.trim().replace(",", "."));
-            if (e.target.value.trim() && Number.isFinite(n) && n >= min && n <= max) { setError(null); onChange(round(n, step)); }
+            // (with `strictStep`, a number off the step waits for the blur, which warns and takes none)
+            if (e.target.value.trim() && Number.isFinite(n) && n >= min && n <= max && (!strictStep || onStep(n, step))) {
+              setError(null);
+              onChange(round(n, step));
+            }
           }}
           onBlur={(e) => commit(e.target.value)}
           onKeyDown={(e) => { if (e.key === "Enter") commit((e.target as HTMLInputElement).value); }}
@@ -92,6 +105,11 @@ export function format(v: number | null): string {
 function parse(t: string): number | null {
   const n = Number(t.trim().replace(",", "."));
   return t.trim() && Number.isFinite(n) ? n : null;
+}
+
+function onStep(v: number, step: number): boolean {
+  const k = v / step;
+  return Math.abs(k - Math.round(k)) < 1e-6;
 }
 
 function round(v: number, step: number): number {

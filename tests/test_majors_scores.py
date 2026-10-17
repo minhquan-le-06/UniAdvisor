@@ -135,9 +135,9 @@ def test_cleaner_moves_options_between_halves_and_reads_null_words(qn):
     assert skipped.answers["q4"] == [] and skipped.answers["q5"] == ["listening"]
     assert Cleaner(qn).clean({"q4": ["listening"]}).answers["q4"] == []             # without siblings: dropped
     q5 = [o.code for o in qn.get("q5").options]
-    assert c.too_many(c.clean({"q5": q5[:8]}), 0.5) == []                           # 8 of Q4 + Q5's 27 options
-    assert Cleaner(qn).too_many(Cleaner(qn).clean({"q5": q5[:8]}), 0.5) == ["q5"]   # 8 of Q5's 12 alone
-    assert c.too_many(c.clean({"q4": [o.code for o in qn.get("q4").options], "q5": q5}), 0.5) == ["q4"]
+    capped = c.clean({"q5": q5[:8]})                                                # every multi question has a cap
+    assert capped.answers["q5"] == q5[:4] and "too_many:q5" in capped.issues         # (Q4, Q5 and Q12 hold four)
+    assert c.too_many(c.clean({"q4": [o.code for o in qn.get("q4").options], "q5": q5}), 0.5) == []   # nothing is uncapped
 
 
 def test_text_as_asked(qn):
@@ -183,8 +183,9 @@ def test_prepare_drops_q12_glitch_and_flags_chinese(scorer, qn):
     raw = pd.DataFrame([{"student_id": i, "family": "qwen", "target_group": "77201", "attributes": "{}",
                          "answers": json.dumps(a, ensure_ascii=False)} for i, a in rows])
     df = prepare(raw, cleaner, scorer, cfg).set_index("student_id")
-    assert df.loc["s3", "dropped"] == "ticked_almost_all"                  # 8 of 15: more than half
-    assert df.loc["s2", "dropped"] != "ticked_almost_all"                  # 7 of 15 stays
+    assert df.loc["s3", "dropped"] == "" and "too_many:q12" in df.loc["s3", "issues"]   # 8 of 15: the first four stay
+    assert df.loc["s2", "dropped"] == "" and "too_many:q12" in df.loc["s2", "issues"]
+    assert "too_many:q12" not in df.loc["s1", "issues"]                    # 3 of 15 is within the cap
     assert "text:chinese:5" in df.loc["s4", "issues"] and "text:chinese" not in df.loc["s1", "issues"]
 
 

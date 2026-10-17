@@ -21,7 +21,7 @@
 .clear:hover { color: var(--err-ink); border-color: var(--err-line); }
 
 .content {
-  width: min(var(--radix-popover-trigger-width), calc(100vw - 32px)); min-width: 280px; z-index: 50;
+  width: min(var(--radix-popover-trigger-width), calc(100vw - 32px)); min-width: 280px; z-index: 70;  /* above the sheet (60, 61): a combobox opened inside "Điều chỉnh" */
   background: var(--surface); border: var(--border) solid var(--line-strong); border-radius: var(--radius);
   box-shadow: var(--shadow); overflow: hidden; animation: global(rise-in) var(--t) var(--ease-out);
 }

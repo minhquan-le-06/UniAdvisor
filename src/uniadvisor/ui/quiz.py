@@ -85,6 +85,15 @@ def guesses(d: AppData, text: str, answers: dict) -> list[tuple[str, str, str]]:
     return [(g.question, g.option, g.words) for g in d.reader.read(text) if (g.question, g.option) not in have]
 
 
+def maybe_guesses(d: AppData, text: str, answers: dict, rule_guesses: list[tuple[str, str, str]]) -> list[tuple[str, str, str]]:
+    """What the rules did not see, read by meaning (majors/semantic.py); [] when the model is not available."""
+    if d.semantic is None or not text.strip():
+        return []
+    have = {(qid, c) for qid, v in answers.items() for c in ([v] if isinstance(v, str) else (v or []))}
+    have |= {(q, o) for q, o, _ in rule_guesses}
+    return [(g.question, g.option, g.words) for g in d.semantic.read(text, have)]
+
+
 def guess_text(d: AppData, number: dict, g: tuple[str, str, str]) -> str:
     q = d.suggester.qn.get(g[0])
     label = {o.code: o.label for o in q.options}[g[1]]

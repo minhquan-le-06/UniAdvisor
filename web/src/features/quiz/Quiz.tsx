@@ -29,6 +29,7 @@ export function Quiz() {
   const [text, setText] = useState("");
   const [result, setResult] = useState<QuizResult | null>(null);
   const [keep, setKeep] = useState<string[]>([]);
+  const [keepMaybe, setKeepMaybe] = useState<string[]>([]);       // the meaning-based guesses start unticked
   const [busy, setBusy] = useState(false);
 
   if (!qs.length) return <Callout tone="info">Chưa có dữ liệu để gợi ý ngành.</Callout>;
@@ -39,6 +40,7 @@ export function Quiz() {
       const r = await api.questionnaire(next, freeText);
       setResult(r);
       setKeep(r.guesses.map((g) => `${g.question}:${g.option}`));
+      setKeepMaybe([]);
       setPicked(r.answers);
       edit((p) => setAnswers(p, r.answers));
       setTimeout(() => document.getElementById("q-suggest")?.scrollIntoView({ behavior: "smooth", block: "start" }), 120);
@@ -52,8 +54,8 @@ export function Quiz() {
   function addGuesses() {
     if (!result) return;
     const next: Picked = { ...picked };
-    for (const g of result.guesses) {
-      if (!keep.includes(`${g.question}:${g.option}`)) continue;
+    for (const g of [...result.guesses, ...result.maybe]) {
+      if (!keep.includes(`${g.question}:${g.option}`) && !keepMaybe.includes(`${g.question}:${g.option}`)) continue;
       const q = qs.find((x) => x.id === g.question);
       if (!q) continue;
       if (q.kind === "single") next[q.id] = g.option;
@@ -104,12 +106,24 @@ export function Quiz() {
       {result && (
         <div id="q-suggest" className="stack">
           {result.notes.map((n) => <Callout key={n} tone="info">{n}</Callout>)}
-          {result.guesses.length > 0 && (
+          {(result.guesses.length > 0 || result.maybe.length > 0) && (
             <Card tone="tint" className="stack">
-              <strong className="row"><Sparkles size={18} /> Từ phần em kể, ứng dụng đoán thêm:</strong>
-              <PillGroup mode="multi" label="Em bỏ chọn điều nào không đúng, rồi bấm “Thêm vào câu trả lời”."
-                         value={keep} onChange={setKeep}
-                         options={result.guesses.map((g) => ({ value: `${g.question}:${g.option}`, label: g.text }))} />
+              {result.guesses.length > 0 && (
+                <>
+                  <strong className="row"><Sparkles size={18} /> Từ phần em kể, ứng dụng đoán thêm:</strong>
+                  <PillGroup mode="multi" label="Em bỏ chọn điều nào không đúng, rồi bấm “Thêm vào câu trả lời”."
+                             value={keep} onChange={setKeep}
+                             options={result.guesses.map((g) => ({ value: `${g.question}:${g.option}`, label: g.text }))} />
+                </>
+              )}
+              {result.maybe.length > 0 && (
+                <>
+                  <strong className="row"><Sparkles size={18} /> Có thể em muốn nói:</strong>
+                  <PillGroup mode="multi" label="Em chọn điều nào đúng ý em, rồi bấm “Thêm vào câu trả lời”."
+                             value={keepMaybe} onChange={setKeepMaybe}
+                             options={result.maybe.map((g) => ({ value: `${g.question}:${g.option}`, label: g.text }))} />
+                </>
+              )}
               <Button variant="secondary" icon={<Check size={18} />} onClick={addGuesses} disabled={busy}>Thêm vào câu trả lời</Button>
             </Card>
           )}

@@ -33,6 +33,7 @@ from uniadvisor.planner.repository import load_programs
 from uniadvisor.planner.strategy import build_list
 from uniadvisor.majors.model import LearnedScorer
 from uniadvisor.majors.reader import Reader, load_reader
+from uniadvisor.majors.semantic import SemanticReader
 from uniadvisor.majors.score import DataScorer
 
 ENV_DB = "UNIADVISOR_DB"
@@ -146,6 +147,11 @@ class AppData:
                    load_provinces(), year, load_rules(year), load_list_config(), school_names, all_school_names,
                    school_aliases, facts, sheets, change_model, suggester, closeness, career_scorer,
                    load_reader(suggester.qn) if suggester is not None else None)
+
+    @cached_property
+    def semantic(self) -> SemanticReader | None:
+        """The semantic layer of the free-text reader; its model is downloaded and loaded on the first text that needs it."""
+        return SemanticReader(self.reader) if self.reader is not None else None
 
     @cached_property
     def indexes(self) -> Indexes:

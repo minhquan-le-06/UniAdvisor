@@ -57,6 +57,7 @@ export type Meta = {
   score_kinds: string[];
   schools: { code: string; name: string }[];
   limits: { max_picks: number; max_items: number; max_close: number; scales: number[]; max_cutoff_shift: number };
+  score_steps: Record<string, number>;      // the finest division of an exam score: "default", and Toán ("TO") finer
   number_ranges: Record<string, [number, number, number]>;
   questions: Question[];
   has_free_text: boolean;
@@ -250,6 +251,7 @@ export type QuizResult = {
   answers: Record<string, string | string[] | null>;
   notes: string[];
   guesses: { question: string; option: string; words: string; text: string }[];
+  maybe: { question: string; option: string; words: string; text: string }[];
   suggestions: { code: string; label: string; reasons: string[]; children: string[]; more_children: boolean }[];
   answered: number;
 };

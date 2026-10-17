@@ -180,6 +180,8 @@ def test_own_score_changes_the_list(d):
     (Item("set_cutoff_shift", {"school": "HNA", "value": 6}), "tối đa 5"),
     (Item("set_favorite", {"school": "XYZ"}), "không có trong dữ liệu"),
     (Item("set_score", {"subject": "TO", "value": 11}), "từ 0 đến 10"),
+    (Item("set_score", {"subject": "TO", "value": 8.33}), "bước 0,05"),       # Toán is graded to 0.05
+    (Item("set_score", {"subject": "VA", "value": 8.35}), "bước 0,25"),       # the other subjects to 0.25
     (Item("set_budget", {"value": 0}), "triệu đồng"),
     (Item("set_area", {"value": "KV4"}), "Khu vực"),
     (Item("set_close", {"index": 0, "old": None, "new": "74802"}), "ngành cụ thể"),
@@ -261,3 +263,9 @@ def test_diff(d, ctx):
     assert describe_diff(ctx.result, ctx.result, old, old) == "Danh sách không đổi."
     back = describe_diff(d.build_list(new), ctx.result, new, old)
     assert "mới vào vì em đã đưa lại" in back
+
+
+def test_toan_takes_a_score_to_0_05_and_other_subjects_to_0_25(ctx):
+    s = apply(PlanState(), Item("set_score", {"subject": "TO", "value": 8.35}), ctx)
+    s = apply(s, Item("set_score", {"subject": "VA", "value": 7.75}), ctx)
+    assert s.scores == {"TO": 8.35, "VA": 7.75}

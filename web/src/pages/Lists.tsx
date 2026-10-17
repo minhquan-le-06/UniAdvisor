@@ -8,6 +8,7 @@ import type { Card as ListCardData, Missing, Recommend } from "../api/types";
 import { Disclosure } from "../components/Accordion";
 import { Button } from "../components/Button";
 import { Callout } from "../components/Callout";
+import { NoticeBox } from "../components/NoticeBox";
 import { ErrorRetry } from "../components/ErrorRetry";
 import { Card } from "../components/Card";
 import { ListBadge, PickBadge } from "../components/Chips";
@@ -80,7 +81,7 @@ function ListsView({ r, busy }: { r: Recommend; busy: boolean }) {
           <button type="button" className={s.link} onClick={() => navigate("/danh-sach")}>Xem danh sách của em</button>
         </Callout>
       )}
-      {r.notes.map((n) => <Callout key={n} tone="info"><RichText text={n} /></Callout>)}
+      <NoticeBox tone="info" items={r.notes.map((n) => ({ key: n, body: <RichText text={n} /> }))} />
 
       {r.pick && (
         <Reveal eager>
@@ -164,8 +165,10 @@ function ListCard({ c, chosen, choosing, onChoose }: {
               {c.bad.map((b) => <li key={b}><span className={s.no} aria-label="Đổi lại">✘</span><span><RichText text={b} /></span></li>)}
             </ul>
           )}
-          {c.warning && <Callout tone="warn"><RichText text={c.warning} /></Callout>}
-          {c.notes.map((n) => <div key={n} className="xs muted"><RichText text={n} /></div>)}
+          <NoticeBox compact tone="warn" items={c.warning ? [{ key: "warning", body: <RichText text={c.warning} /> }] : []} />
+          <NoticeBox compact tone="info" items={
+            c.notes.length === 1 ? [{ key: "note", body: <RichText text={c.notes[0]} /> }]
+              : c.notes.length > 1 ? [{ key: "notes", body: "Về các nguyện vọng:", details: c.notes.map((n) => <RichText key={n} text={n} />) }] : []} />
           {c.wish_items && (
             <Disclosure title={<span className="row"><ListOrdered size={18} /> Xem {c.n_wishes} nguyện vọng</span>}>
               <div className={s.miniList}>{c.wish_items.map((w) => <WishCard key={w.nv} w={w} compact />)}</div>
