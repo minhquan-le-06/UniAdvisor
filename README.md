@@ -16,11 +16,9 @@
 
 </div>
 
-> [!IMPORTANT]
-> **Repo này chỉ dùng để nộp cho BTC (MLAI Hackathon 2026), không dùng để chạy demo.**
-> Cơ sở dữ liệu (`uniadvisor.db`) và dữ liệu thô đã được lược bỏ, nên ứng dụng không chạy được từ repo này.
-> Vui lòng dùng bản đã triển khai: **[uniadvisor-bkq.vercel.app](https://uniadvisor-bkq.vercel.app/)**
-> (lần mở đầu có thể chậm vài giây vì máy chủ phải nạp dữ liệu).
+> [!NOTE]
+> Cơ sở dữ liệu (`uniadvisor.db`) và dữ liệu thô đã được lược bỏ khỏi repo này, nên ứng dụng không chạy được trực tiếp từ đây.
+> Dùng bản đã triển khai: **[uniadvisor-bkq.vercel.app](https://uniadvisor-bkq.vercel.app/)** (lần mở đầu có thể chậm vài giây vì máy chủ phải nạp dữ liệu).
 
 ## ✨ UniAdvisor làm được gì
 
@@ -88,6 +86,13 @@ Chạy bộ test (không cần dữ liệu thật): `pip install -e ".[dev,ui]"`
 > Sản phẩm này có dùng thông tin từ [O\*NET 31.0 Database](https://www.onetcenter.org/database.html) của U.S. Department of Labor, Employment and Training Administration (USDOL/ETA), theo giấy phép [CC BY 4.0](https://www.onetcenter.org/license_db.html). UniAdvisor đã chỉnh sửa thông tin (chọn lọc, dịch sang tiếng Việt, tổng hợp theo ngành). USDOL/ETA không phê duyệt, bảo trợ hay kiểm tra các chỉnh sửa này.
 
 Dữ liệu huấn luyện (học sinh và tin nhắn giả lập) do các mô hình mở Qwen 2.5, Aya Expanse và Gemma 2 viết (6.689 hồ sơ học sinh sau khi làm sạch); dòng thứ tư, Mistral (SeaLLM-7B-v2), chỉ dùng để kiểm thử. Mỗi mô hình theo giấy phép riêng của nó.
+
+## 👥 Đội ngũ
+
+- [@minhquan-le-06](https://github.com/minhquan-le-06)
+- [@BaoPhucxD14022006](https://github.com/BaoPhucxD14022006)
+- [@GiaHuy-2546](https://github.com/GiaHuy-2546)
+- [@tranxuanbach7678](https://github.com/tranxuanbach7678)
 
 ---
 
