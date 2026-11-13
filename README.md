@@ -89,10 +89,10 @@ Dữ liệu huấn luyện (học sinh và tin nhắn giả lập) do các mô h
 
 ## 👥 Đội ngũ
 
-- [@minhquan-le-06](https://github.com/minhquan-le-06)
-- [@BaoPhucxD14022006](https://github.com/BaoPhucxD14022006)
-- [@GiaHuy-2546](https://github.com/GiaHuy-2546)
-- [@tranxuanbach7678](https://github.com/tranxuanbach7678)
+- Lê Minh Quân ([@minhquan-le-06](https://github.com/minhquan-le-06))
+- Lê Bảo Phúc ([@BaoPhucxD14022006](https://github.com/BaoPhucxD14022006))
+- Võ Lê Gia Huy ([@GiaHuy-2546](https://github.com/GiaHuy-2546))
+- Trần Xuân Bách ([@tranxuanbach7678](https://github.com/tranxuanbach7678))
 
 ---
 
