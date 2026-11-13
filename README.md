@@ -6,6 +6,8 @@
 
 *Trợ lý dành cho học sinh lớp 12. Phiên bản hiện tại: 159 trường ở Hà Nội và TP.HCM, xét bằng điểm thi tốt nghiệp THPT.*
 
+🏆 *Top 12 Track TMA, MLAI Hackathon 2026.*
+
 [![Demo](https://img.shields.io/badge/%F0%9F%9A%80_Demo_tr%E1%BB%B1c_ti%E1%BA%BFp-uniadvisor--bkq.vercel.app-ff6b4a?style=for-the-badge)](https://uniadvisor-bkq.vercel.app/)
 
 ![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
